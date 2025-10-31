@@ -59,10 +59,11 @@ public class EgggUtil {
         }
     }
 
-    /**
-     * 获取类型包装器
-     */
     public static TypeEggg getTypeEggg(Type type) {
         return eggg.getTypeEggg(type);
+    }
+
+    public static ClassEggg getClassEggg(Type type) {
+        return getTypeEggg(type).getClassEggg();
     }
 }
