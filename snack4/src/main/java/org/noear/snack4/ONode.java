@@ -394,7 +394,9 @@ public final class ONode {
     }
 
     public ONode setAll(Map<?, ?> map) {
-        Objects.requireNonNull(map, "map");
+        if (map == null) {
+            return this;
+        }
 
         for (Map.Entry entry : map.entrySet()) {
             set(String.valueOf(entry.getKey()), entry.getValue());
@@ -514,7 +516,9 @@ public final class ONode {
     }
 
     public ONode addAll(Collection collection) {
-        Objects.requireNonNull(collection, "collection");
+        if (collection == null) {
+            return this;
+        }
 
         for (Object o : collection) {
             add(o);
