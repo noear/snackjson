@@ -40,6 +40,11 @@ public abstract class TypeRef<T> {
         this.initialType = ((ParameterizedType) sc).getActualTypeArguments()[0];
     }
 
+    protected TypeRef(Type initialType, Map<String, Type> genericInfo) {
+        this.initialType = initialType;
+        this.genericInfo = genericInfo;
+    }
+
 
     public TypeRef<T> where(String typeVar, Type type) {
         if (genericInfo == null) {
@@ -95,18 +100,18 @@ public abstract class TypeRef<T> {
         return type;
     }
 
-    public static <E> TypeRef<List<E>> listOf(Type elementType) {
-        return new TypeRef<List<E>>() {
-        }.where("E", elementType);
+    public static <E> TypeRef<List<E>> listOf(Class<E> elementType) {
+        return new TypeRef<List<E>>(new GenericResolver.ParameterizedTypeImpl(List.class, new Type[]{elementType}), null) {
+        };
     }
 
-    public static <E> TypeRef<Set<E>> setOf(Type elementType) {
-        return new TypeRef<Set<E>>() {
-        }.where("E", elementType);
+    public static <E> TypeRef<Set<E>> setOf(Class<E> elementType) {
+        return new TypeRef<Set<E>>(new GenericResolver.ParameterizedTypeImpl(Set.class, new Type[]{elementType}), null) {
+        };
     }
 
-    public static <K, V> TypeRef<Map<K, V>> mapOf(Type keyType, Type valueType) {
-        return new TypeRef<Map<K, V>>() {
-        }.where("K", keyType).where("V", valueType);
+    public static <K, V> TypeRef<Map<K, V>> mapOf(Class<K> keyType, Class<V> valueType) {
+        return new TypeRef<Map<K, V>>(new GenericResolver.ParameterizedTypeImpl(Map.class, new Type[]{keyType, valueType}), null) {
+        };
     }
 }
