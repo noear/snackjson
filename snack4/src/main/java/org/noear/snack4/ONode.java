@@ -856,17 +856,16 @@ public final class ONode {
             return false;
         }
 
+        if(trimmed.length() < 2){
+            return false;
+        }
+
         char first = trimmed.charAt(0);
         char last = trimmed.charAt(trimmed.length() - 1);
 
         // 检查首尾字符
-        if (!((first == '{' && last == '}') || (first == '[' && last == ']'))) {
-            return false;
-        }
-
-        // 简单检查引号数量（应该是偶数）
-        long quoteCount = trimmed.chars().filter(ch -> ch == '"').count();
-        return quoteCount % 2 == 0;
+        return (first == '{' && last == '}') ||
+                (first == '[' && last == ']');
     }
 
     public static String serialize(Object object, Feature... features) {
