@@ -1,4 +1,8 @@
 
+### 4.0.8
+
+* 移除 ONode:hasNestedJson 方法
+
 ### 4.0.7
 
 * 添加 TypeRef:listOf, setOf,mapOf 方法

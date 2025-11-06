@@ -845,15 +845,6 @@ public final class ONode {
 
     ///
 
-    /**
-     * @deprecated 4.0 {@link FormatUtil#hasNestedJsonBlock(String)}
-     *
-     */
-    @Deprecated
-    public static boolean hasNestedJson(String str) {
-        return FormatUtil.hasNestedJsonBlock(str);
-    }
-
     public static String serialize(Object object, Feature... features) {
         if (Asserts.isEmpty(features)) {
             return serialize(object, Options.DEF_OPTIONS);
