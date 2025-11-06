@@ -1,4 +1,4 @@
-package features.snack4.jsonschema;
+package features.snack4.jsonschema.manual;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

@@ -11,7 +11,7 @@ import java.util.stream.Stream;
  */
 public class ClassAsOne {
     public static void main(String[] args) throws IOException {
-        print("/src/main/java/org/noear/snack/query");
+        print("/snack4-jsonschema/src/main/java/org/noear/snack4/jsonschema");
         //print("/src/test/java/features/");
     }
 

@@ -23,10 +23,7 @@ import org.noear.snack4.jsonschema.rule.ValidationRule;
 import org.noear.snack4.jsonschema.util.SchemaUtil;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * JSON模式验证器，支持JSON Schema规范
@@ -44,6 +41,8 @@ public class JsonSchema {
     }
 
     public static JsonSchema ofType(Type type) {
+        Objects.requireNonNull(type, "type");
+
         return new JsonSchema(SchemaUtil.buildTypeSchemaNode(type, "", new  ONode()));
     }
 

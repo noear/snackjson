@@ -1,4 +1,4 @@
-package features.snack4.jsonschema;
+package features.snack4.jsonschema.manual;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -6,7 +6,6 @@ import org.noear.eggg.MethodEggg;
 import org.noear.snack4.annotation.ONodeAttr;
 import org.noear.snack4.codec.util.EgggUtil;
 import org.noear.snack4.jsonschema.JsonSchema;
-import org.noear.solon.annotation.Param;
 
 import java.util.List;
 

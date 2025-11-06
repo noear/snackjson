@@ -131,15 +131,33 @@ public class SchemaUtil {
      * 构建类型的架构节点
      */
     public static ONode buildTypeSchemaNode(Type type, String description, ONode schemaNode) {
+        if (type == void.class) {
+            return schemaNode;
+        }
+
         if (type instanceof ParameterizedType) {
             //处理 ParameterizedType 类型（泛型），如 List<T>、Map<K,V>、Optional<T> 等
             handleParameterizedType(EgggUtil.getTypeEggg(type), description, schemaNode);
         } else if (type instanceof Class<?>) {
             //处理普通 Class 类型：数组、枚举、POJO 等
             handleClassType((Class<?>) type, description, schemaNode);
+        } else if (type instanceof GenericArrayType) {
+            handleGenericArrayType((GenericArrayType) type, description, schemaNode);
+        } else if (type instanceof TypeVariable) {
+            // 处理泛型变量，默认为 object
+            schemaNode.set("type", TYPE_OBJECT);
+        } else if (type instanceof WildcardType) {
+            // 处理通配符类型，获取上界
+            WildcardType wildcardType = (WildcardType) type;
+            Type[] upperBounds = wildcardType.getUpperBounds();
+            if (upperBounds.length > 0 && upperBounds[0] != Object.class) {
+                buildTypeSchemaNode(upperBounds[0], description, schemaNode);
+            } else {
+                schemaNode.set("type", TYPE_OBJECT);
+            }
         } else {
-            // 默认为 string 类型
-            schemaNode.set("type", TYPE_STRING);
+            // 未知类型默认为 object
+            schemaNode.set("type", TYPE_OBJECT);
         }
 
         if (Asserts.isNotEmpty(description)) {
@@ -199,7 +217,12 @@ public class SchemaUtil {
 
         // —— 3. Optional<T> ——
         if (isOptionalType(typeEggg.getType())) {
-            buildTypeSchemaNode(typeEggg.getActualTypeArguments()[0], description, schemaNode);
+            Type[] actualTypeArguments = typeEggg.getActualTypeArguments();
+            if (actualTypeArguments.length > 0) {
+                buildTypeSchemaNode(actualTypeArguments[0], description, schemaNode);
+            } else {
+                schemaNode.set("type", TYPE_OBJECT);
+            }
             return;
         }
 
@@ -213,6 +236,15 @@ public class SchemaUtil {
 
         // —— fallback ——
         schemaNode.set("type", TYPE_OBJECT);
+    }
+
+    /**
+     * 处理泛型数组类型（新增）
+     */
+    private static void handleGenericArrayType(GenericArrayType genericArrayType, String description, ONode schemaNode) {
+        schemaNode.set("type", TYPE_ARRAY);
+        Type componentType = genericArrayType.getGenericComponentType();
+        buildTypeSchemaNode(componentType, null, schemaNode.getOrNew("items"));
     }
 
 
@@ -266,14 +298,14 @@ public class SchemaUtil {
         // Collection
         if (Collection.class.isAssignableFrom(clazz)) {
             schemaNode.set("type", TYPE_ARRAY);
-            //schemaNode.getOrNew("items").set("type", TYPE_OBJECT); // fallback
+            schemaNode.getOrNew("items").set("type", TYPE_OBJECT); // fallback
             return;
         }
 
         // Map
         if (Map.class.isAssignableFrom(clazz)) {
             schemaNode.set("type", TYPE_OBJECT);
-            //schemaNode.getOrNew("properties").set("type", TYPE_OBJECT); // fallback
+            schemaNode.getOrNew("additionalProperties").set("type", TYPE_OBJECT); // fallback
             return;
         }
 
@@ -421,6 +453,15 @@ public class SchemaUtil {
             return (Class<?>) ((ParameterizedType) type).getRawType();
         } else if (type instanceof Class) {
             return (Class<?>) type;
+        } else if (type instanceof GenericArrayType) {
+            // 泛型数组的原始类型是 Object[].class
+            return Object[].class;
+        } else if (type instanceof TypeVariable) {
+            // 泛型变量的原始类型是 Object.class
+            return Object.class;
+        } else if (type instanceof WildcardType) {
+            // 通配符类型的原始类型是 Object.class
+            return Object.class;
         } else {
             throw new IllegalArgumentException("Unsupported type: " + type);
         }
