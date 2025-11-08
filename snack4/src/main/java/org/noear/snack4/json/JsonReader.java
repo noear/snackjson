@@ -506,25 +506,16 @@ public class JsonReader {
     }
 
     private ONode parseKeyword(String expect, Object value) throws IOException {
-        // 优化：批量比较
-        int expectLength = expect.length();
+        // 逐个字符验证，避免数组越界
+        for (int i = 0; i < expect.length(); i++) {
+            char expectedChar = expect.charAt(i);
+            char actualChar = state.nextChar(); // 使用 nextChar 确保自动处理缓冲区填充
 
-        // 确保缓冲区有足够数据
-        if (state.bufferPosition + expectLength > state.bufferLimit) {
-            if (!state.fillBuffer()) {
-                throw state.error("Unexpected end of input in keyword");
-            }
-        }
-
-        // 批量比较
-        for (int i = 0; i < expectLength; i++) {
-            if (state.buffer[state.bufferPosition + i] != expect.charAt(i)) {
+            if (actualChar != expectedChar) {
                 throw state.error("Unexpected keyword: expected '" + expect + "'");
             }
         }
 
-        // 一次性前进位置
-        state.bufferPosition += expectLength;
         return new ONode(opts, value);
     }
 
