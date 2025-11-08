@@ -18,6 +18,7 @@ package org.noear.snack4.codec.encode;
 import org.noear.eggg.FieldEggg;
 import org.noear.snack4.Feature;
 import org.noear.snack4.ONode;
+import org.noear.snack4.annotation.ONodeAttrHolder;
 import org.noear.snack4.codec.EncodeContext;
 import org.noear.snack4.codec.ObjectPatternEncoder;
 import org.noear.snack4.codec.util.EgggUtil;
@@ -50,7 +51,9 @@ public class _EnumPatternEncoder implements ObjectPatternEncoder<Enum> {
                 return target.setValue(value.name());
             } else if (ctx.hasFeature(Feature.Write_EnumShapeAsObject)) {
                 for (FieldEggg fe : EgggUtil.getClassEggg(value.getClass()).getAllFieldEgggs()) {
-                    if (fe.isStatic() || fe.getField().getDeclaringClass() == Enum.class) {
+                    if (fe.isStatic() || fe.isTransient() ||
+                            fe.<ONodeAttrHolder>getDigest().isEncode() == false ||
+                            fe.getField().getDeclaringClass() == Enum.class) {
                         continue;
                     }
 
