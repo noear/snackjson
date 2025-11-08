@@ -1,4 +1,8 @@
 
+### 4.0.10
+
+* eggg 升为 1.0.4
+
 ### 4.0.9
 
 * 修复 issue-ID5NQL parseKeyword 可能越界的问题
