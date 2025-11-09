@@ -46,6 +46,13 @@ public class EnumTest2 {
 
     @Test
     public void case11() {
+        String json = ONode.serialize(Gender4.MALE);
+        System.out.println(json);
+        Assertions.assertEquals("{\"code\":11,\"name\":\"男\"}", json);
+    }
+
+    @Test
+    public void case20() {
         Assertions.assertEquals(Gender.MALE, ONode.deserialize("1", Gender.class));
         Assertions.assertEquals(Gender.MALE, ONode.deserialize("\"MALE\"", Gender.class));
 
@@ -134,5 +141,30 @@ public class EnumTest2 {
             this.code = code;
             this.name = name;
         }
+    }
+
+    @ONodeAttr(features = Feature.Write_EnumShapeAsObject)
+    public static enum Gender4 {
+        UNKNOWN(10, "未知的性别"),
+        MALE(11, "男"),
+        FEMALE(12, "女"),
+        UNSTATED(19, "未说明的性别");
+
+        private final int code;
+        private final String name;
+
+        Gender4(int code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getName() {
+            return name;
+        }
+
     }
 }

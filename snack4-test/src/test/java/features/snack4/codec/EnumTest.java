@@ -13,14 +13,15 @@ import org.noear.snack4.annotation.ONodeCreator;
  *
  */
 public class EnumTest {
-    private User user = new User("Pack_xg", 33, Gender.MALE);
-    private User2 user2 = new User2("Pack_xg", 33, Gender.MALE);
+    private User user = new User("solon", 33, Gender.MALE);
+    private User2 user2 = new User2("solon", 33, Gender.MALE);
+    private User3 user3 = new User3("solon", 33, Gender3.MALE);
 
     @Test
     public void case11() {
         String json = ONode.serialize(user);
         System.out.println(json);
-        Assertions.assertEquals("{\"name\":\"Pack_xg\",\"age\":33,\"gender\":1}", json);
+        Assertions.assertEquals("{\"name\":\"solon\",\"age\":33,\"gender\":1}", json);
     }
 
     @Test
@@ -28,7 +29,7 @@ public class EnumTest {
         String json = ONode.serialize(user, Feature.Write_EnumUsingName);
         System.out.println(json);
 
-        Assertions.assertEquals("{\"name\":\"Pack_xg\",\"age\":33,\"gender\":\"MALE\"}", json);
+        Assertions.assertEquals("{\"name\":\"solon\",\"age\":33,\"gender\":\"MALE\"}", json);
     }
 
     @Test
@@ -36,7 +37,7 @@ public class EnumTest {
         String json = ONode.serialize(user, Feature.Write_EnumUsingToString);
         System.out.println(json);
 
-        Assertions.assertEquals("{\"name\":\"Pack_xg\",\"age\":33,\"gender\":\"男\"}", json);
+        Assertions.assertEquals("{\"name\":\"solon\",\"age\":33,\"gender\":\"男\"}", json);
     }
 
     @Test
@@ -44,7 +45,7 @@ public class EnumTest {
         String json = ONode.serialize(user, Feature.Write_EnumShapeAsObject);
         System.out.println(json);
 
-        Assertions.assertEquals("{\"name\":\"Pack_xg\",\"age\":33,\"gender\":{\"code\":11,\"name\":\"男\"}}", json);
+        Assertions.assertEquals("{\"name\":\"solon\",\"age\":33,\"gender\":{\"code\":11,\"name\":\"男\"}}", json);
     }
 
     @Test
@@ -52,7 +53,15 @@ public class EnumTest {
         String json = ONode.serialize(user2);
         System.out.println(json);
 
-        Assertions.assertEquals("{\"name\":\"Pack_xg\",\"age\":33,\"gender\":{\"code\":11,\"name\":\"男\"}}", json);
+        Assertions.assertEquals("{\"name\":\"solon\",\"age\":33,\"gender\":{\"code\":11,\"name\":\"男\"}}", json);
+    }
+
+    @Test
+    public void case16() {
+        String json = ONode.serialize(user3);
+        System.out.println(json);
+
+        Assertions.assertEquals("{\"name\":\"solon\",\"age\":33,\"gender\":{\"code\":11,\"name\":\"男\"}}", json);
     }
 
     @Test
@@ -68,7 +77,7 @@ public class EnumTest {
 
     @Test
     public void case22() {
-        String json = "{\"name\":\"Pack_xg\",\"age\":33,\"gender\":11}";
+        String json = "{\"name\":\"solon\",\"age\":33,\"gender\":11}";
         System.out.println(json);
 
         User user1 = ONode.deserialize(json, User.class);
@@ -163,6 +172,54 @@ public class EnumTest {
             }
 
             return UNKNOWN;
+        }
+    }
+
+    public static class User3 {
+        private final String name;
+        private final int age;
+        private final Gender3 gender;
+
+        public User3(String name, int age, Gender3 gender) {
+            this.name = name;
+            this.age = age;
+            this.gender = gender;
+        }
+
+        public String name() {
+            return name;
+        }
+
+        public int age() {
+            return age;
+        }
+
+        public Gender3 gender() {
+            return gender;
+        }
+    }
+
+    @ONodeAttr(features = Feature.Write_EnumShapeAsObject)
+    public static enum Gender3 {
+        UNKNOWN(10, "未知的性别"),
+        MALE(11, "男"),
+        FEMALE(12, "女"),
+        UNSTATED(19, "未说明的性别");
+
+        private final int code;
+        private final String name;
+
+        Gender3(int code, String name) {
+            this.code = code;
+            this.name = name;
+        }
+
+        public int getCode() {
+            return code;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 }

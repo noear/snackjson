@@ -1,4 +1,8 @@
 
+### 4.0.11
+
+* 添加 ONodeAttr 注解到类支持
+
 ### 4.0.10
 
 * 添加 _EnumPatternEncoder 支持 Write_EnumShapeAsObject 特性（可以把 Enum 转为 Json Object）//只适合小范围使用

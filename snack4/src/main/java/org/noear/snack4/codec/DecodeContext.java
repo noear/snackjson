@@ -35,9 +35,16 @@ public class DecodeContext<T> {
 
     public DecodeContext(Options options, ONodeAttrHolder attr, T target, TypeEggg typeEggg) {
         this.options = options;
-        this.attr = attr;
         this.target = target;
         this.typeEggg = typeEggg;
+
+        if (attr == null || attr.isEmpty()) {
+            if (typeEggg.isJdkType() == false) {
+                attr = typeEggg.getClassEggg().getDigest();
+            }
+        }
+
+        this.attr = attr;
     }
 
     public Options getOptions() {
@@ -65,7 +72,7 @@ public class DecodeContext<T> {
     }
 
     public boolean hasFeature(Feature feature) {
-        if (attr != null) {
+        if (attr != null && attr.isEmpty() == false) {
             if (attr.hasFeature(feature)) {
                 return true;
             }

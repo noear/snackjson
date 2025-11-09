@@ -114,13 +114,13 @@ public class BeanEncoder {
         }
 
         if (value instanceof ObjectEncoder) {
-            return ((ObjectEncoder) value).encode(new EncodeContext(opts, attr), value, new ONode(opts));
+            return ((ObjectEncoder) value).encode(new EncodeContext(opts, attr, value), value, new ONode(opts));
         }
 
         // 优先使用自定义编解码器
         ObjectEncoder codec = opts.getEncoder(value);
         if (codec != null) {
-            return codec.encode(new EncodeContext(opts, attr), value, new ONode(opts));
+            return codec.encode(new EncodeContext(opts, attr, value), value, new ONode(opts));
         }
 
         if (value instanceof Collection) {
@@ -200,7 +200,7 @@ public class BeanEncoder {
         ONodeAttrHolder attr = property.getDigest();
 
         if (attr.getEncoder() != null) {
-            propNode = attr.getEncoder().encode(new EncodeContext(opts, attr), propValue, new ONode(opts));
+            propNode = attr.getEncoder().encode(new EncodeContext(opts, attr, propValue), propValue, new ONode(opts));
         } else {
             if (propValue == null) {
                 TypeEggg ptw = property.getTypeEggg();

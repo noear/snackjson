@@ -40,6 +40,7 @@ public class ONodeAttrHolder {
     private TimeZone timezone;
 
     private boolean flat;
+    private final boolean empty;
 
     private boolean encode = true;
     private boolean decode = true;
@@ -77,9 +78,15 @@ public class ONodeAttrHolder {
             }
 
             featuresValue = Feature.addFeatures(0L, attrAnno.features());
+
+            //为空
+            empty = false;
+        } else {
+            //非空（即没有注解）
+            empty = true;
         }
 
-        if(Asserts.isEmpty(alias)){
+        if (Asserts.isEmpty(alias)) {
             alias = realName;
         }
     }
@@ -110,6 +117,10 @@ public class ONodeAttrHolder {
 
     public boolean isFlat() {
         return flat;
+    }
+
+    public boolean isEmpty() {
+        return empty;
     }
 
     public boolean hasFeature(Feature feature) {

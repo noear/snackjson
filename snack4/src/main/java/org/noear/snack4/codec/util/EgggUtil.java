@@ -41,7 +41,7 @@ public class EgggUtil {
         }
     }
 
-    private static Object doDigestHandle(ClassEggg cw, AnnotatedEggg s, Object ref) {
+    private static Object doDigestHandle(ClassEggg ce, AnnotatedEggg s, Object ref) {
         ONodeAttr attr = s.getElement().getAnnotation(ONodeAttr.class);
 
         if (attr == null && ref != null) {
@@ -54,9 +54,13 @@ public class EgggUtil {
             return new ONodeAttrHolder(attr, Property.resolvePropertyName(((Method) s.getElement()).getName()));
         } else if (s instanceof ParamEggg) {
             return new ONodeAttrHolder(attr, ((Parameter) s.getElement()).getName());
-        } else {
-            return null;
+        } else if (s instanceof ClassEggg) {
+            if (attr != null) {
+                return new ONodeAttrHolder(attr, ((Class) s.getElement()).getName());
+            }
         }
+
+        return null;
     }
 
     public static TypeEggg getTypeEggg(Type type) {

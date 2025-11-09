@@ -15,9 +15,11 @@
  */
 package org.noear.snack4.codec;
 
+import org.noear.eggg.TypeEggg;
 import org.noear.snack4.Feature;
 import org.noear.snack4.Options;
 import org.noear.snack4.annotation.ONodeAttrHolder;
+import org.noear.snack4.codec.util.EgggUtil;
 
 /**
  *
@@ -28,8 +30,16 @@ public class EncodeContext {
     private final Options options;
     private final ONodeAttrHolder attr;
 
-    public EncodeContext(Options options, ONodeAttrHolder attr) {
+    public EncodeContext(Options options, ONodeAttrHolder attr, Object value) {
         this.options = options;
+
+        if (attr == null || attr.isEmpty()) {
+            TypeEggg typeEggg = EgggUtil.getTypeEggg(value.getClass());
+            if (typeEggg.isJdkType() == false) {
+                attr = typeEggg.getClassEggg().getDigest();
+            }
+        }
+
         this.attr = attr;
     }
 
@@ -42,7 +52,7 @@ public class EncodeContext {
     }
 
     public boolean hasFeature(Feature feature) {
-        if (attr != null) {
+        if (attr != null && attr.isEmpty() == false) {
             if (attr.hasFeature(feature)) {
                 return true;
             }

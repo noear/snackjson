@@ -16,7 +16,7 @@ public class SpeedSnack4Test {
      */
     @Test
     public void test00() throws Exception {
-        //10000=>2377,2190,2285 //2203,2205,2140
+        //10000=>2377,2190,2285 //2203,2205,2140 //2540,2680,2318
         //
         //
         //62kb
@@ -41,7 +41,7 @@ public class SpeedSnack4Test {
      */
     @Test
     public void test0() throws Exception {
-        //100000=>950,931,939    //100=>.95 //1462,1456,1459
+        //100000=>950,931,939    //100=>.95 //1462,1456,1459 //1890,1808,1768
         //
         //1kb
         //
@@ -62,7 +62,7 @@ public class SpeedSnack4Test {
 
     @Test
     public void test1() throws Exception {
-        //1000,000=>1695,1713,1738 //2994,2960,2801
+        //1000,000=>1695,1713,1738 //2994,2960,2801 //4530,4696,4570
         //
         //
         Map<String, Object> obj = new LinkedHashMap<>();
@@ -96,7 +96,7 @@ public class SpeedSnack4Test {
 
     @Test
     public void test2() throws Exception {
-        //100000=>1473,1493,1494 //2367,2367,2441
+        //100000=>1473,1493,1494 //2367,2367,2441 //4251,4298,4304
         //
         //
         UserGroupModel group = new UserGroupModel();
@@ -140,7 +140,7 @@ public class SpeedSnack4Test {
         //
         //10000000=>72s,71s,72s
         //1000000=>7.9s,7.8s
-        //100000=>1.6s,1.6s,1.5s //2976,2934,2917
+        //100000=>1.6s,1.6s,1.5s //2976,2934,2917 //3427,4217,4427
         //
         UserGroupModel group = new UserGroupModel();
         group.id = 9999;
@@ -183,7 +183,7 @@ public class SpeedSnack4Test {
         //
         //10000000=>6.3s,6.4s
         //1000000=>6.8s
-        //100000=>958  //1385,1394,1392
+        //100000=>958  //1385,1394,1392 //2799,2840,2744
         //
         UserGroupModel group = new UserGroupModel();
         group.id = 9999;
