@@ -1,4 +1,4 @@
-package features.snack4.codec;
+package features.snack4.issue;
 
 import lombok.Data;
 import org.junit.jupiter.api.Test;
@@ -10,7 +10,7 @@ import java.util.List;
  * @author noear 2025/11/10 created
  *
  */
-public class GenericsTest {
+public class Issue_ID5SJ6 {
     @Test
     public void case1() {
         String json = "{'defaultPlatform':'iOs', 'localPlus':[{'code':1, 'name':'aaa'}]}";
