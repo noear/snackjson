@@ -79,7 +79,6 @@ public class BeanDecoder {
     public <T> T decode() {
         TypeEggg typeEggg = EgggUtil.getTypeEggg(targetType0);
 
-
         try {
             return (T) decodeValueFromNode(source0, typeEggg, target0, null);
         } catch (Throwable e) {
@@ -202,7 +201,7 @@ public class BeanDecoder {
         } else {
             //以类为主，才能支持 flat
             for (PropertyEggg pe : classEggg.getPropertyEgggs()) {
-                if (classEggg.getCreator() != null) {
+                if (classEggg.getCreator() != null && classEggg.getCreator().getParamCount() > 0) {
                     if (classEggg.getCreator().hasParamEgggByAlias(pe.getAlias())) {
                         continue;
                     }
@@ -262,6 +261,16 @@ public class BeanDecoder {
             elementType = typeEggg.getActualTypeArguments()[0];
         }
 
+        if(elementType instanceof WildcardType) {
+            WildcardType tmp = (WildcardType) elementType;
+
+            if(Asserts.isEmpty(tmp.getLowerBounds())){
+                elementType =  tmp.getUpperBounds()[0];
+            } else {
+                elementType =  tmp.getLowerBounds()[0];
+            }
+        }
+
         Collection coll = (Collection) target;
 
         if (node.isArray()) {
@@ -311,6 +320,16 @@ public class BeanDecoder {
             if (targetTypeEggg.isParameterizedType()) {
                 keyType = targetTypeEggg.getActualTypeArguments()[0];
                 valueType = targetTypeEggg.getActualTypeArguments()[1];
+            }
+
+            if(valueType instanceof WildcardType) {
+                WildcardType tmp = (WildcardType) valueType;
+
+                if(Asserts.isEmpty(tmp.getLowerBounds())){
+                    valueType =  tmp.getUpperBounds()[0];
+                } else {
+                    valueType =  tmp.getLowerBounds()[0];
+                }
             }
 
             TypeEggg keyTypeEggg = EgggUtil.getTypeEggg(keyType);
@@ -390,7 +409,7 @@ public class BeanDecoder {
 
         if (def.getType() != Object.class
                 && def.isInterface() == false
-                && Modifier.isAbstract(def.getType().getModifiers()) == false) {
+                && def.isAbstract() == false) {
             // 如果自定义了类型，则自定义的类型优先
             return def;
         }
@@ -410,21 +429,21 @@ public class BeanDecoder {
                 if (n1 != null) {
                     typeStr = n1.getString();
                 }
-            }
 
-            if (Asserts.isEmpty(typeStr) == false) {
-                if (typeStr.startsWith("sun.") ||
-                        typeStr.startsWith("com.sun.") ||
-                        typeStr.startsWith("javax.") ||
-                        typeStr.startsWith("jdk.")) {
-                    throw new CodecException("Unsupported type, class: " + typeStr);
-                }
+                if (Asserts.isNotEmpty(typeStr)) {
+                    if (typeStr.startsWith("sun.") ||
+                            typeStr.startsWith("com.sun.") ||
+                            typeStr.startsWith("javax.") ||
+                            typeStr.startsWith("jdk.")) {
+                        throw new CodecException("Unsupported type, class: " + typeStr);
+                    }
 
-                Class<?> clz = opts.loadClass(typeStr);
-                if (clz == null) {
-                    throw new CodecException("Unsupported type, class: " + typeStr);
-                } else {
-                    return EgggUtil.getTypeEggg(clz);
+                    Class<?> clz = opts.loadClass(typeStr);
+                    if (clz == null) {
+                        throw new CodecException("Unsupported type, class: " + typeStr);
+                    } else {
+                        return EgggUtil.getTypeEggg(clz);
+                    }
                 }
             }
         }
