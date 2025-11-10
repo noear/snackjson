@@ -66,12 +66,21 @@ public class FeatureTest {
     }
 
     @Test
-    public void Read_ConvertSnakeToCamel() {
+    public void Read_ConvertSnakeToSmlCamel() {
         assert ONode.ofJson("{user_info:'1'}", Feature.Read_ConvertSnakeToSmlCamel)
                 .get("userInfo").isString();
 
         assert ONode.ofJson("{user_info:'1'}")
                 .get("userInfo").isNull();
+    }
+
+    @Test
+    public void Read_ConvertCamelToSmlSnake() {
+        assert ONode.ofJson("{userInfo:'1'}", Feature.Read_ConvertCamelToSmlSnake)
+                .get("user_info").isString();
+
+        assert ONode.ofJson("{userInfo:'1'}")
+                .get("user_info").isNull();
     }
 
     @Test
@@ -320,7 +329,25 @@ public class FeatureTest {
     }
 
     @Test
-    public void Write_UseSnakeStyle() {
+    public void Write_UseSmlSnakeStyle() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("userId", 1);
+
+        String json = ONode.ofBean(data, Feature.Write_UseSmlSnakeStyle).toJson();
+        Assertions.assertEquals("{\"user_id\":1}", json);
+    }
+
+    @Test
+    public void Write_UseSmlCamelStyle() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("user_id", 1);
+
+        String json = ONode.ofBean(data, Feature.Write_UseSmlCamelStyle).toJson();
+        Assertions.assertEquals("{\"userId\":1}", json);
+    }
+
+    @Test
+    public void Write_UseSmlSnakeStyle2() {
         Map<String, Object> data = new HashMap<>();
         data.put("userId", 1);
 
@@ -331,6 +358,20 @@ public class FeatureTest {
         json = ONode.ofBean(data, Feature.Write_UseSmlSnakeStyle).toJson();
         System.out.println(json);
         Assertions.assertEquals("{\"user_id\":1}", json);
+    }
+
+    @Test
+    public void Write_UseSmlCamelStyle2() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("user_id", 1);
+
+        String json = ONode.ofBean(data).toJson();
+        System.out.println(json);
+        Assertions.assertEquals("{\"user_id\":1}", json);
+
+        json = ONode.ofBean(data, Feature.Write_UseSmlCamelStyle).toJson();
+        System.out.println(json);
+        Assertions.assertEquals("{\"userId\":1}", json);
     }
 
     @Test
