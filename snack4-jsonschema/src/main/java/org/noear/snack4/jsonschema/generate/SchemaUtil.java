@@ -38,6 +38,8 @@ public class SchemaUtil {
 
     public static final String NAME_REF = "$ref";
     public static final String NAME_SCHEMA = "$schema";
+    public static final String KEYWORD_DEFS = "$defs";
+    public static final String KEYWORD_DEFINITIONS = "definitions";
 
     public static final String FORMAT_URI = "uri";
     public static final String FORMAT_DATE_TIME = "date-time";

@@ -31,4 +31,12 @@ public class JsonSchemaException extends SnackException {
     public JsonSchemaException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public JsonSchemaException(String message, String path, Object value) {
+        super(String.format("%s at path '%s' (value: %s)", message, path, value));
+    }
+
+    public JsonSchemaException(String message, String path, Object value, Throwable cause) {
+        super(String.format("%s at path '%s' (value: %s)", message, path, value), cause);
+    }
 }

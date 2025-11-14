@@ -21,6 +21,10 @@ import org.noear.snack4.annotation.ONodeAttrHolder;
 import org.noear.snack4.jsonschema.generate.SchemaUtil;
 import org.noear.snack4.jsonschema.generate.TypePatternGenerator;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import java.math.BigInteger;
 
 /**
@@ -29,6 +33,15 @@ import java.math.BigInteger;
  * @since 4.0
  */
 public class _NumberPatternGenerator implements TypePatternGenerator {
+    private static final Set<Class<?>> INTEGER_TYPES = new HashSet<>(
+            Arrays.asList(Byte.class, byte.class,
+                    Short.class, short.class,
+                    Integer.class, int.class,
+                    Long.class, long.class,
+                    BigInteger.class
+            )
+    );
+
     @Override
     public boolean canGenerate(TypeEggg typeEggg) {
         return typeEggg.isNumber();
@@ -36,13 +49,7 @@ public class _NumberPatternGenerator implements TypePatternGenerator {
 
     @Override
     public ONode generate(ONodeAttrHolder att, TypeEggg typeEggg, ONode target) {
-        Class<?> type = typeEggg.getType();
-
-        if (type.equals(Byte.class) || type.equals(byte.class) ||
-                type.equals(Short.class) || type.equals(short.class) ||
-                type.equals(Integer.class) || type.equals(int.class) ||
-                type.equals(Long.class) || type.equals(long.class) ||
-                type.equals(BigInteger.class)) {
+        if (INTEGER_TYPES.contains(typeEggg.getType())) {
             target.set(SchemaUtil.NAME_TYPE, SchemaUtil.TYPE_INTEGER);
         } else {
             target.set(SchemaUtil.NAME_TYPE, SchemaUtil.TYPE_NUMBER);

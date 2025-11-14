@@ -154,11 +154,11 @@ public class JsonSchemaGenerator {
     private String getDefinitionsKey() {
         switch (version) {
             case DRAFT_7:
-                return "definitions";
+                return SchemaUtil.KEYWORD_DEFINITIONS;
             case DRAFT_2019_09:
             case DRAFT_2020_12:
             default:
-                return "$defs";
+                return SchemaUtil.KEYWORD_DEFS;
         }
     }
 
