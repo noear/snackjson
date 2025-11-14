@@ -22,7 +22,7 @@ public class JsonSchemaTest2 {
         String json = JsonSchema.ofType(methodEggg.getGenericReturnType()).toJson();
         System.out.println(json);
 
-        Assertions.assertEquals("{\"type\":\"object\",\"properties\":{\"items\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"number\",\"description\":\"用户ID\"},\"name\":{\"type\":\"string\",\"description\":\"用户名\"}},\"required\":[\"id\",\"name\"]}},\"total\":{\"type\":\"number\"}}}"
+        Assertions.assertEquals("{\"type\":\"object\",\"properties\":{\"items\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"description\":\"用户ID\"},\"name\":{\"type\":\"string\",\"description\":\"用户名\"}},\"required\":[\"id\",\"name\"]},\"description\":\"数据列表\"},\"total\":{\"type\":\"integer\",\"description\":\"总数\"}},\"required\":[\"items\",\"total\"]}"
         , json);
     }
 

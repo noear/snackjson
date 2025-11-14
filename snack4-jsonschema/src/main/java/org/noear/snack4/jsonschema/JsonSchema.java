@@ -334,7 +334,7 @@ public class JsonSchema {
     // 异常处理
     private JsonSchemaException typeMismatch(String expected, ONode actual, PathTracker path) {
         return new JsonSchemaException("Expected type " + expected + " but got " +
-                DataType.getTypeName(actual.type()) + " at " + path.currentPath());
+                SchemaUtil.getSchemaTypeName(actual) + " at " + path.currentPath());
     }
 
     // 预编译相关实现

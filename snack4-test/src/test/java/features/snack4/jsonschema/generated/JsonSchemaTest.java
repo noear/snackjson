@@ -36,7 +36,7 @@ class JsonSchemaTest {
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
-        assertEquals("number", node.get("type").getString());
+        assertEquals("integer", node.get("type").getString());
     }
 
     @Test
@@ -45,7 +45,7 @@ class JsonSchemaTest {
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
-        assertEquals("number", node.get("type").getString());
+        assertEquals("integer", node.get("type").getString());
     }
 
     @Test
@@ -90,8 +90,7 @@ class JsonSchemaTest {
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
-        assertEquals("number", node.get("type").getString());
-        assertEquals("integer", node.get("format").getString());
+        assertEquals("integer", node.get("type").getString());
     }
 
     @Test
@@ -129,7 +128,7 @@ class JsonSchemaTest {
         String json = schema.toJson();
 
         // void 类型应该被忽略输出架构
-        assertTrue(json.contains("string")); // 根据 isIgnoreOutputSchema 逻辑
+        assertTrue(json.contains("null")); // 根据 isIgnoreOutputSchema 逻辑
     }
 
     // ========== 数组和集合测试 ==========
@@ -151,7 +150,7 @@ class JsonSchemaTest {
 
         ONode node = ONode.ofJson(json);
         assertEquals("array", node.get("type").getString());
-        assertEquals("number", node.get("items").get("type").getString());
+        assertEquals("integer", node.get("items").get("type").getString());
     }
 
     @Test
@@ -238,7 +237,7 @@ class JsonSchemaTest {
 
         ONode properties = node.get("properties");
         assertEquals("string", properties.get("name").get("type").getString());
-        assertEquals("number", properties.get("age").get("type").getString());
+        assertEquals("integer", properties.get("age").get("type").getString());
         assertEquals("boolean", properties.get("active").get("type").getString());
     }
 
@@ -261,11 +260,12 @@ class JsonSchemaTest {
         assertEquals("object", node.get("type").getString());
 
         ONode properties = node.get("properties");
-        assertEquals("userName", properties.get("userName").getString());
+        System.out.println(properties.toJson());
+
         assertEquals("string", properties.get("userName").get("type").getString());
         assertEquals("用户姓名", properties.get("userName").get("description").getString());
 
-        assertEquals("number", properties.get("age").get("type").getString());
+        assertEquals("integer", properties.get("age").get("type").getString());
         assertEquals("用户年龄", properties.get("age").get("description").getString());
 
         assertEquals("string", properties.get("email").get("type").getString());
@@ -468,17 +468,17 @@ class JsonSchemaTest {
     @Test
     void testOfType_PrimitiveTypes() {
         // 测试所有基本类型
-        testPrimitiveType(byte.class);
-        testPrimitiveType(short.class);
-        testPrimitiveType(int.class);
-        testPrimitiveType(long.class);
-        testPrimitiveType(float.class);
-        testPrimitiveType(double.class);
-        testPrimitiveType(boolean.class);
-        testPrimitiveType(char.class);
+        testPrimitiveType(byte.class, "integer");
+        testPrimitiveType(short.class, "integer");
+        testPrimitiveType(int.class,"integer");
+        testPrimitiveType(long.class,"integer");
+        testPrimitiveType(float.class, "number");
+        testPrimitiveType(double.class,"number");
+        testPrimitiveType(boolean.class,"boolean");
+        testPrimitiveType(char.class,"integer");
     }
 
-    private void testPrimitiveType(Class<?> primitiveType) {
+    private void testPrimitiveType(Class<?> primitiveType, String ref) {
         JsonSchema schema = JsonSchema.ofType(primitiveType);
         String json = schema.toJson();
 
@@ -486,7 +486,8 @@ class JsonSchemaTest {
         assertTrue(node.hasKey("type"));
 
         String type = node.get("type").getString();
-        assertTrue(type.equals("number") || type.equals("boolean") || type.equals("string"));
+        System.out.println(type);
+        assertTrue(type.equals(ref));//type.equals("number") || type.equals("boolean") || type.equals("string"));
     }
 
     // ========== 性能测试 ==========
@@ -529,6 +530,7 @@ class JsonSchemaTest {
     void testSchemaValidation_SimpleObject() {
         JsonSchema schema = JsonSchema.ofType(SimpleUser.class);
         String jsonSchema = schema.toJson();
+        System.out.println(jsonSchema);
 
         // 使用生成的 schema 验证有效数据
         ONode validData = new ONode();

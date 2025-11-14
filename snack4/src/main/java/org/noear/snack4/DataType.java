@@ -40,11 +40,7 @@ public enum DataType {
 
     @Override
     public String toString() {
-        return getTypeName(this);
-    }
-
-    public static String getTypeName(DataType type) {
-        switch (type) {
+        switch (this) {
             case Undefined:
                 return "undefined";
             case Null:
