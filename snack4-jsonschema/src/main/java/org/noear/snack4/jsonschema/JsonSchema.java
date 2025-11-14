@@ -19,6 +19,7 @@ import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator;
 import org.noear.snack4.jsonschema.rule.*;
 import org.noear.snack4.jsonschema.generate.SchemaUtil;
+import org.noear.snack4.util.Asserts;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -31,6 +32,10 @@ import java.util.*;
  */
 public class JsonSchema {
     public static JsonSchema ofJson(String jsonSchema) {
+        if(Asserts.isEmpty(jsonSchema)) {
+            throw new IllegalArgumentException("jsonSchema is empty");
+        }
+
         return new JsonSchema(ONode.ofJson(jsonSchema));
     }
 
@@ -101,7 +106,19 @@ public class JsonSchema {
         List<ONode> items = dataNode.getArray();
         for (int i = 0; i < items.size(); i++) {
             path.enterIndex(i);
-            validateNode(itemsSchema, items.get(i), path);
+
+            // 查找当前索引的编译规则
+            String itemPath = path.currentPath();
+            CompiledRule itemRule = compiledRules.get(itemPath);
+
+            if (itemRule != null) {
+                // 如果有特定索引的规则，使用它
+                itemRule.validate(items.get(i), path);
+            } else {
+                // 否则使用通用的 items 模式验证
+                validateNode(itemsSchema, items.get(i), path);
+            }
+
             path.exit();
         }
     }
@@ -192,6 +209,11 @@ public class JsonSchema {
             localRules.add(new EnumRule(schemaNode.get("enum")));
         }
 
+        // 必需字段规则
+        if (schemaNode.hasKey("required")) {
+            localRules.add(new RequiredRule(schemaNode.get("required")));
+        }
+
         // 字符串约束规则
         if (schemaNode.hasKey("minLength") || schemaNode.hasKey("maxLength") || schemaNode.hasKey("pattern")) {
             localRules.add(new StringConstraintRule(schemaNode));
@@ -205,6 +227,11 @@ public class JsonSchema {
         // 数组约束规则
         if (schemaNode.hasKey("minItems") || schemaNode.hasKey("maxItems")) {
             localRules.add(new ArrayConstraintRule(schemaNode));
+        }
+
+        // 额外属性规则
+        if (schemaNode.hasKey("additionalProperties")) {
+            localRules.add(new AdditionalPropertiesRule(schemaNode));
         }
 
         if (!localRules.isEmpty()) {
@@ -223,8 +250,20 @@ public class JsonSchema {
 
         // 递归处理数组项
         if (schemaNode.hasKey("items")) {
+            ONode itemsSchema = schemaNode.get("items");
+
+            // 为通用 items 路径编译规则（用于没有特定索引的情况）
+            String itemsPath = path.currentPath() + "[*]";
+            compileSchemaRecursive(itemsSchema, rules, new PathTracker() {
+                @Override
+                public String currentPath() {
+                    return itemsPath;
+                }
+            });
+
+            // 也为索引 0 编译规则（向后兼容）
             path.enterIndex(0);
-            compileSchemaRecursive(schemaNode.get("items"), rules, path);
+            compileSchemaRecursive(itemsSchema, rules, path);
             path.exit();
         }
     }

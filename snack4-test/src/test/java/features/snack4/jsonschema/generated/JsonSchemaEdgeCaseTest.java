@@ -37,7 +37,7 @@ class JsonSchemaEdgeCaseTest {
         String schemaJson = "{\"type\": \"string\"}";
         JsonSchema schema = JsonSchema.ofJson(schemaJson);
 
-        assertDoesNotThrow(() -> schema.validate(ONode.ofJson("")));
+        assertDoesNotThrow(() -> schema.validate(ONode.ofBean("")));
     }
 
     @Test
