@@ -40,6 +40,7 @@ public class ONodeAttrHolder {
     private TimeZone timezone;
 
     private boolean flat;
+    private boolean required;
     private final boolean empty;
 
     private boolean encode = true;
@@ -59,6 +60,7 @@ public class ONodeAttrHolder {
             }
 
             flat = attrAnno.flat();
+            required = attrAnno.required();
 
 
             if (attrAnno.ignore()) {
@@ -117,6 +119,10 @@ public class ONodeAttrHolder {
 
     public boolean isFlat() {
         return flat;
+    }
+
+    public boolean isRequired() {
+        return required;
     }
 
     public boolean isEmpty() {

@@ -16,11 +16,11 @@
 package org.noear.snack4.jsonschema;
 
 import org.noear.snack4.ONode;
-import org.noear.snack4.DataType;
+import org.noear.snack4.jsonschema.codec.JsonSchemaBuilder;
 import org.noear.snack4.jsonschema.rule.EnumRule;
 import org.noear.snack4.jsonschema.rule.TypeRule;
 import org.noear.snack4.jsonschema.rule.ValidationRule;
-import org.noear.snack4.jsonschema.util.SchemaUtil;
+import org.noear.snack4.jsonschema.codec.SchemaUtil;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -43,7 +43,7 @@ public class JsonSchema {
     public static JsonSchema ofType(Type type) {
         Objects.requireNonNull(type, "type");
 
-        return new JsonSchema(SchemaUtil.buildTypeSchemaNode(type, "", new  ONode()));
+        return new JsonSchema(JsonSchemaBuilder.encode(type));
     }
 
     private final ONode schema;

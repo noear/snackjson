@@ -1,6 +1,7 @@
 package features.snack4.jsonschema.generated;
 
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.noear.snack4.ONode;
 import org.noear.snack4.annotation.ONodeAttr;
@@ -124,11 +125,9 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_void() {
-        JsonSchema schema = JsonSchema.ofType(void.class);
-        String json = schema.toJson();
-
-        // void 类型应该被忽略输出架构
-        assertTrue(json.contains("null")); // 根据 isIgnoreOutputSchema 逻辑
+        Assertions.assertThrows(Throwable.class, ()->{
+            JsonSchema.ofType(void.class);
+        });
     }
 
     // ========== 数组和集合测试 ==========
@@ -475,7 +474,7 @@ class JsonSchemaTest {
         testPrimitiveType(float.class, "number");
         testPrimitiveType(double.class,"number");
         testPrimitiveType(boolean.class,"boolean");
-        testPrimitiveType(char.class,"integer");
+        testPrimitiveType(char.class,"string");
     }
 
     private void testPrimitiveType(Class<?> primitiveType, String ref) {
@@ -566,6 +565,8 @@ class JsonSchemaTest {
         // 测试循环引用场景
         JsonSchema schema = JsonSchema.ofType(CircularReference.class);
         String json = schema.toJson();
+
+        System.out.println(json);
 
         ONode node = ONode.ofJson(json);
         assertEquals("object", node.get("type").getString());
