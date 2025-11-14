@@ -367,6 +367,7 @@ public class JsonSchema {
         if (schemaNode.hasKey(SchemaUtil.NAME_TYPE)) {
             localRules.add(new TypeRule(schemaNode.get(SchemaUtil.NAME_TYPE)));
         }
+
         if (schemaNode.hasKey("enum")) {
             localRules.add(new EnumRule(schemaNode.get("enum")));
         }

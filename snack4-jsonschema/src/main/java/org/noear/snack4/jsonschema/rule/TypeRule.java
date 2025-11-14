@@ -33,18 +33,27 @@ public class TypeRule implements ValidationRule {
 
     public TypeRule(ONode typeNode) {
         this.allowedTypes = new HashSet<>();
+
         if (typeNode.isString()) {
-            allowedTypes.add(typeNode.getString());
+            String typeStr = typeNode.getString();
+
+            allowedTypes.add(typeStr);
         } else if (typeNode.isArray()) {
             for (ONode t : typeNode.getArray()) {
                 allowedTypes.add(t.getString());
             }
+        }
+
+        if (allowedTypes.contains(SchemaUtil.TYPE_NUMBER)) {
+            //数字也支持整型
+            allowedTypes.add(SchemaUtil.TYPE_INTEGER);
         }
     }
 
     @Override
     public void validate(ONode data) throws JsonSchemaException {
         String actualType = SchemaUtil.getSchemaTypeName(data);
+
         if (!allowedTypes.contains(actualType)) {
             throw new JsonSchemaException("Type mismatch. Expected: " + allowedTypes + ", Actual: " + actualType);
         }
