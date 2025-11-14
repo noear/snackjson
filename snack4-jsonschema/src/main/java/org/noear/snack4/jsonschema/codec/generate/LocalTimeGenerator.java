@@ -21,14 +21,17 @@ import org.noear.snack4.annotation.ONodeAttrHolder;
 import org.noear.snack4.jsonschema.codec.SchemaUtil;
 import org.noear.snack4.jsonschema.codec.TypeGenerator;
 
+import java.time.LocalTime;
+
 /**
  *
  * @author noear 2025/11/14 created
  * @since 4.0
  */
-public class StringGenerator implements TypeGenerator<String> {
+public class LocalTimeGenerator implements TypeGenerator<LocalTime> {
     @Override
     public ONode encode(ONodeAttrHolder att, TypeEggg typeEggg, ONode target) {
-        return target.set("type", SchemaUtil.TYPE_STRING);
+        return target.set("type", SchemaUtil.TYPE_STRING)
+                .set("format", "time");
     }
 }

@@ -1,3 +1,18 @@
+/*
+ * Copyright 2005-2025 noear.org and authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.noear.snack4.jsonschema.codec.generate;
 
 import org.noear.eggg.TypeEggg;
@@ -11,7 +26,7 @@ import java.math.BigInteger;
 /**
  *
  * @author noear 2025/11/14 created
- *
+ * @since 4.0
  */
 public class _NumberPatternGenerator implements TypePatternGenerator {
     @Override
@@ -24,7 +39,6 @@ public class _NumberPatternGenerator implements TypePatternGenerator {
         Class<?> type = typeEggg.getType();
 
         if (type.equals(Byte.class) || type.equals(byte.class) ||
-                type.equals(char.class) ||
                 type.equals(Short.class) || type.equals(short.class) ||
                 type.equals(Integer.class) || type.equals(int.class) ||
                 type.equals(Long.class) || type.equals(long.class) ||
