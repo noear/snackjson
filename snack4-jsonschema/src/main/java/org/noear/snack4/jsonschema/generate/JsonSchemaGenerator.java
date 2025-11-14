@@ -23,6 +23,7 @@ import org.noear.snack4.ONode;
 import org.noear.snack4.annotation.ONodeAttrHolder;
 import org.noear.snack4.codec.util.EgggUtil;
 import org.noear.snack4.jsonschema.JsonSchemaException;
+import org.noear.snack4.jsonschema.SchemaVersion;
 import org.noear.snack4.jsonschema.generate.impl.*;
 import org.noear.snack4.util.Asserts;
 
@@ -78,6 +79,18 @@ public class JsonSchemaGenerator {
 
     private final TypeEggg source0;
     private final Map<Object, Object> visited;
+    private SchemaVersion version;
+    private boolean enableDefinitions;
+
+    public JsonSchemaGenerator withVersion(SchemaVersion version) {
+        this.version = version;
+        return this;
+    }
+
+    public JsonSchemaGenerator withEnableDefinitions(boolean enableDefinitions) {
+        this.enableDefinitions = enableDefinitions;
+        return this;
+    }
 
     public JsonSchemaGenerator(Type type) {
         Objects.requireNonNull(type, "type");
