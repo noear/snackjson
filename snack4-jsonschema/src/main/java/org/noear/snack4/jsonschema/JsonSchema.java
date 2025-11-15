@@ -284,6 +284,23 @@ public class JsonSchema {
     }
 
     private void compileSchemaRecursive(ONode schemaNode, Map<String, CompiledRule> rules, PathTracker path) {
+        // 【新增 $ref 检查和解析逻辑】
+        if (schemaNode.hasKey("$ref")) {
+            // 1. 获取引用路径
+            String refPath = schemaNode.get("$ref").getString();
+
+            // 2. 解析引用：查找 refPath 对应的实际 Schema 节点
+            ONode referencedSchema = resolveRef(refPath); // 假设我们有这个方法
+
+            if (referencedSchema != null) {
+                // 3. 将引用的 Schema 片段（referencedSchema）合并到当前 SchemaNode 中
+                //    或者直接替换当前 schemaNode 为 referencedSchema。
+                //    （这里简化处理：将引用的内容递归编译到当前路径下）
+                compileSchemaRecursive(referencedSchema, rules, path);
+                return; // 已经处理完引用，跳过后续的规则提取
+            }
+        }
+
         List<ValidationRule> localRules = new ArrayList<>();
 
         // 类型规则
@@ -348,5 +365,27 @@ public class JsonSchema {
 //            compileSchemaRecursive(itemsSchema, rules, path);
 //            path.exit();
         }
+    }
+
+    private ONode resolveRef(String refPath) {
+        if (refPath == null || !refPath.startsWith("#/")) {
+            // 目前只支持本地根引用
+            return null;
+        }
+
+        // 假设 refPath 是 JSON Pointer 格式，例如 "/definitions/address"
+        String[] parts = refPath.substring(2).split("/");
+        ONode current = this.schema;
+
+        for (String part : parts) {
+            if (current == null) {
+                return null;
+            }
+            // JSON Pointer 需要 URL 解码，这里简单处理
+            // part = URLDecoder.decode(part, "UTF-8"); // 实际需要 URL 解码
+            current = current.get(part);
+        }
+
+        return current;
     }
 }

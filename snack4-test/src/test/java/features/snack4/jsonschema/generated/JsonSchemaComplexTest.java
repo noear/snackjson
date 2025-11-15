@@ -117,7 +117,6 @@ class JsonSchemaComplexTest {
         String invalidData = "{" +
                 "\"billingAddress\": {" +
                 "  \"street\": \"123 Main St\"" +
-                "  // 缺少 city" +
                 "}" +
                 "}";
         assertThrows(JsonSchemaException.class, () -> schema.validate(ONode.ofJson(invalidData)));
