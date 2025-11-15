@@ -17,6 +17,7 @@ package org.noear.snack4.jsonschema.rule;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
+import org.noear.snack4.jsonschema.PathTracker;
 import org.noear.snack4.jsonschema.generate.SchemaUtil;
 
 import java.util.HashSet;
@@ -51,7 +52,7 @@ public class TypeRule implements ValidationRule {
     }
 
     @Override
-    public void validate(ONode data) throws JsonSchemaException {
+    public void validate(ONode data, PathTracker path) throws JsonSchemaException {
         String actualType = SchemaUtil.getSchemaTypeName(data);
 
         if (!allowedTypes.contains(actualType)) {

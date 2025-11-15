@@ -17,6 +17,7 @@ package org.noear.snack4.jsonschema.rule;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
+import org.noear.snack4.jsonschema.PathTracker;
 
 /**
  * 额外属性验证规则
@@ -45,7 +46,7 @@ public class AdditionalPropertiesRule implements ValidationRule {
     }
 
     @Override
-    public void validate(ONode data) throws JsonSchemaException {
+    public void validate(ONode data, PathTracker path) throws JsonSchemaException {
         if (!data.isObject() || allowAdditional) {
             return; // 只验证对象类型且不允许额外属性时
         }

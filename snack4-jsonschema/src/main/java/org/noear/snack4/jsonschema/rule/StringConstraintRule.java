@@ -17,6 +17,7 @@ package org.noear.snack4.jsonschema.rule;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
+import org.noear.snack4.jsonschema.PathTracker;
 
 /**
  * 字符串约束验证规则
@@ -36,7 +37,7 @@ public class StringConstraintRule implements ValidationRule {
     }
 
     @Override
-    public void validate(ONode data) throws JsonSchemaException {
+    public void validate(ONode data, PathTracker path) throws JsonSchemaException {
         if (!data.isString()) {
             return; // 只验证字符串类型
         }

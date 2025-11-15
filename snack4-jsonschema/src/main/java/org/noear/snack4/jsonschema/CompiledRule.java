@@ -33,9 +33,9 @@ public class CompiledRule {
         this.rules = rules;
     }
 
-   public void validate(ONode data, PathTracker path) throws JsonSchemaException {
+    public void validate(ONode data, PathTracker path) throws JsonSchemaException {
         for (ValidationRule rule : rules) {
-            rule.validate(data);
+            rule.validate(data, path);
         }
     }
 

@@ -17,6 +17,7 @@ package org.noear.snack4.jsonschema.rule;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
+import org.noear.snack4.jsonschema.PathTracker;
 
 /**
  * 数组约束验证规则
@@ -34,7 +35,7 @@ public class ArrayConstraintRule implements ValidationRule {
     }
 
     @Override
-    public void validate(ONode data) throws JsonSchemaException {
+    public void validate(ONode data, PathTracker path) throws JsonSchemaException {
         if (!data.isArray()) {
             return; // 只验证数组类型
         }

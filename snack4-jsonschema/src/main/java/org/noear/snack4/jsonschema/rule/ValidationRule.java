@@ -17,6 +17,7 @@ package org.noear.snack4.jsonschema.rule;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
+import org.noear.snack4.jsonschema.PathTracker;
 
 /**
  * 预编译规则接口
@@ -25,5 +26,5 @@ import org.noear.snack4.jsonschema.JsonSchemaException;
  * @since 4.0
  */
 public interface ValidationRule {
-    void validate(ONode data) throws JsonSchemaException;
+    void validate(ONode data, PathTracker path) throws JsonSchemaException;
 }
