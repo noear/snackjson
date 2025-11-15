@@ -87,7 +87,6 @@ public class JsonSchema {
             rule.validate(dataNode, path);
         }
 
-
         // 处理对象属性校验
         if (dataNode.isObject() && schemaNode.hasKey("properties")) {
             validateProperties(schemaNode.get("properties"), dataNode, path);
@@ -104,12 +103,17 @@ public class JsonSchema {
 
     private void validateArrayItems(ONode itemsSchema, ONode dataNode, PathTracker path) throws JsonSchemaException {
         List<ONode> items = dataNode.getArray();
+        String wildcardPath = path.currentPath()+"[*]";
+
         for (int i = 0; i < items.size(); i++) {
             path.enterIndex(i);
 
             // 查找当前索引的编译规则
             String itemPath = path.currentPath();
             CompiledRule itemRule = compiledRules.get(itemPath);
+            if(itemRule == null) {
+                itemRule = compiledRules.get(wildcardPath);
+            }
 
             if (itemRule != null) {
                 // 如果有特定索引的规则，使用它
@@ -254,17 +258,12 @@ public class JsonSchema {
 
             // 为通用 items 路径编译规则（用于没有特定索引的情况）
             String itemsPath = path.currentPath() + "[*]";
-            compileSchemaRecursive(itemsSchema, rules, new PathTracker() {
-                @Override
-                public String currentPath() {
-                    return itemsPath;
-                }
-            });
+            compileSchemaRecursive(itemsSchema, rules, new PathTracker(itemsPath));
 
             // 也为索引 0 编译规则（向后兼容）
-            path.enterIndex(0);
-            compileSchemaRecursive(itemsSchema, rules, path);
-            path.exit();
+//            path.enterIndex(0);
+//            compileSchemaRecursive(itemsSchema, rules, path);
+//            path.exit();
         }
     }
 }

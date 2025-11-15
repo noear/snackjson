@@ -32,6 +32,10 @@ public class PathTracker {
         stack.push("$");
     }
 
+    public PathTracker(String rootPath) {
+        stack.push(rootPath);
+    }
+
     /** 进入对象属性 */
     public void enterProperty(String property) {
         String current = stack.peek();
