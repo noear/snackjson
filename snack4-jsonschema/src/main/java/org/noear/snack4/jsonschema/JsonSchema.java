@@ -173,12 +173,20 @@ public class JsonSchema {
         List<JsonSchemaException> errors = new ArrayList<>();
 
         for (ONode subSchema : schemas) {
+            // 关键修复：临时编译子 Schema，并使用一个隔离的 PathTracker 来验证，
+            // 确保 validateNode 能够找到并执行子 Schema 的规则。
+            Map<String, CompiledRule> tempRules = compileSchemaFragment(subSchema);
+
+            // 使用当前路径作为根路径，创建一个临时的 PathTracker，用于隔离递归
+            PathTracker tempPath = new PathTracker(path.currentPath());
+
             try {
-                validateNode(subSchema, dataNode, path);
+                // 使用临时规则集和隔离路径进行验证
+                validateNodeWithRules(subSchema, dataNode, tempPath, tempRules);
                 matchCount++;
             } catch (JsonSchemaException e) {
                 errors.add(e);
-                if (requireAll) throw e;
+                if (requireAll) throw e; // allOf 失败，立即抛出
             }
         }
 
@@ -190,6 +198,81 @@ public class JsonSchema {
         }
         if (!requireAll && key.equals("oneOf") && matchCount != 1) {
             throw new JsonSchemaException("Must satisfy exactly one of oneOf constraints at " + path.currentPath());
+        }
+    }
+
+    /** 辅助方法：临时编译一个 Schema 片段（只编译当前片段的所有规则） */
+    private Map<String, CompiledRule> compileSchemaFragment(ONode schemaFragment) {
+        Map<String, CompiledRule> rules = new HashMap<>();
+        // 从根路径 $ 开始编译片段，规则将存储在 $、$.prop、$.[*].prop 等路径下
+        compileSchemaRecursive(schemaFragment, rules, PathTracker.begin());
+        return rules;
+    }
+
+    /** 辅助方法：验证一个 Schema 片段（使用临时的规则集合） */
+    private void validateNodeWithRules(ONode schemaNode, ONode dataNode, PathTracker path, Map<String, CompiledRule> rules) throws JsonSchemaException {
+        // 1. 执行当前节点的预编译规则（即路径 $ 的规则）
+        CompiledRule rule = rules.get(path.currentPath());
+        if (rule != null) {
+            rule.validate(dataNode, path);
+        }
+
+        // 2. 处理对象属性校验
+        if (dataNode.isObject() && schemaNode.hasKey("properties")) {
+            validatePropertiesWithRules(schemaNode.get("properties"), dataNode, path, rules);
+        }
+
+        // 3. 处理数组项校验
+        if (dataNode.isArray() && schemaNode.hasKey("items")) {
+            validateArrayItemsWithRules(schemaNode.get("items"), dataNode, path, rules);
+        }
+
+        // 4. 不再处理嵌套条件校验，因为子 schema 已经是条件的一部分
+    }
+
+    /** 辅助方法：验证对象属性（使用临时的规则集合）*/
+    private void validatePropertiesWithRules(ONode propertiesNode, ONode dataNode, PathTracker path, Map<String, CompiledRule> rules) throws JsonSchemaException {
+        Map<String, ONode> properties = propertiesNode.getObject();
+        Map<String, ONode> dataObj = dataNode.getObject();
+
+        // 校验必填字段（这部分逻辑应该在 rules 中，但为了快速修复 allOf，保留原逻辑）
+        // 这里依赖的是顶层 schema 的 required 规则，在 allOf 子 schema 中可能不适用。
+        // 但我们聚焦解决 allOf 本身的问题，暂时忽略此处的 required 规则复杂性。
+
+        // 校验每个属性
+        for (Map.Entry<String, ONode> propEntry : properties.entrySet()) {
+            String propName = propEntry.getKey();
+            path.enterProperty(propName);
+            if (dataObj.containsKey(propName)) {
+                validateNodeWithRules(propEntry.getValue(), dataObj.get(propName), path, rules);
+            }
+            path.exit();
+        }
+    }
+
+    private void validateArrayItemsWithRules(ONode itemsSchema, ONode dataNode, PathTracker path, Map<String, CompiledRule> rules) throws JsonSchemaException {
+        List<ONode> items = dataNode.getArray();
+        String wildcardPath = path.currentPath()+"[*]";
+
+        for (int i = 0; i < items.size(); i++) {
+            path.enterIndex(i);
+
+            // 查找当前索引的编译规则
+            CompiledRule itemRule = rules.get(path.currentPath());
+
+            // 如果索引规则不存在，查找通用 [*] 规则
+            if(itemRule == null) {
+                itemRule = rules.get(wildcardPath);
+            }
+
+            if (itemRule != null) {
+                itemRule.validate(items.get(i), path);
+            }
+
+            // 递归验证子结构
+            validateNodeWithRules(itemsSchema, items.get(i), path, rules);
+
+            path.exit();
         }
     }
 
