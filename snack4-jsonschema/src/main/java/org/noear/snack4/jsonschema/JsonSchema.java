@@ -32,7 +32,7 @@ import java.util.*;
  */
 public class JsonSchema {
     public static JsonSchema ofJson(String jsonSchema) {
-        if(Asserts.isEmpty(jsonSchema)) {
+        if (Asserts.isEmpty(jsonSchema)) {
             throw new IllegalArgumentException("jsonSchema is empty");
         }
 
@@ -89,21 +89,23 @@ public class JsonSchema {
 
         // 处理对象属性校验
         if (dataNode.isObject() && schemaNode.hasKey("properties")) {
-            validateProperties(schemaNode.get("properties"), dataNode, path);
+            validateProperties(schemaNode, dataNode, path);
         }
 
         // 处理数组项校验
         if (dataNode.isArray() && schemaNode.hasKey("items")) {
-            validateArrayItems(schemaNode.get("items"), dataNode, path);
+            validateArrayItems(schemaNode, dataNode, path);
         }
 
         // 处理条件校验
         validateConditional(schemaNode, dataNode, path);
     }
 
-    private void validateArrayItems(ONode itemsSchema, ONode dataNode, PathTracker path) throws JsonSchemaException {
+    private void validateArrayItems(ONode schemaNode, ONode dataNode, PathTracker path) throws JsonSchemaException {
+        ONode itemsSchema = schemaNode.get("items");
+
         List<ONode> items = dataNode.getArray();
-        String wildcardPath = path.currentPath()+"[*]";
+        String wildcardPath = path.currentPath() + "[*]";
 
         for (int i = 0; i < items.size(); i++) {
             path.enterIndex(i);
@@ -111,7 +113,7 @@ public class JsonSchema {
             // 查找当前索引的编译规则
             String itemPath = path.currentPath();
             CompiledRule itemRule = compiledRules.get(itemPath);
-            if(itemRule == null) {
+            if (itemRule == null) {
                 itemRule = compiledRules.get(wildcardPath);
             }
 
@@ -128,13 +130,15 @@ public class JsonSchema {
     }
 
     // 对象属性校验（完整实现）
-    private void validateProperties(ONode propertiesNode, ONode dataNode, PathTracker path) throws JsonSchemaException {
+    private void validateProperties(ONode schemaNode, ONode dataNode, PathTracker path) throws JsonSchemaException {
+        ONode propertiesNode = schemaNode.get("properties");
+
         Map<String, ONode> properties = propertiesNode.getObject();
         Map<String, ONode> dataObj = dataNode.getObject();
 
         // 校验必填字段
-        if (schema.hasKey("required")) {
-            ONode requiredNode = schema.get("required");
+        if (schemaNode.hasKey("required")) {
+            ONode requiredNode = schemaNode.get("required");
             if (requiredNode.isArray()) {
                 for (ONode requiredField : requiredNode.getArray()) {
                     String field = requiredField.getString();
@@ -201,7 +205,9 @@ public class JsonSchema {
         }
     }
 
-    /** 辅助方法：临时编译一个 Schema 片段（只编译当前片段的所有规则） */
+    /**
+     * 辅助方法：临时编译一个 Schema 片段（只编译当前片段的所有规则）
+     */
     private Map<String, CompiledRule> compileSchemaFragment(ONode schemaFragment) {
         Map<String, CompiledRule> rules = new HashMap<>();
         // 从根路径 $ 开始编译片段，规则将存储在 $、$.prop、$.[*].prop 等路径下
@@ -209,7 +215,9 @@ public class JsonSchema {
         return rules;
     }
 
-    /** 辅助方法：验证一个 Schema 片段（使用临时的规则集合） */
+    /**
+     * 辅助方法：验证一个 Schema 片段（使用临时的规则集合）
+     */
     private void validateNodeWithRules(ONode schemaNode, ONode dataNode, PathTracker path, Map<String, CompiledRule> rules) throws JsonSchemaException {
         // 1. 执行当前节点的预编译规则（即路径 $ 的规则）
         CompiledRule rule = rules.get(path.currentPath());
@@ -219,19 +227,23 @@ public class JsonSchema {
 
         // 2. 处理对象属性校验
         if (dataNode.isObject() && schemaNode.hasKey("properties")) {
-            validatePropertiesWithRules(schemaNode.get("properties"), dataNode, path, rules);
+            validatePropertiesWithRules(schemaNode, dataNode, path, rules);
         }
 
         // 3. 处理数组项校验
         if (dataNode.isArray() && schemaNode.hasKey("items")) {
-            validateArrayItemsWithRules(schemaNode.get("items"), dataNode, path, rules);
+            validateArrayItemsWithRules(schemaNode, dataNode, path, rules);
         }
 
         // 4. 不再处理嵌套条件校验，因为子 schema 已经是条件的一部分
     }
 
-    /** 辅助方法：验证对象属性（使用临时的规则集合）*/
-    private void validatePropertiesWithRules(ONode propertiesNode, ONode dataNode, PathTracker path, Map<String, CompiledRule> rules) throws JsonSchemaException {
+    /**
+     * 辅助方法：验证对象属性（使用临时的规则集合）
+     */
+    private void validatePropertiesWithRules(ONode schemaNode, ONode dataNode, PathTracker path, Map<String, CompiledRule> rules) throws JsonSchemaException {
+        ONode propertiesNode = schemaNode.get("properties");
+
         Map<String, ONode> properties = propertiesNode.getObject();
         Map<String, ONode> dataObj = dataNode.getObject();
 
@@ -250,9 +262,11 @@ public class JsonSchema {
         }
     }
 
-    private void validateArrayItemsWithRules(ONode itemsSchema, ONode dataNode, PathTracker path, Map<String, CompiledRule> rules) throws JsonSchemaException {
+    private void validateArrayItemsWithRules(ONode schemaNode, ONode dataNode, PathTracker path, Map<String, CompiledRule> rules) throws JsonSchemaException {
+        ONode itemsSchema = schemaNode.get("items");
+
         List<ONode> items = dataNode.getArray();
-        String wildcardPath = path.currentPath()+"[*]";
+        String wildcardPath = path.currentPath() + "[*]";
 
         for (int i = 0; i < items.size(); i++) {
             path.enterIndex(i);
@@ -261,7 +275,7 @@ public class JsonSchema {
             CompiledRule itemRule = rules.get(path.currentPath());
 
             // 如果索引规则不存在，查找通用 [*] 规则
-            if(itemRule == null) {
+            if (itemRule == null) {
                 itemRule = rules.get(wildcardPath);
             }
 
@@ -278,7 +292,7 @@ public class JsonSchema {
 
     // 预编译相关实现
     private Map<String, CompiledRule> compileSchema(ONode schema) {
-        Map<String, CompiledRule> rules = new HashMap<>();
+        Map<String, CompiledRule> rules = new LinkedHashMap<>();
         compileSchemaRecursive(schema, rules, PathTracker.begin());
         return rules;
     }
@@ -359,11 +373,6 @@ public class JsonSchema {
             // 为通用 items 路径编译规则（用于没有特定索引的情况）
             String itemsPath = path.currentPath() + "[*]";
             compileSchemaRecursive(itemsSchema, rules, new PathTracker(itemsPath));
-
-            // 也为索引 0 编译规则（向后兼容）
-//            path.enterIndex(0);
-//            compileSchemaRecursive(itemsSchema, rules, path);
-//            path.exit();
         }
     }
 

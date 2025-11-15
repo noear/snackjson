@@ -61,7 +61,6 @@ class JsonSchemaComplexTest {
         String invalidData1 = "{" +
                 "\"user\": {" +
                 "  \"name\": \"John Doe\"" +
-                "  // 缺少 age" +
                 "}" +
                 "}";
         assertThrows(JsonSchemaException.class, () -> schema.validate(ONode.ofJson(invalidData1)));
