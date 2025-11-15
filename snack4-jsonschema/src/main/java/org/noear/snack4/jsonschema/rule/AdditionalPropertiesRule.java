@@ -28,8 +28,11 @@ import org.noear.snack4.jsonschema.PathTracker;
 public class AdditionalPropertiesRule implements ValidationRule {
     private final boolean allowAdditional;
     private final ONode additionalSchema;
+    private final ONode schemaNode;
 
     public AdditionalPropertiesRule(ONode schemaNode) {
+        this.schemaNode = schemaNode;
+
         if (schemaNode.hasKey("additionalProperties")) {
             ONode additionalPropsNode = schemaNode.get("additionalProperties");
             if (additionalPropsNode.isBoolean()) {
@@ -51,14 +54,8 @@ public class AdditionalPropertiesRule implements ValidationRule {
             return; // 只验证对象类型且不允许额外属性时
         }
 
-        // 获取当前对象的 schema 节点（通过 parent 获取）
-        ONode currentSchema = data.parent();
-        if (currentSchema == null || !currentSchema.isObject()) {
-            return;
-        }
-
         // 获取定义的属性
-        ONode propertiesNode = currentSchema.get("properties");
+        ONode propertiesNode = schemaNode.get("properties");
         if (propertiesNode == null || !propertiesNode.isObject()) {
             return;
         }

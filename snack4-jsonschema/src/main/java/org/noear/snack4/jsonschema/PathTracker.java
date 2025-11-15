@@ -27,7 +27,6 @@ import java.util.Deque;
 public class PathTracker {
     private final Deque<String> stack = new ArrayDeque<>();
 
-    /** 初始化根路径为$ */
     public PathTracker() {
         stack.push("$");
     }

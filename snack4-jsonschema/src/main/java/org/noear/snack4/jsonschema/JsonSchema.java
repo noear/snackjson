@@ -118,10 +118,10 @@ public class JsonSchema {
             if (itemRule != null) {
                 // 如果有特定索引的规则，使用它
                 itemRule.validate(items.get(i), path);
-            } else {
-                // 否则使用通用的 items 模式验证
-                validateNode(itemsSchema, items.get(i), path);
             }
+
+            //递归调用 validateNode 来处理每个数组元素
+            validateNode(itemsSchema, items.get(i), path);
 
             path.exit();
         }
