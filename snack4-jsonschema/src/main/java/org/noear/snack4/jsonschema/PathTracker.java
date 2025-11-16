@@ -26,7 +26,6 @@ import java.util.Deque;
  */
 public class PathTracker {
     private final StringBuilder pathBuilder;
-    private String wildcardIndexPath;
     private final Deque<Integer> lengthStack = new ArrayDeque<>();
 
     public PathTracker() {
@@ -47,7 +46,6 @@ public class PathTracker {
 
     /** 进入数组索引 */
     public void enterIndex(int arrayIndex) {
-        wildcardIndexPath = pathBuilder.toString()+"[*]";
         pathBuilder.append('[').append(arrayIndex).append(']');
         lengthStack.push(pathBuilder.length());
     }
@@ -59,8 +57,6 @@ public class PathTracker {
 
     /** 退出当前层级 */
     public void exit() {
-        wildcardIndexPath = null;
-
         if (lengthStack.size() > 1) {
             lengthStack.pop(); // 弹出当前长度
             pathBuilder.setLength(lengthStack.peek()); // 恢复到上一个长度
@@ -70,9 +66,5 @@ public class PathTracker {
     /** 创建新实例 */
     public static PathTracker begin() {
         return new PathTracker();
-    }
-
-    public String getWildcardPath() {
-        return wildcardIndexPath;
     }
 }

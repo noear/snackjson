@@ -56,12 +56,6 @@ public class JsonSchema {
 
     private final ONode schema;
     private final Map<String, CompiledRule> compiledRules;
-
-    // 优化点 1: 引入 Schema 片段缓存
-    // 原始代码在处理 anyOf/oneOf/allOf 时，在 *运行时* 反复调用 compileSchemaFragment，
-    // 这是巨大的性能黑洞。
-    // 优化：我们为 JsonSchema 实例添加一个缓存。
-    // 假设 ONode 的 hashCode 和 equals 是可靠的，可以作为 Map 的 Key。
     private final Map<ONode, Map<String, CompiledRule>> fragmentCache = new ConcurrentHashMap<>();
 
     public JsonSchema(ONode schema) {
@@ -82,20 +76,15 @@ public class JsonSchema {
     }
 
     public void validate(ONode data) throws JsonSchemaException {
-        // 验证从根 Schema、根数据和根路径开始
-        validateNode(schema, data, PathTracker.begin());
+        validateNode(schema, data, PathTracker.begin(), null);
     }
 
     public void validate(ONode data, PathTracker path) throws JsonSchemaException {
-        // 验证从根 Schema、根数据和根路径开始
-        validateNode(schema, data, path);
+        validateNode(schema, data, path, null);
     }
 
     // 核心验证方法（完整实现）
-    private void validateNode(ONode schemaNode, ONode dataNode, PathTracker path) throws JsonSchemaException {
-        // 优化点 13 (Bug 修复):
-        // 必须同时检查特定路径 (e.g., $[0]) 和通配符路径 (e.g., $[*])
-
+    private void validateNode(ONode schemaNode, ONode dataNode, PathTracker path, String wildcardPath) throws JsonSchemaException {
         // 1. 检查特定路径的规则
         CompiledRule specificRule = compiledRules.get(path.currentPath());
         if (specificRule != null) {
@@ -103,7 +92,6 @@ public class JsonSchema {
         }
 
         // 2. 检查通配符路径的规则 (对数组项至关重要)
-        String wildcardPath = path.getWildcardPath();
         if (wildcardPath != null) {
             CompiledRule wildcardRule = compiledRules.get(wildcardPath);
             if (wildcardRule != null) {
@@ -134,55 +122,34 @@ public class JsonSchema {
         for (int i = 0; i < items.size(); i++) {
             path.enterIndex(i);
 
-            // 优化点 2: 数组校验逻辑简化
-            // 原始代码在这里查找 itemRule，但这是不必要的。
-            // compileSchemaRecursive 已经为 `items` 的子-schema
-            // 在 `...[*]...` 路径上编译了规则。
-            // 我们只需要像 properties 一样，递归调用 validateNode 即可。
-            // validateNode 会在第一步自动查找 `...[i]` 和 `...[*]` 路径的规则。
-            // （注意：为了让 `...[*]` 路径生效，compileSchemaRecursive 中
-            //  的 `new PathTracker(itemsPath)` 是正确的。）
-
-            // [原始的 itemRule 查找代码已被移除]
-
             // 递归调用 validateNode 来处理每个数组元素
-            validateNode(itemsSchema, items.get(i), path);
+            validateNode(itemsSchema, items.get(i), path, wildcardPath);
 
             path.exit();
         }
     }
 
-    // 对象属性校验（完整实现）
+    // 对象属性校验
     private void validateProperties(ONode schemaNode, ONode dataNode, PathTracker path) throws JsonSchemaException {
         ONode propertiesNode = schemaNode.get("properties");
 
         Map<String, ONode> properties = propertiesNode.getObject();
         Map<String, ONode> dataObj = dataNode.getObject();
 
-        // 优化点 3: 移除重复的 "required" 校验
-        // 原始代码在这里有一大段 "required" 校验逻辑。
-        // 但 "required" 关键字已经在 compileSchemaRecursive 中被编译成了
-        // RequiredRule，并在 validateNode 的第一步中执行了。
-        // 这里的代码是多余的，应删除，以保证“单一职责”。
-        // [原始的 required 校验代码已被移除]
-
         // 校验每个属性
         for (Map.Entry<String, ONode> propEntry : properties.entrySet()) {
             String propName = propEntry.getKey();
             if (dataObj.containsKey(propName)) {
                 path.enterProperty(propName);
-                validateNode(propEntry.getValue(), dataObj.get(propName), path);
+                validateNode(propEntry.getValue(), dataObj.get(propName), path, null);
                 path.exit();
             }
         }
     }
 
-    // 条件校验（完整实现）
+    // 条件校验
     private void validateConditional(ONode schemaNode, ONode dataNode, PathTracker path) throws JsonSchemaException {
-        // allOf 的规则已经在编译时合并，不需要在运行时处理
-        // (参见 compileSchemaRecursive 中的 优化点 4)
-
-        // 只需要处理 anyOf 和 oneOf
+        // allOf 的规则已经在编译时合并。只需要处理 anyOf 和 oneOf
         validateConditionalGroup(schemaNode, "anyOf", dataNode, path);
         validateConditionalGroup(schemaNode, "oneOf", dataNode, path);
     }
@@ -196,20 +163,15 @@ public class JsonSchema {
         List<String> errorMessages = new ArrayList<>();
 
         for (ONode subSchema : schemas) {
-            // 优化点 1 (续): 使用缓存的编译片段
-            // 不再在运行时调用 compileSchemaFragment，而是从缓存中获取。
-            // computeIfAbsent 确保每个 subSchema 只被编译一次。
             Map<String, CompiledRule> tempRules = fragmentCache.computeIfAbsent(
-                    subSchema,
-                    s -> compileSchemaFragment(s) // 如果缓存未命中，则编译
+                    subSchema, s -> compileSchemaFragment(s)
             );
 
-            // 使用一个临时的 PathTracker，用于隔离递归
-            PathTracker tempPath = PathTracker.begin(); // 必须从 $ 开始
+            // 使用一个临时的 PathTracker，用于隔离递归。必须从 $ 开始
+            PathTracker tempPath = PathTracker.begin();
 
             try {
-                // 关键修复：使用辅助方法，
-                // 它使用 *临时规则集* 和 *独立的路径* 来验证
+                // 使用 *临时规则集* 和 *独立的路径* 来验证
                 validateNodeWithRules(subSchema, dataNode, tempPath, tempRules);
                 matchCount++;
             } catch (JsonSchemaException e) {
@@ -221,6 +183,7 @@ public class JsonSchema {
         if (key.equals("anyOf") && matchCount == 0) {
             throw new JsonSchemaException("Failed to satisfy anyOf constraints at " + path.currentPath() + ". Errors: " + errorMessages);
         }
+
         if (key.equals("oneOf") && matchCount != 1) {
             throw new JsonSchemaException("Must satisfy exactly one of oneOf constraints (found " + matchCount + ") at " + path.currentPath() + ". Errors: " + errorMessages);
         }
@@ -228,23 +191,19 @@ public class JsonSchema {
 
     /**
      * 辅助方法：编译一个 Schema 片段（只编译当前片段的所有规则）
-     * 优化点 1 (续): 此方法现在只在缓存未命中时被调用。
      */
     private Map<String, CompiledRule> compileSchemaFragment(ONode schemaFragment) {
         Map<String, CompiledRule> rules = new LinkedHashMap<>();
-        // 关键：片段编译必须从其自己的根（$）开始
+        // 片段编译必须从其自己的根（$）开始
         compileSchemaRecursive(schemaFragment, rules, PathTracker.begin());
         return rules;
     }
 
     /**
      * 辅助方法：验证一个 Schema 片段（使用临时的规则集合）
-     * (这是对原始代码中 `validateNodeWithRules` 的保留和修复)
      */
     private void validateNodeWithRules(ONode schemaNode, ONode dataNode, PathTracker path, Map<String, CompiledRule> rules) throws JsonSchemaException {
         // 1. 执行当前节点的预编译规则
-        // 关键修复：路径必须匹配。
-        // tempRules 是从 $ 开始的，path 也必须是从 $ 开始。
         CompiledRule rule = rules.get(path.currentPath());
         if (rule != null) {
             rule.validate(dataNode, path);
@@ -304,8 +263,7 @@ public class JsonSchema {
         for (ONode subSchema : schemas) {
             // 嵌套的 anyOf/oneOf 也需要使用缓存的、独立的规则集
             Map<String, CompiledRule> tempRules = fragmentCache.computeIfAbsent(
-                    subSchema,
-                    s -> compileSchemaFragment(s)
+                    subSchema, s -> compileSchemaFragment(s)
             );
 
             PathTracker tempPath = PathTracker.begin(); // 独立路径
@@ -344,12 +302,11 @@ public class JsonSchema {
                 compileSchemaRecursive(referencedSchema, rules, path);
                 return; // 已经处理完引用，跳过后续的规则提取
             } else {
-                // 可选：抛出异常或记录警告
-                // throw new JsonSchemaException("Could not resolve $ref: " + refPath);
+                // 抛出异常或记录警告
+                throw new JsonSchemaException("Could not resolve $ref: " + refPath);
             }
         }
 
-        // 优化点 4: 在编译期合并 "allOf"
         // allOf 中的所有规则都必须满足，它们可以被“拍平”合并到当前路径的规则列表中。
         // 这避免了在运行时（validateNode）再去处理 allOf，提高了性能。
         if (schemaNode.hasKey("allOf")) {
@@ -387,22 +344,10 @@ public class JsonSchema {
         }
         // 额外属性规则
         if (schemaNode.hasKey("additionalProperties")) {
-            // 优化点 5: (见 AdditionalPropertiesRule)
-            // 传递整个 schemaNode 以便访问 'properties'
             localRules.add(new AdditionalPropertiesRule(schemaNode, this.schema));
         }
 
-        // 优化点 6: (见 AnyOfRule/OneOfRule)
-        // anyOf 和 oneOf 不能在编译期合并，它们必须在运行时作为 ValidationRule
-        // 被 *独立* 验证。
-        // 但这与上面 优化点 1 的“缓存片段”方案冲突了。
-        // 结论：保持 优化点 1 的“运行时+缓存”方案，
-        // 不将 anyOf/oneOf 编译为 ValidationRule，
-        // 而是保留在 validateNode / validateNodeWithRules 中处理。
-        // [原 优化点 6 的代码已被移除]
-
         if (!localRules.isEmpty()) {
-            // 修复：不是替换，而是追加。
             // 允许多个规则 (例如 "allOf" 合并) 在同一路径上。
             CompiledRule existingRule = rules.get(path.currentPath());
             if (existingRule != null) {
