@@ -20,6 +20,7 @@ import org.noear.snack4.ONode;
 import org.noear.snack4.annotation.ONodeAttrHolder;
 
 /**
+ * 类型架构生成器
  *
  * @author noear 2025/11/14 created
  * @since 4.0

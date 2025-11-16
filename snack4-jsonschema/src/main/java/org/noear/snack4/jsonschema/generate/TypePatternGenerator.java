@@ -18,6 +18,7 @@ package org.noear.snack4.jsonschema.generate;
 import org.noear.eggg.TypeEggg;
 
 /**
+ * 类型模式架构生成器
  *
  * @author noear 2025/11/14 created
  * @since 4.0

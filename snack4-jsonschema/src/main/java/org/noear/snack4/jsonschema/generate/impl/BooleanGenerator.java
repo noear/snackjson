@@ -25,7 +25,7 @@ import org.noear.snack4.jsonschema.generate.TypeGenerator;
 /**
  *
  * @author noear 2025/11/14 created
- *
+ * @since 4.0
  */
 public class BooleanGenerator implements TypeGenerator {
     private static final BooleanGenerator instance = new BooleanGenerator();
