@@ -21,9 +21,11 @@ public class PropertyNamesRule implements ValidationRule {
     // 内部编译好的针对属性名的规则集
     private final List<ValidationRule> compiledNameRules = new ArrayList<>();
     private final ONode propertyNamesSchema;
+    private final String expectedType;
 
     public PropertyNamesRule(ONode schemaNode) {
         propertyNamesSchema = schemaNode.get(SchemaKeyword.PROPERTY_NAMES);
+        expectedType = getExpectedType();
 
         // 1. 类型规则（通常是 type: string）
         if (propertyNamesSchema.hasKey(SchemaKeyword.TYPE)) {
@@ -48,6 +50,11 @@ public class PropertyNamesRule implements ValidationRule {
 
             compiledNameRules.add(new NumericConstraintRule(propertyNamesSchema));
         }
+
+        // 4. 枚举规则
+        if (propertyNamesSchema.hasKey(SchemaKeyword.ENUM)) {
+            compiledNameRules.add(new EnumRule(propertyNamesSchema.get(SchemaKeyword.ENUM)));
+        }
     }
 
     @Override
@@ -61,13 +68,10 @@ public class PropertyNamesRule implements ValidationRule {
             return;
         }
 
-        // 检查 propertyNames 的类型约束
-        String expectedType = getExpectedType();
-
         // 迭代对象的所有键名
         for (String propName : data.getObject().keySet()) {
             // 将属性名称包装成一个 String ONode，以便可以对其应用 ValidationRule
-            ONode nameNode = createNameNode(propName, expectedType);
+            ONode nameNode = createNameNode(propName);
 
             // 当前路径（仅用于错误提示，不用于递归进入）
             String currentPath = path.currentPath();
@@ -108,7 +112,7 @@ public class PropertyNamesRule implements ValidationRule {
      * 根据属性名字符串创建对应的 ONode
      * 如果属性名是数字字符串，创建为数字节点，否则创建为字符串节点
      */
-    private ONode createNameNode(String propName, String expectedType) {
+    private ONode createNameNode(String propName) {
         // 如果有明确的类型约束，按照约束创建节点
         if (SchemaType.INTEGER.equals(expectedType)) {
             // 期望 integer 类型，尝试转换为数字
