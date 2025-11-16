@@ -30,12 +30,7 @@ import org.noear.snack4.jsonschema.generate.impl.*;
 import org.noear.snack4.util.Asserts;
 
 import java.lang.reflect.Type;
-import java.net.URI;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 对象编码器
@@ -44,42 +39,6 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 4.0
  */
 public class JsonSchemaGenerator {
-    static final List<TypePatternGenerator> TYPE_PATTERN_GENERATORS = new ArrayList<>();
-    static final Map<Class<?>, TypeGenerator> TYPE_GENERATOR_MAP = new ConcurrentHashMap<>();
-
-    static {
-        TYPE_PATTERN_GENERATORS.add(new _DatePatternGenerator());
-        TYPE_PATTERN_GENERATORS.add(new _EnumPatternGenerator());
-        TYPE_PATTERN_GENERATORS.add(new _NumberPatternGenerator());
-
-        TYPE_GENERATOR_MAP.put(Boolean.class, BooleanGenerator.getInstance());
-        TYPE_GENERATOR_MAP.put(boolean.class, BooleanGenerator.getInstance());
-        TYPE_GENERATOR_MAP.put(Character.class, CharGenerator.getInstance());
-        TYPE_GENERATOR_MAP.put(char.class, CharGenerator.getInstance());
-
-        TYPE_GENERATOR_MAP.put(String.class, new StringGenerator());
-        TYPE_GENERATOR_MAP.put(URI.class, new URIGenerator());
-
-        TYPE_GENERATOR_MAP.put(LocalDate.class, new LocalDateGenerator());
-        TYPE_GENERATOR_MAP.put(LocalTime.class, new LocalTimeGenerator());
-        TYPE_GENERATOR_MAP.put(LocalDateTime.class, new LocalDateTimeGenerator());
-    }
-
-    private static TypeGenerator getGenerator(TypeEggg typeEggg) {
-        TypeGenerator tmp = TYPE_GENERATOR_MAP.get(typeEggg.getType());
-
-        if (tmp == null) {
-            for (TypePatternGenerator b1 : TYPE_PATTERN_GENERATORS) {
-                if (b1.canGenerate(typeEggg)) {
-                    TYPE_GENERATOR_MAP.putIfAbsent(typeEggg.getType(), b1);
-                    return b1;
-                }
-            }
-        }
-
-        return tmp;
-    }
-
     private final TypeEggg source0;
     private final Map<Object, Object> visited;
     private SchemaVersion version = SchemaVersion.DRAFT_7;
@@ -105,10 +64,10 @@ public class JsonSchemaGenerator {
     }
 
     public JsonSchemaGenerator(Type type) {
-        Objects.requireNonNull(type, "type");
+        Objects.requireNonNull(type, "Type cannot be null");
 
-        if (type == void.class) {
-            throw new JsonSchemaException("Not support the void type");
+        if (type == void.class || type == Void.class) {
+            throw new JsonSchemaException("Void type is not supported for JSON schema generation");
         }
 
         this.source0 = EgggUtil.getTypeEggg(type);
@@ -121,35 +80,37 @@ public class JsonSchemaGenerator {
      */
     public ONode generate() {
         try {
-            ONode target = new ONode();
-
-            if (printVersion) {
-                target.set(SchemaKeyword.SCHEMA, version.getIdentifier());
-            }
-
-            if (enableDefinitions) {
-                String definitionsKey = getDefinitionsKey();
-                target.getOrNew(definitionsKey);
-            }
-
-            ONode oNode = generateValueToNode(source0, null, target);
-
-            if (oNode != null) {
-                if (enableDefinitions && !definitions.isEmpty()) {
-                    String definitionsKey = getDefinitionsKey();
-                    oNode.getOrNew(definitionsKey).setAll(definitions);
-                }
-            }
-
-            return oNode;
-
+            return doGenerate();
+        } catch (JsonSchemaException e) {
+            throw e;
         } catch (Throwable e) {
-            if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
-            }
-
-            throw new JsonSchemaException("Failed to encode bean to ONode", e);
+            throw new JsonSchemaException("Failed to generate JSON schema for type: " +
+                    source0.getType().getName(), e);
         }
+    }
+
+    private ONode doGenerate() throws Throwable {
+        ONode target = new ONode();
+
+        if (printVersion) {
+            target.set(SchemaKeyword.SCHEMA, version.getIdentifier());
+        }
+
+        if (enableDefinitions) {
+            String definitionsKey = getDefinitionsKey();
+            target.getOrNew(definitionsKey);
+        }
+
+        ONode oNode = generateValueToNode(source0, null, target);
+
+        if (oNode != null) {
+            if (enableDefinitions && !definitions.isEmpty()) {
+                String definitionsKey = getDefinitionsKey();
+                oNode.getOrNew(definitionsKey).setAll(definitions);
+            }
+        }
+
+        return oNode;
     }
 
     // 获取定义键名，根据版本使用不同的关键字
@@ -196,7 +157,7 @@ public class JsonSchemaGenerator {
     // 值转ONode处理
     private ONode generateValueToNode(TypeEggg typeEggg, ONodeAttrHolder attr, ONode target) throws Throwable {
         // 优先使用自定义编解码器
-        TypeGenerator generator = getGenerator(typeEggg);
+        TypeGenerator generator = GeneratorLib.getGenerator(typeEggg);
         if (generator != null) {
             return generator.generate(attr, typeEggg, target);
         }
@@ -218,18 +179,7 @@ public class JsonSchemaGenerator {
     private ONode generateBeanToNode(TypeEggg typeEggg, ONode target) throws Throwable {
         // 循环引用检测
         if (visited.containsKey(typeEggg)) {
-            if (enableDefinitions) {
-                // 如果启用了定义，为循环引用创建引用
-                String definitionName = getDefinitionName(typeEggg);
-                if (definitions.containsKey(definitionName)) {
-                    return createReference(definitionName);
-                }
-            }
-            // 即使没有启用定义，也要返回一个占位符而不是null
-            ONode placeholder = new ONode().asObject();
-            placeholder.set(SchemaKeyword.TYPE, SchemaType.OBJECT);
-            placeholder.set(SchemaKeyword.DESCRIPTION, "Circular reference to " + typeEggg.getType().getSimpleName());
-            return placeholder;
+            return handleCircularReference(typeEggg);
         } else {
             visited.put(typeEggg, null);
         }
@@ -305,6 +255,21 @@ public class JsonSchemaGenerator {
         } finally {
             visited.remove(typeEggg);
         }
+    }
+
+    private ONode handleCircularReference(TypeEggg typeEggg) {
+        if (enableDefinitions) {
+            // 如果启用了定义，为循环引用创建引用
+            String definitionName = getDefinitionName(typeEggg);
+            if (definitions.containsKey(definitionName)) {
+                return createReference(definitionName);
+            }
+        }
+
+        // 即使没有启用定义，也要返回一个占位符而不是null
+        return new ONode().asObject()
+                .set(SchemaKeyword.TYPE, SchemaType.OBJECT)
+                .set(SchemaKeyword.DESCRIPTION, "Circular reference detected for: " + typeEggg.getType().getSimpleName());
     }
 
     // 处理数组类型
