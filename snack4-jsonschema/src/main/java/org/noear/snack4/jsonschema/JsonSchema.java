@@ -46,6 +46,7 @@ public class JsonSchema {
 
     public static JsonSchema ofType(Type type) {
         Objects.requireNonNull(type, "type");
+
         ONode oNode = new JsonSchemaGenerator(type).generate();
         if (oNode == null) {
             throw new JsonSchemaException("The type jsonSchema generation failed: " + type.toString());
@@ -99,12 +100,12 @@ public class JsonSchema {
         }
 
         // 2. 处理对象属性校验
-        if (dataNode.isObject() && schemaNode.hasKey("properties")) {
+        if (dataNode.isObject() && schemaNode.hasKey(SchemaKeywords.KEYWORD_PROPERTIES)) {
             validateProperties(schemaNode, dataNode, path);
         }
 
         // 3. 处理数组项校验
-        if (dataNode.isArray() && schemaNode.hasKey("items")) {
+        if (dataNode.isArray() && schemaNode.hasKey(SchemaKeywords.KEYWORD_ITEMS)) {
             validateArrayItems(schemaNode, dataNode, path);
         }
 
@@ -113,7 +114,7 @@ public class JsonSchema {
     }
 
     private void validateArrayItems(ONode schemaNode, ONode dataNode, PathTracker path) throws JsonSchemaException {
-        ONode itemsSchema = schemaNode.get("items");
+        ONode itemsSchema = schemaNode.get(SchemaKeywords.KEYWORD_ITEMS);
 
         List<ONode> items = dataNode.getArray();
         String wildcardPath = path.currentPath() + "[*]";
@@ -179,11 +180,11 @@ public class JsonSchema {
             }
         }
 
-        if (key.equals("anyOf") && matchCount == 0) {
+        if (key.equals(SchemaKeywords.KEYWORD_ANYOF) && matchCount == 0) {
             throw new JsonSchemaException("Failed to satisfy anyOf constraints at " + path.currentPath() + ". Errors: " + errorMessages);
         }
 
-        if (key.equals("oneOf") && matchCount != 1) {
+        if (key.equals(SchemaKeywords.KEYWORD_ONEOF) && matchCount != 1) {
             throw new JsonSchemaException("Must satisfy exactly one of oneOf constraints (found " + matchCount + ") at " + path.currentPath() + ". Errors: " + errorMessages);
         }
     }
@@ -209,12 +210,12 @@ public class JsonSchema {
         }
 
         // 2. 处理对象属性校验
-        if (dataNode.isObject() && schemaNode.hasKey("properties")) {
+        if (dataNode.isObject() && schemaNode.hasKey(SchemaKeywords.KEYWORD_PROPERTIES)) {
             validatePropertiesWithRules(schemaNode, dataNode, path, rules);
         }
 
         // 3. 处理数组项校验
-        if (dataNode.isArray() && schemaNode.hasKey("items")) {
+        if (dataNode.isArray() && schemaNode.hasKey(SchemaKeywords.KEYWORD_ITEMS)) {
             validateArrayItemsWithRules(schemaNode, dataNode, path, rules);
         }
 
@@ -293,8 +294,8 @@ public class JsonSchema {
     }
 
     private void compileSchemaRecursive(ONode schemaNode, Map<String, CompiledRule> rules, PathTracker path) {
-        if (schemaNode.hasKey("$ref")) {
-            String refPath = schemaNode.get("$ref").getString();
+        if (schemaNode.hasKey(SchemaKeywords.KEYWORD_REF)) {
+            String refPath = schemaNode.get(SchemaKeywords.KEYWORD_REF).getString();
             ONode referencedSchema = resolveRef(refPath);
             if (referencedSchema != null) {
                 // 解析 $ref，并 *在当前路径* 编译引用的内容
