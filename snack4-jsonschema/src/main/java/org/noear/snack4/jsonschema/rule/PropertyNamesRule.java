@@ -5,6 +5,7 @@ import org.noear.snack4.jsonschema.JsonSchemaException;
 import org.noear.snack4.jsonschema.PathTracker;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
+import org.noear.snack4.util.Asserts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +112,7 @@ public class PropertyNamesRule implements ValidationRule {
         // 如果有明确的类型约束，按照约束创建节点
         if (SchemaType.INTEGER.equals(expectedType)) {
             // 期望 integer 类型，尝试转换为数字
-            if (isIntegerString(propName)) {
+            if (Asserts.isInteger(propName)) {
                 try {
                     long value = Long.parseLong(propName);
                     return ONode.ofBean(value);
@@ -125,7 +126,7 @@ public class PropertyNamesRule implements ValidationRule {
             }
         } else if (SchemaType.NUMBER.equals(expectedType)) {
             // 期望 number 类型，尝试转换为数字
-            if (isNumericString(propName)) {
+            if (Asserts.isNumber(propName)) {
                 try {
                     double value = Double.parseDouble(propName);
                     return ONode.ofBean(value);
@@ -140,37 +141,6 @@ public class PropertyNamesRule implements ValidationRule {
         } else {
             // 期望 string 类型或其他类型，或者没有类型约束，保持为字符串
             return ONode.ofBean(propName);
-        }
-    }
-
-    private boolean isIntegerString(String str) {
-        if (str == null || str.isEmpty()) {
-            return false;
-        }
-        // 允许负号开头
-        int start = 0;
-        if (str.charAt(0) == '-') {
-            if (str.length() == 1) return false; // 只有负号不行
-            start = 1;
-        }
-
-        for (int i = start; i < str.length(); i++) {
-            if (!Character.isDigit(str.charAt(i))) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean isNumericString(String str) {
-        if (str == null || str.isEmpty()) {
-            return false;
-        }
-        try {
-            Double.parseDouble(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
         }
     }
 
