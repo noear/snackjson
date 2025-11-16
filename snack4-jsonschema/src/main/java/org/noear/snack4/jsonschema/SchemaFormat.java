@@ -26,4 +26,5 @@ public interface SchemaFormat {
     String DATE_TIME = "date-time";
     String DATE = "date";
     String TIME = "time";
+    String EMAIL = "email";
 }

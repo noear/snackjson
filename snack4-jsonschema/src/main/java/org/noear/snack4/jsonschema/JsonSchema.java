@@ -348,6 +348,11 @@ public class JsonSchema {
             localRules.add(new AdditionalPropertiesRule(schemaNode));
         }
 
+        // propertyNames 规则
+        if (schemaNode.hasKey(SchemaKeyword.PROPERTY_NAMES)) {
+            localRules.add(new PropertyNamesRule(schemaNode));
+        }
+
         if (!localRules.isEmpty()) {
             // 允许多个规则 (例如 "allOf" 合并) 在同一路径上。
             CompiledRule existingRule = rules.get(path.currentPath());

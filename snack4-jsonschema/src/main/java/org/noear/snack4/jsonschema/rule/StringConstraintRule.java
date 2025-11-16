@@ -18,7 +18,11 @@ package org.noear.snack4.jsonschema.rule;
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 import org.noear.snack4.jsonschema.PathTracker;
+import org.noear.snack4.jsonschema.SchemaFormat;
+import org.noear.snack4.jsonschema.SchemaKeyword;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.regex.Pattern;
 
 /**
@@ -31,13 +35,17 @@ public class StringConstraintRule implements ValidationRule {
     private final Integer minLength;
     private final Integer maxLength;
     private final String patternString;
+    private final String format; // 新增字段
 
     private final Pattern compiledPattern;
 
     public StringConstraintRule(ONode schemaNode) {
+
+
         this.minLength = schemaNode.hasKey("minLength") ? schemaNode.get("minLength").getInt() : null;
         this.maxLength = schemaNode.hasKey("maxLength") ? schemaNode.get("maxLength").getInt() : null;
         this.patternString = schemaNode.hasKey("pattern") ? schemaNode.get("pattern").getString() : null;
+        this.format = schemaNode.hasKey(SchemaKeyword.FORMAT) ? schemaNode.get(SchemaKeyword.FORMAT).getString() : null;
 
         // 预编译
         if (this.patternString != null) {
@@ -67,6 +75,28 @@ public class StringConstraintRule implements ValidationRule {
         // 使用预编译的 Pattern
         if (compiledPattern != null && !compiledPattern.matcher(value).matches()) {
             throw new JsonSchemaException("String does not match pattern: " + patternString + " at " + currentPath);
+        }
+
+        // 新增：Format 校验
+        if (format != null) {
+            if (format.equals(SchemaFormat.URI)) {
+                // 这是一个简化的 URI 验证，可能需要更复杂的实现
+                if (!isValidUri(value)) {
+                    throw new JsonSchemaException("String is not a valid URI format: " + value + " at " + currentPath);
+                }
+            }
+            // 可以添加 date-time, email 等其他 format 检查
+        }
+
+    }
+
+    private boolean isValidUri(String value) {
+        try {
+            // 使用 Java 内建的 URI 解析器进行验证
+            new URI(value).parseServerAuthority();
+            return true;
+        } catch (URISyntaxException e) {
+            return false;
         }
     }
 }
