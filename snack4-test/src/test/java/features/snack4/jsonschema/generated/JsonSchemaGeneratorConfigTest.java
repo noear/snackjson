@@ -3,7 +3,7 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.JsonSchema;
 import org.noear.snack4.jsonschema.SchemaVersion;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,10 +17,11 @@ class JsonSchemaGeneratorConfigTest {
     @Test
     @DisplayName("测试启用版本信息")
     void testWithVersion() {
-        ONode schema = JsonSchemaConfig.builder()
+        ONode schema = JsonSchema.builder()
                 .printVersion(true)
                 .build()
-                .createSchema(String.class);
+                .createGenerator(String.class)
+                .generate();
 
         assertTrue(schema.hasKey("$schema"));
         assertEquals(SchemaVersion.DRAFT_7.getIdentifier(), schema.get("$schema").getString());
@@ -29,10 +30,11 @@ class JsonSchemaGeneratorConfigTest {
     @Test
     @DisplayName("测试启用定义")
     void testWithDefinitions() {
-        ONode schema = JsonSchemaConfig.builder()
+        ONode schema = JsonSchema.builder()
                 .enableDefinitions(true)
                 .build()
-                .createSchema(String.class);
+                .createGenerator(String.class)
+                .generate();
 
         assertTrue(schema.hasKey("definitions") || schema.hasKey("$defs"));
     }
@@ -41,11 +43,12 @@ class JsonSchemaGeneratorConfigTest {
     @DisplayName("测试不同版本模式")
     void testDifferentVersions() {
         for (SchemaVersion version : SchemaVersion.values()) {
-            ONode schema = JsonSchemaConfig.builder()
+            ONode schema = JsonSchema.builder()
                     .version(version)
                     .printVersion(true)
                     .build()
-                    .createSchema(String.class);
+                    .createGenerator(String.class)
+                    .generate();
 
             assertEquals(version.getIdentifier(), schema.get("$schema").getString());
         }

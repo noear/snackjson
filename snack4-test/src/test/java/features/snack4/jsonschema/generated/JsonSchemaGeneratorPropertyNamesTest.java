@@ -4,10 +4,10 @@ import lombok.Data;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.JsonSchema;
 import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.jsonschema.JsonSchemaException;
-import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator; // 假设路径正确
+
 import java.util.Map;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,7 +23,7 @@ class JsonSchemaGeneratorPropertyNamesTest {
     @DisplayName("Generator: Map<Integer, String> 应生成 propertyNames: {type: integer}")
     void testGeneratorProducesIntKeyConstraint() {
         // 1. 生成 Schema
-        ONode schemaNode = JsonSchemaConfig.DEFAULT.createSchema(IntKeyMapBean.class);
+        ONode schemaNode = JsonSchema.DEFAULT.createGenerator(IntKeyMapBean.class).generate();
 
         // 期望的 propertyNames 约束
         ONode expectedPropertyNames = new ONode().set("type", "integer");
@@ -42,7 +42,7 @@ class JsonSchemaGeneratorPropertyNamesTest {
         assertEquals(expectedPropertyNames.toJson(), actualPropertyNames.toJson(), "propertyNames约束应为{type: integer}");
 
         // 3. 使用生成的 Schema 进行验证
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(IntKeyMapBean.class);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(IntKeyMapBean.class);
 
         // 有效用例：键是数字字符串（符合 integer 约束）
         String validJson = "{\"data\": {\"101\": \"valueA\", \"2\": \"valueB\"}}";
@@ -58,7 +58,7 @@ class JsonSchemaGeneratorPropertyNamesTest {
     @DisplayName("Generator: Map<String, String> 不应生成 propertyNames (或只生成默认约束)")
     void testGeneratorDoesNotProduceSpecificStringKeyConstraint() {
         // 1. 生成 Schema
-        ONode schemaNode = JsonSchemaConfig.DEFAULT.createSchema(StringKeyMapBean.class);
+        ONode schemaNode = JsonSchema.DEFAULT.createGenerator(StringKeyMapBean.class).generate();
 
         // 2. 验证生成的 Schema 结构
         assertNotNull(schemaNode, "生成的Schema不应为null");
@@ -81,7 +81,7 @@ class JsonSchemaGeneratorPropertyNamesTest {
         }
 
         // 3. 使用生成的 Schema 进行验证
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(StringKeyMapBean.class);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(StringKeyMapBean.class);
 
         // 有效用例：任意字符串键都应通过验证
         String validJson = "{\"data\": {\"any-key-1\": \"valueA\", \"222\": \"valueB\"}}";

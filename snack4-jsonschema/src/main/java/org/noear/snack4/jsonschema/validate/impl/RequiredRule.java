@@ -13,44 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.validate.rule;
+package org.noear.snack4.jsonschema.validate.impl;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 import org.noear.snack4.jsonschema.validate.PathTracker;
+import org.noear.snack4.jsonschema.validate.ValidationRule;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * 枚举验证规则实现
+ * 必需字段验证规则
  *
  * @author noear
  * @since 4.0
  */
-public class EnumRule implements ValidationRule {
-    private final Set<ONode> allowedValues;
+public class RequiredRule implements ValidationRule {
+    private final List<String> requiredFields;
 
-    public EnumRule(ONode enumNode) {
-        this.allowedValues = new HashSet<>();
-        if (enumNode.isArray()) {
-            for (ONode value : enumNode.getArray()) {
-                allowedValues.add(value);
-            }
-        }
+    public RequiredRule(ONode requiredNode) {
+        this.requiredFields = requiredNode.getArray()
+                .stream()
+                .map(ONode::getString)
+                .collect(Collectors.toList());
     }
 
     @Override
     public void validate(ONode data, PathTracker path) throws JsonSchemaException {
-        if (!allowedValues.contains(data)) {
-            throw new JsonSchemaException("Value '" + data.toJson() + "' not in enum list " + allowedValues + " at " + path.currentPath());
+        if (!data.isObject()) {
+            return;
         }
-    }
 
-    @Override
-    public String toString() {
-        return "EnumRule{" +
-                "allowedValues=" + allowedValues +
-                '}';
+        String currentPath = path.currentPath();
+
+        for (String field : requiredFields) {
+            if (!data.getObject().containsKey(field)) {
+                throw new JsonSchemaException("Missing required field: " + field + " at " + currentPath);
+            }
+        }
     }
 }

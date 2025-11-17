@@ -13,43 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.validate.rule;
+package org.noear.snack4.jsonschema.validate.impl;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 import org.noear.snack4.jsonschema.validate.PathTracker;
+import org.noear.snack4.jsonschema.validate.ValidationRule;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * 必需字段验证规则
+ * 枚举验证规则实现
  *
  * @author noear
  * @since 4.0
  */
-public class RequiredRule implements ValidationRule {
-    private final List<String> requiredFields;
+public class EnumRule implements ValidationRule {
+    private final Set<ONode> allowedValues;
 
-    public RequiredRule(ONode requiredNode) {
-        this.requiredFields = requiredNode.getArray()
-                .stream()
-                .map(ONode::getString)
-                .collect(Collectors.toList());
+    public EnumRule(ONode enumNode) {
+        this.allowedValues = new HashSet<>();
+        if (enumNode.isArray()) {
+            for (ONode value : enumNode.getArray()) {
+                allowedValues.add(value);
+            }
+        }
     }
 
     @Override
     public void validate(ONode data, PathTracker path) throws JsonSchemaException {
-        if (!data.isObject()) {
-            return;
+        if (!allowedValues.contains(data)) {
+            throw new JsonSchemaException("Value '" + data.toJson() + "' not in enum list " + allowedValues + " at " + path.currentPath());
         }
+    }
 
-        String currentPath = path.currentPath();
-
-        for (String field : requiredFields) {
-            if (!data.getObject().containsKey(field)) {
-                throw new JsonSchemaException("Missing required field: " + field + " at " + currentPath);
-            }
-        }
+    @Override
+    public String toString() {
+        return "EnumRule{" +
+                "allowedValues=" + allowedValues +
+                '}';
     }
 }

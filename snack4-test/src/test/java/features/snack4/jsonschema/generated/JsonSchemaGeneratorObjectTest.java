@@ -3,7 +3,7 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.JsonSchema;
 import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator;
 
 import java.util.List;
@@ -125,10 +125,11 @@ class JsonSchemaGeneratorObjectTest {
     @Test
     @DisplayName("生成复杂嵌套对象模式")
     void testComplexNestedObject() {
-        ONode schema = JsonSchemaConfig.builder()
+        ONode schema = JsonSchema.builder()
                 .enableDefinitions(true)
                 .build()
-                .createSchema(Company.class);
+                .createGenerator(Company.class)
+                .generate();
 
         assertEquals("object", schema.get("type").getString());
 

@@ -1,7 +1,7 @@
 package features.snack4.jsonschema.victools;
 
 import org.junit.jupiter.api.Test;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.JsonSchema;
 
 /**
  *
@@ -14,7 +14,7 @@ public class CompatibleTest1 extends BaseCompatibleTest {
         String json = schemaGenerator.generateSchema(TestSampleEntity.class).toString();
         System.out.println(json);
 
-        String json2 = JsonSchemaConfig.builder()
+        String json2 = JsonSchema.builder()
                 .printVersion(false)
                 .enableDefinitions(true)
                 .build()

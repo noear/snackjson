@@ -18,7 +18,7 @@ package org.noear.snack4.jsonschema.validate;
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 import org.noear.snack4.jsonschema.SchemaKeyword;
-import org.noear.snack4.jsonschema.validate.rule.*;
+import org.noear.snack4.jsonschema.validate.impl.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;

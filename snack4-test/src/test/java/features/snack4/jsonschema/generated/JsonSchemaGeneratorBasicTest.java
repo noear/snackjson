@@ -3,7 +3,6 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
 import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator;
 
 import java.math.BigDecimal;

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.JsonSchema;
 import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 
@@ -25,7 +25,7 @@ class JsonSchemaConstraintTest {
                 "\"minimum\": 0," +
                 "\"maximum\": 100" +
                 "}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         // 有效用例
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean(0)));
@@ -45,7 +45,7 @@ class JsonSchemaConstraintTest {
                 "\"minimum\": -10," +
                 "\"maximum\": 10" +
                 "}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         // 有效用例
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean(-10)));
@@ -66,7 +66,7 @@ class JsonSchemaConstraintTest {
                 "\"minLength\": 2," +
                 "\"maxLength\": 5" +
                 "}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         // 有效用例
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean("ab")));
@@ -85,7 +85,7 @@ class JsonSchemaConstraintTest {
                 "\"type\": \"string\"," +
                 "\"pattern\": \"^[a-z0-9-]+$\"" +
                 "}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean(value)));
     }
@@ -98,7 +98,7 @@ class JsonSchemaConstraintTest {
                 "\"type\": \"string\"," +
                 "\"pattern\": \"^[a-z0-9-]+$\"" +
                 "}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         assertThrows(JsonSchemaException.class, () -> schema.validate(ONode.ofBean(value)));
     }

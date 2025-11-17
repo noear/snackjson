@@ -3,7 +3,7 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.JsonSchema;
 import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 
@@ -42,7 +42,7 @@ class JsonSchemaComplexTest {
                 "\"required\": [\"user\"]" +
                 "}";
 
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         // 无效用例 - 邮箱格式错误
         String invalidData2 = "{" +
@@ -76,7 +76,7 @@ class JsonSchemaComplexTest {
                 "}" +
                 "}";
 
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         // 有效用例
         String validData = "{" +

@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.validate.rule;
+package org.noear.snack4.jsonschema.validate.impl;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 import org.noear.snack4.jsonschema.validate.PathTracker;
+import org.noear.snack4.jsonschema.validate.ValidationRule;
 
 import java.util.HashSet;
 import java.util.List;

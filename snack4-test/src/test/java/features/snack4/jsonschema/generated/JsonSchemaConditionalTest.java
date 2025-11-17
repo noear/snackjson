@@ -3,7 +3,7 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.JsonSchema;
 import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 
@@ -24,7 +24,7 @@ class JsonSchemaConditionalTest {
                 "  {\"type\": \"number\"}" +
                 "]" +
                 "}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         // 有效用例 - 满足任一条件
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean("hello")));
@@ -43,7 +43,7 @@ class JsonSchemaConditionalTest {
                 "  {\"minLength\": 3}" +
                 "]" +
                 "}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         // 有效用例 - 满足所有条件
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean("abc")));
@@ -62,7 +62,7 @@ class JsonSchemaConditionalTest {
                 "  {\"type\": \"string\", \"minLength\": 10}" +
                 "]" +
                 "}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         // 有效用例 - 恰好满足一个条件
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean("short"))); // 第一个条件

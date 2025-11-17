@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.validate.rule;
+package org.noear.snack4.jsonschema.validate;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
-import org.noear.snack4.jsonschema.validate.PathTracker;
 
 /**
- * 预编译规则接口
+ * 验证规则
  *
  * @author noear
  * @since 4.0
  */
 public interface ValidationRule {
+    /**
+     * 验证
+     */
     void validate(ONode data, PathTracker path) throws JsonSchemaException;
 }

@@ -35,7 +35,7 @@ import java.util.*;
  * @since 4.0
  */
 public class JsonSchemaGenerator {
-    private final JsonSchemaConfig config;
+    private final JsonSchema config;
     private final TypeEggg source0;
     private final Map<Object, Object> visited;
 
@@ -43,10 +43,10 @@ public class JsonSchemaGenerator {
     private int definitionCounter = 0;
 
     public JsonSchemaGenerator(Type type) {
-        this(type, JsonSchemaConfig.DEFAULT);
+        this(type, JsonSchema.DEFAULT);
     }
 
-    public JsonSchemaGenerator(Type type, JsonSchemaConfig config) {
+    public JsonSchemaGenerator(Type type, JsonSchema config) {
         Objects.requireNonNull(type, "Type cannot be null");
         Objects.requireNonNull(config, "Config cannot be null");
 
@@ -61,10 +61,10 @@ public class JsonSchemaGenerator {
     }
 
     public JsonSchemaGenerator(TypeEggg typeEggg) {
-        this(typeEggg, JsonSchemaConfig.DEFAULT);
+        this(typeEggg, JsonSchema.DEFAULT);
     }
 
-    public JsonSchemaGenerator(TypeEggg typeEggg, JsonSchemaConfig config) {
+    public JsonSchemaGenerator(TypeEggg typeEggg, JsonSchema config) {
         Objects.requireNonNull(typeEggg, "TypeEggg cannot be null");
         Objects.requireNonNull(config, "Config cannot be null");
 

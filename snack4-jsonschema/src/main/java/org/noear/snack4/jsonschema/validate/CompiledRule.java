@@ -17,7 +17,6 @@ package org.noear.snack4.jsonschema.validate;
 
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.JsonSchemaException;
-import org.noear.snack4.jsonschema.validate.rule.ValidationRule;
 
 import java.util.List;
 

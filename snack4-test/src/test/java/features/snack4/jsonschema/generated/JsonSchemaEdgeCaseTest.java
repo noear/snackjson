@@ -3,7 +3,7 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.JsonSchema;
 import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,7 +18,7 @@ class JsonSchemaEdgeCaseTest {
     @DisplayName("验证空对象")
     void testEmptyObject() {
         String schemaJson = "{\"type\": \"object\"}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         assertDoesNotThrow(() -> schema.validate(ONode.ofJson("{}")));
     }
@@ -27,7 +27,7 @@ class JsonSchemaEdgeCaseTest {
     @DisplayName("验证空数组")
     void testEmptyArray() {
         String schemaJson = "{\"type\": \"array\"}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         assertDoesNotThrow(() -> schema.validate(ONode.ofJson("[]")));
     }
@@ -36,7 +36,7 @@ class JsonSchemaEdgeCaseTest {
     @DisplayName("验证空字符串")
     void testEmptyString() {
         String schemaJson = "{\"type\": \"string\"}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean("")));
     }
@@ -45,7 +45,7 @@ class JsonSchemaEdgeCaseTest {
     @DisplayName("验证零值")
     void testZeroValue() {
         String schemaJson = "{\"type\": \"number\"}";
-        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema = JsonSchema.DEFAULT.createValidator(schemaJson);
 
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean(0)));
         assertDoesNotThrow(() -> schema.validate(ONode.ofBean(0.0)));

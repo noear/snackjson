@@ -2,9 +2,8 @@ package features.snack4.jsonschema.generated;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.JsonSchema;
 import org.noear.snack4.jsonschema.JsonSchemaException;
-import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator;
 
 import java.lang.reflect.Type;
 
@@ -20,7 +19,7 @@ class JsonSchemaGeneratorExceptionTest {
     @DisplayName("测试空类型异常")
     void testNullType() {
         assertThrows(NullPointerException.class, () -> {
-            JsonSchemaConfig.DEFAULT.createValidator((Type) null);
+            JsonSchema.DEFAULT.createValidator((Type) null);
         });
     }
 
@@ -28,7 +27,7 @@ class JsonSchemaGeneratorExceptionTest {
     @DisplayName("测试void类型异常")
     void testVoidType() {
         assertThrows(JsonSchemaException.class, () -> {
-            JsonSchemaConfig.DEFAULT.createValidator(void.class);
+            JsonSchema.DEFAULT.createValidator(void.class);
         });
     }
 }
