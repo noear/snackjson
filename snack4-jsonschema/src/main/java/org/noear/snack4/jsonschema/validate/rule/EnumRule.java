@@ -13,40 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema;
+package org.noear.snack4.jsonschema.validate.rule;
 
 import org.noear.snack4.ONode;
-import org.noear.snack4.jsonschema.rule.ValidationRule;
+import org.noear.snack4.jsonschema.JsonSchemaException;
+import org.noear.snack4.jsonschema.validate.PathTracker;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
- * 编译验证规则实现
+ * 枚举验证规则实现
  *
  * @author noear
  * @since 4.0
  */
-public class CompiledRule {
-    private final List<ValidationRule> rules;
+public class EnumRule implements ValidationRule {
+    private final Set<ONode> allowedValues;
 
-    public CompiledRule(List<ValidationRule> rules) {
-        this.rules = rules;
+    public EnumRule(ONode enumNode) {
+        this.allowedValues = new HashSet<>();
+        if (enumNode.isArray()) {
+            for (ONode value : enumNode.getArray()) {
+                allowedValues.add(value);
+            }
+        }
     }
 
-    public void addRules(List<ValidationRule> newRules) {
-        this.rules.addAll(newRules);
-    }
-
+    @Override
     public void validate(ONode data, PathTracker path) throws JsonSchemaException {
-        for (ValidationRule rule : rules) {
-            rule.validate(data, path);
+        if (!allowedValues.contains(data)) {
+            throw new JsonSchemaException("Value '" + data.toJson() + "' not in enum list " + allowedValues + " at " + path.currentPath());
         }
     }
 
     @Override
     public String toString() {
-        return "CompiledRule{" +
-                "rules=" + rules +
+        return "EnumRule{" +
+                "allowedValues=" + allowedValues +
                 '}';
     }
 }

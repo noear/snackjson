@@ -3,7 +3,8 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchema;
+import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,7 +26,7 @@ class JsonSchemaPropertyNamesValidationTest {
                 "    \"maxLength\": 5" +
                 "  }" +
                 "}";
-        JsonSchema schema = JsonSchema.ofJson(schemaJson);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
 
         // 有效用例：所有属性名长度在 3 到 5 之间
         assertDoesNotThrow(() -> schema.validate(ONode.ofJson("{\"key\": 1, \"name\": 2, \"id01\": 3}")));
@@ -51,7 +52,7 @@ class JsonSchemaPropertyNamesValidationTest {
                 "    \"pattern\": \"^[0-9]+$\"" + // 属性名必须只包含数字
                 "  }" +
                 "}";
-        JsonSchema schema = JsonSchema.ofJson(schemaJson);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
 
         // 有效用例：属性名全部是数字
         assertDoesNotThrow(() -> schema.validate(ONode.ofJson("{\"101\": 1, \"25\": 2}")));
@@ -74,7 +75,7 @@ class JsonSchemaPropertyNamesValidationTest {
                 "    \"format\": \"uri\"" +
                 "  }" +
                 "}";
-        JsonSchema schema = JsonSchema.ofJson(schemaJson);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
 
         // 有效用例：属性名是有效的URI（通常是URL）
         assertDoesNotThrow(() -> schema.validate(ONode.ofJson("{\"http://example.com/id\": 1}")));

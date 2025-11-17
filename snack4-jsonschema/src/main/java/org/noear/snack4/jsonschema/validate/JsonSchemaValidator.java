@@ -13,16 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema;
+package org.noear.snack4.jsonschema.validate;
 
 import org.noear.snack4.ONode;
-import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator;
-import org.noear.snack4.jsonschema.rule.*;
-import org.noear.snack4.util.Asserts;
+import org.noear.snack4.jsonschema.JsonSchemaException;
+import org.noear.snack4.jsonschema.SchemaKeyword;
+import org.noear.snack4.jsonschema.validate.rule.*;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -32,33 +31,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author noear
  * @since 4.0
  */
-public class JsonSchema {
-    public static JsonSchema ofJson(String jsonSchema) {
-        if (Asserts.isEmpty(jsonSchema)) {
-            throw new IllegalArgumentException("jsonSchema is empty");
-        }
-        return new JsonSchema(ONode.ofJson(jsonSchema));
-    }
-
-    public static JsonSchema ofNode(ONode jsonSchema) {
-        return new JsonSchema(jsonSchema);
-    }
-
-    public static JsonSchema ofType(Type type) {
-        Objects.requireNonNull(type, "type");
-
-        ONode oNode = new JsonSchemaGenerator(type).generate();
-        if (oNode == null) {
-            throw new JsonSchemaException("The type jsonSchema generation failed: " + type.toString());
-        }
-        return new JsonSchema(oNode);
-    }
-
+public class JsonSchemaValidator {
     private final ONode schema;
     private final Map<String, CompiledRule> compiledRules;
     private final Map<ONode, Map<String, CompiledRule>> fragmentCache = new ConcurrentHashMap<>();
 
-    public JsonSchema(ONode schema) {
+    public JsonSchemaValidator(ONode schema) {
         if (!schema.isObject()) {
             throw new IllegalArgumentException("Schema must be a JSON object");
         }

@@ -1,4 +1,8 @@
 
+### 4.0.14
+
+* 修复 BigIntegerDecoder，BigDecimalDecoder 不能转数字的问题（4.0.13 出现的）
+
 ### 4.0.13
 
 * 优化 snack4 空字符串的解码处理

@@ -3,7 +3,8 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchema;
+import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,31 +19,31 @@ class JsonSchemaExceptionTest {
     void testInvalidSchemaFormat() {
         // 非对象模式
         assertThrows(IllegalArgumentException.class, () ->
-                JsonSchema.ofJson("\"not an object\""));
+                JsonSchemaConfig.DEFAULT.createValidator("\"not an object\""));
 
         // 空字符串
         assertThrows(IllegalArgumentException.class, () ->
-                JsonSchema.ofJson(""));
+                JsonSchemaConfig.DEFAULT.createValidator(""));
 
         // 无效JSON
         assertThrows(RuntimeException.class, () ->
-                JsonSchema.ofJson("{invalid json}"));
+                JsonSchemaConfig.DEFAULT.createValidator("{invalid json}"));
     }
 
     @Test
     @DisplayName("测试空类型")
     void testNullType() {
         assertThrows(NullPointerException.class, () ->
-                JsonSchema.ofType(null));
+                JsonSchemaConfig.DEFAULT.createValidator((Class)null));
     }
 
     @Test
     @DisplayName("测试工厂方法")
     void testFactoryMethods() {
         String schemaJson = "{\"type\": \"string\"}";
-        JsonSchema schema1 = JsonSchema.ofJson(schemaJson);
-        JsonSchema schema2 = JsonSchema.ofNode(ONode.ofJson(schemaJson));
-        JsonSchema schema3 = JsonSchema.ofType(String.class);
+        JsonSchemaValidator schema1 = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
+        JsonSchemaValidator schema2 = JsonSchemaConfig.DEFAULT.createValidator(ONode.ofJson(schemaJson));
+        JsonSchemaValidator schema3 = JsonSchemaConfig.DEFAULT.createValidator(String.class);
 
         assertNotNull(schema1);
         assertNotNull(schema2);

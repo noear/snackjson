@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.rule;
+package org.noear.snack4.jsonschema.validate.rule;
 
 import org.noear.snack4.ONode;
-import org.noear.snack4.jsonschema.JsonSchema;
+import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.jsonschema.JsonSchemaException;
-import org.noear.snack4.jsonschema.PathTracker;
+import org.noear.snack4.jsonschema.validate.PathTracker;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -31,7 +31,7 @@ import java.util.regex.Pattern;
  */
 public class AdditionalPropertiesRule implements ValidationRule {
     private final boolean allowAdditional;
-    private final JsonSchema additionalSchemaValidator;
+    private final JsonSchemaValidator additionalSchemaValidator;
     private final Set<String> definedProperties = new HashSet<>();
     private final Map<String, Pattern> compiledPatterns;
 
@@ -44,7 +44,7 @@ public class AdditionalPropertiesRule implements ValidationRule {
             this.additionalSchemaValidator = null;
         } else if (additionalPropsNode.isObject()) {
             this.allowAdditional = true;
-            this.additionalSchemaValidator = new JsonSchema(additionalPropsNode);
+            this.additionalSchemaValidator = new JsonSchemaValidator(additionalPropsNode);
         } else {
             // 默认 (关键字不存在)
             this.allowAdditional = true;

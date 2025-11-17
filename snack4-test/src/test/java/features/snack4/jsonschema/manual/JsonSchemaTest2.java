@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.noear.eggg.MethodEggg;
 import org.noear.snack4.annotation.ONodeAttr;
 import org.noear.snack4.codec.util.EgggUtil;
-import org.noear.snack4.jsonschema.JsonSchema;
+import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ public class JsonSchemaTest2 {
     public void csae1() throws Exception {
         MethodEggg methodEggg = EgggUtil.getTypeEggg(Tools.class).getClassEggg().findMethodEggg("getUserList");
 
-        String json = JsonSchema.ofType(methodEggg.getGenericReturnType()).toJson();
+        String json = JsonSchemaConfig.DEFAULT.createValidator(methodEggg.getGenericReturnType()).toJson();
         System.out.println(json);
 
         Assertions.assertEquals("{\"type\":\"object\",\"properties\":{\"items\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"id\":{\"type\":\"integer\",\"description\":\"用户ID\"},\"name\":{\"type\":\"string\",\"description\":\"用户名\"}},\"required\":[\"id\",\"name\"]},\"description\":\"数据列表\"},\"total\":{\"type\":\"integer\",\"description\":\"总数\"}},\"required\":[\"items\",\"total\"]}"

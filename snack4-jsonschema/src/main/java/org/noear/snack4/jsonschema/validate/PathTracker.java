@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema;
+package org.noear.snack4.jsonschema.validate;
 
 import java.util.ArrayDeque;
 import java.util.Deque;

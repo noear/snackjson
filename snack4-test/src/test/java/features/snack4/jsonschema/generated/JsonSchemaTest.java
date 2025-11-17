@@ -5,9 +5,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.noear.snack4.ONode;
 import org.noear.snack4.annotation.ONodeAttr;
-import org.noear.snack4.jsonschema.JsonSchema;
+import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator;
 
+import java.lang.reflect.Type;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -24,7 +26,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_String() {
-        JsonSchema schema = JsonSchema.ofType(String.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(String.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -34,7 +36,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_Integer() {
-        JsonSchema schema = JsonSchema.ofType(Integer.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Integer.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -43,7 +45,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_int() {
-        JsonSchema schema = JsonSchema.ofType(int.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(int.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -52,7 +54,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_Double() {
-        JsonSchema schema = JsonSchema.ofType(Double.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Double.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -61,7 +63,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_double() {
-        JsonSchema schema = JsonSchema.ofType(double.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(double.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -70,7 +72,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_Boolean() {
-        JsonSchema schema = JsonSchema.ofType(Boolean.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Boolean.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -79,7 +81,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_boolean() {
-        JsonSchema schema = JsonSchema.ofType(boolean.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(boolean.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -88,7 +90,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_BigInteger() {
-        JsonSchema schema = JsonSchema.ofType(BigInteger.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(BigInteger.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -97,7 +99,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_BigDecimal() {
-        JsonSchema schema = JsonSchema.ofType(BigDecimal.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(BigDecimal.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -106,7 +108,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_Date() {
-        JsonSchema schema = JsonSchema.ofType(Date.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Date.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -116,7 +118,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_URI() {
-        JsonSchema schema = JsonSchema.ofType(URI.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(URI.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -127,7 +129,7 @@ class JsonSchemaTest {
     @Test
     void testOfType_void() {
         Assertions.assertThrows(Throwable.class, ()->{
-            JsonSchema.ofType(void.class);
+            JsonSchemaConfig.DEFAULT.createValidator(void.class);
         });
     }
 
@@ -135,7 +137,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_StringArray() {
-        JsonSchema schema = JsonSchema.ofType(String[].class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(String[].class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -145,7 +147,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_IntegerArray() {
-        JsonSchema schema = JsonSchema.ofType(Integer[].class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Integer[].class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -155,7 +157,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_List() {
-        JsonSchema schema = JsonSchema.ofType(List.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(List.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -164,7 +166,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_ArrayList() {
-        JsonSchema schema = JsonSchema.ofType(ArrayList.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(ArrayList.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -173,7 +175,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_Set() {
-        JsonSchema schema = JsonSchema.ofType(Set.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Set.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -184,7 +186,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_Map() {
-        JsonSchema schema = JsonSchema.ofType(Map.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Map.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -193,7 +195,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_HashMap() {
-        JsonSchema schema = JsonSchema.ofType(HashMap.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(HashMap.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -208,7 +210,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_Enum() {
-        JsonSchema schema = JsonSchema.ofType(TestEnum.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(TestEnum.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -229,7 +231,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_SimplePojo() {
-        JsonSchema schema = JsonSchema.ofType(SimpleUser.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(SimpleUser.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -253,7 +255,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_PojoWithAnnotations() {
-        JsonSchema schema = JsonSchema.ofType(UserWithAnnotations.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(UserWithAnnotations.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -292,7 +294,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_NestedPojo() {
-        JsonSchema schema = JsonSchema.ofType(UserWithAddress.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(UserWithAddress.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -323,7 +325,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_GenericClass() {
-        JsonSchema schema = JsonSchema.ofType(GenericResponse.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(GenericResponse.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -339,7 +341,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_OptionalString() {
-        JsonSchema schema = JsonSchema.ofType(Optional.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Optional.class);
         String json = schema.toJson();
 
         // Optional 类型应该被解包处理
@@ -353,7 +355,7 @@ class JsonSchemaTest {
     void testOfType_ListOfStrings() {
         // 注意：由于类型擦除，直接测试 List<String> 可能无法获取泛型信息
         // 这里主要测试基础 List 类型
-        JsonSchema schema = JsonSchema.ofType(List.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(List.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -362,7 +364,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_MapStringObject() {
-        JsonSchema schema = JsonSchema.ofType(Map.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Map.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -383,7 +385,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_Inheritance() {
-        JsonSchema schema = JsonSchema.ofType(Employee.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(Employee.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -405,7 +407,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_StaticNestedClass() {
-        JsonSchema schema = JsonSchema.ofType(StaticNestedClass.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(StaticNestedClass.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -421,7 +423,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_Interface() {
-        JsonSchema schema = JsonSchema.ofType(SomeInterface.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(SomeInterface.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -433,7 +435,7 @@ class JsonSchemaTest {
 
     @Test
     void testToJson_ValidJson() {
-        JsonSchema schema = JsonSchema.ofType(String.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(String.class);
         String json = schema.toJson();
 
         // 验证输出是有效的 JSON
@@ -446,8 +448,8 @@ class JsonSchemaTest {
 
     @Test
     void testToJson_ConsistentOutput() {
-        JsonSchema schema1 = JsonSchema.ofType(String.class);
-        JsonSchema schema2 = JsonSchema.ofType(String.class);
+        JsonSchemaValidator schema1 = JsonSchemaConfig.DEFAULT.createValidator(String.class);
+        JsonSchemaValidator schema2 = JsonSchemaConfig.DEFAULT.createValidator(String.class);
 
         String json1 = schema1.toJson();
         String json2 = schema2.toJson();
@@ -461,7 +463,7 @@ class JsonSchemaTest {
     void testOfType_NullType() {
         // 测试 null 类型（应该使用 Void 或 void）
         assertThrows(Exception.class, () -> {
-            JsonSchema.ofType(null);
+            JsonSchemaConfig.DEFAULT.createSchema((Type) null);
         });
     }
 
@@ -479,7 +481,7 @@ class JsonSchemaTest {
     }
 
     private void testPrimitiveType(Class<?> primitiveType, String ref) {
-        JsonSchema schema = JsonSchema.ofType(primitiveType);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(primitiveType);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -497,7 +499,7 @@ class JsonSchemaTest {
         long startTime = System.currentTimeMillis();
 
         for (int i = 0; i < 100; i++) {
-            JsonSchema schema = JsonSchema.ofType(ComplexObject.class);
+            JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(ComplexObject.class);
             String json = schema.toJson();
             assertNotNull(json);
         }
@@ -528,7 +530,7 @@ class JsonSchemaTest {
 
     @Test
     void testSchemaValidation_SimpleObject() {
-        JsonSchema schema = JsonSchema.ofType(SimpleUser.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(SimpleUser.class);
         String jsonSchema = schema.toJson();
         System.out.println(jsonSchema);
 
@@ -543,7 +545,7 @@ class JsonSchemaTest {
 
     @Test
     void testToJson_WithEnumDescription() {
-        JsonSchema schema = JsonSchema.ofType(TestEnum.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(TestEnum.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);
@@ -564,9 +566,11 @@ class JsonSchemaTest {
     @Test
     void testOfType_CircularReference() {
         // 测试循环引用场景
-        ONode schema = new JsonSchemaGenerator(CircularReference.class)
-                .withEnableDefinitions(true)
-                .generate();
+        ONode schema = JsonSchemaConfig.builder()
+                .enableDefinitions(true)
+                .build()
+                .createSchema(CircularReference.class);
+
         String json = schema.toJson();
 
         System.out.println(json);
@@ -589,7 +593,7 @@ class JsonSchemaTest {
 
     @Test
     void testOfType_TransientAndStaticFields() {
-        JsonSchema schema = JsonSchema.ofType(ClassWithTransient.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(ClassWithTransient.class);
         String json = schema.toJson();
 
         ONode node = ONode.ofJson(json);

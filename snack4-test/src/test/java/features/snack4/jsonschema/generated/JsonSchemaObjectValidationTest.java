@@ -3,7 +3,8 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
-import org.noear.snack4.jsonschema.JsonSchema;
+import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,7 +25,7 @@ class JsonSchemaObjectValidationTest {
                 "  \"age\": {\"type\": \"integer\"}" +
                 "}" +
                 "}";
-        JsonSchema schema = JsonSchema.ofJson(schemaJson);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
 
         // 有效用例
         assertDoesNotThrow(() -> schema.validate(ONode.ofJson("{\"name\": \"John\", \"age\": 30}")));
@@ -46,7 +47,7 @@ class JsonSchemaObjectValidationTest {
                 "}," +
                 "\"required\": [\"name\"]" +
                 "}";
-        JsonSchema schema = JsonSchema.ofJson(schemaJson);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
 
         // 有效用例
         assertDoesNotThrow(() -> schema.validate(ONode.ofJson("{\"name\": \"John\"}")));
@@ -67,7 +68,7 @@ class JsonSchemaObjectValidationTest {
                 "}," +
                 "\"additionalProperties\": false" +
                 "}";
-        JsonSchema schema = JsonSchema.ofJson(schemaJson);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(schemaJson);
 
         // 有效用例
         assertDoesNotThrow(() -> schema.validate(ONode.ofJson("{\"name\": \"John\"}")));

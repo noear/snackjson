@@ -3,6 +3,7 @@ package features.snack4.jsonschema.generated;
 import org.noear.snack4.ONode;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
+import org.noear.snack4.jsonschema.JsonSchemaConfig;
 import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator;
 
 import java.util.List;
@@ -21,14 +22,29 @@ class JsonSchemaGeneratorObjectTest {
         private int age;
         private boolean active;
 
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
+        public String getName() {
+            return name;
+        }
 
-        public int getAge() { return age; }
-        public void setAge(int age) { this.age = age; }
+        public void setName(String name) {
+            this.name = name;
+        }
 
-        public boolean isActive() { return active; }
-        public void setActive(boolean active) { this.active = active; }
+        public int getAge() {
+            return age;
+        }
+
+        public void setAge(int age) {
+            this.age = age;
+        }
+
+        public boolean isActive() {
+            return active;
+        }
+
+        public void setActive(boolean active) {
+            this.active = active;
+        }
     }
 
     @Test
@@ -51,14 +67,29 @@ class JsonSchemaGeneratorObjectTest {
         private String city;
         private List<String> phones;
 
-        public String getStreet() { return street; }
-        public void setStreet(String street) { this.street = street; }
+        public String getStreet() {
+            return street;
+        }
 
-        public String getCity() { return city; }
-        public void setCity(String city) { this.city = city; }
+        public void setStreet(String street) {
+            this.street = street;
+        }
 
-        public List<String> getPhones() { return phones; }
-        public void setPhones(List<String> phones) { this.phones = phones; }
+        public String getCity() {
+            return city;
+        }
+
+        public void setCity(String city) {
+            this.city = city;
+        }
+
+        public List<String> getPhones() {
+            return phones;
+        }
+
+        public void setPhones(List<String> phones) {
+            this.phones = phones;
+        }
     }
 
     static class Company {
@@ -66,22 +97,38 @@ class JsonSchemaGeneratorObjectTest {
         private Map<String, Object> properties;
         private Address address;
 
-        public String getName() { return name; }
-        public void setName(String name) { this.name = name; }
+        public String getName() {
+            return name;
+        }
 
-        public Map<String, Object> getProperties() { return properties; }
-        public void setProperties(Map<String, Object> properties) { this.properties = properties; }
+        public void setName(String name) {
+            this.name = name;
+        }
 
-        public Address getAddress() { return address; }
-        public void setAddress(Address address) { this.address = address; }
+        public Map<String, Object> getProperties() {
+            return properties;
+        }
+
+        public void setProperties(Map<String, Object> properties) {
+            this.properties = properties;
+        }
+
+        public Address getAddress() {
+            return address;
+        }
+
+        public void setAddress(Address address) {
+            this.address = address;
+        }
     }
 
     @Test
     @DisplayName("生成复杂嵌套对象模式")
     void testComplexNestedObject() {
-        JsonSchemaGenerator generator = new JsonSchemaGenerator(Company.class)
-                .withEnableDefinitions(true);
-        ONode schema = generator.generate();
+        ONode schema = JsonSchemaConfig.builder()
+                .enableDefinitions(true)
+                .build()
+                .createSchema(Company.class);
 
         assertEquals("object", schema.get("type").getString());
 

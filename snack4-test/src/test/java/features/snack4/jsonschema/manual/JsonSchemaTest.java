@@ -5,7 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.noear.snack4.ONode;
 import org.noear.snack4.annotation.ONodeAttr;
 import org.noear.snack4.json.JsonReader;
-import org.noear.snack4.jsonschema.JsonSchema;
+import org.noear.snack4.jsonschema.JsonSchemaConfig;
+import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.jsonschema.JsonSchemaException;
 
 import java.io.IOException;
@@ -18,14 +19,14 @@ import java.util.Date;
 public class JsonSchemaTest {
     @Test
     public void case1() {
-        JsonSchema schema = JsonSchema.ofJson("{type:'object',properties:{userId:{type:'string'}}}"); //加载架构定义
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator("{type:'object',properties:{userId:{type:'string'}}}"); //加载架构定义
 
         schema.validate(ONode.ofJson("{userId:'1'}")); //校验格式
     }
 
     @Test
     public void case2() {
-        JsonSchema schema = JsonSchema.ofJson("{type:'object',properties:{userId:{type:'string'}}}"); //加载架构定义
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator("{type:'object',properties:{userId:{type:'string'}}}"); //加载架构定义
 
         Assertions.assertThrows(Throwable.class, () -> {
             schema.validate(ONode.ofJson("{userId:1}"));//校验格式
@@ -51,7 +52,7 @@ public class JsonSchemaTest {
         // 数据校验
         JsonReader parser = new JsonReader(new StringReader(schemaJson));
         ONode schemaNode = parser.read();
-        JsonSchema validator = new JsonSchema(schemaNode);
+        JsonSchemaValidator validator = new JsonSchemaValidator(schemaNode);
 
         ONode data = new JsonReader(new StringReader("{\"name\":\"Alice\",\"age\":-5}")).read();
         try {
@@ -65,7 +66,7 @@ public class JsonSchemaTest {
 
     @Test
     public void case4() {
-        JsonSchema schema = JsonSchema.ofType(DemoBean.class);
+        JsonSchemaValidator schema = JsonSchemaConfig.DEFAULT.createValidator(DemoBean.class);
         System.out.println(schema);
 
         Assertions.assertThrows(Throwable.class, () -> {
