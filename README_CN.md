@@ -2,10 +2,10 @@
   Snack
 </h1>
 <p align="center">
-	<strong>一个 Json Dom & JsonPath 的框架（for Java）</strong>
+	<strong>一个 Json 框架，支持 JsonDom、JsonPath、JsonSchema（for Java）</strong>
 </p>
 <p align="center">
-	同时兼容 `jayway.jsonpath` 和 <a href="https://www.rfc-editor.org/rfc/rfc9535.html" target="_blank">IETF JSONPath (RFC 9535)</a> 标准（支持开放式定制）
+	兼容 `jayway.jsonpath` 和 <a href="https://www.rfc-editor.org/rfc/rfc9535.html" target="_blank">IETF JSONPath (RFC 9535)</a> 标准。兼容 JsonSchema draft-07 标准。支持开放式定制。
 </p>
 <p align="center">
     <a href="https://solon.noear.org/article/snack" target="_blank">https://solon.noear.org/article/snack</a>

@@ -2,10 +2,10 @@
   Snack
 </h1>
 <p align="center">
-	<strong>A Json Dom & JsonPath framework (for Java)</strong>
+	<strong>A Json framework with support for JsonDom, JsonPath, JsonSchema (for Java)</strong>
 </p>
 <p align="center">
-	Compatible with `jayway.jsonpath` and <a href="https://www.rfc-editor.org/rfc/rfc9535.html" target="_blank">IETF JSONPath (RFC 9535)</a> standards (Open customization support)
+	Compatible ` jayway. Jsonpath ` and <a href = "https://www.rfc-editor.org/rfc/rfc9535.html" target = "_blank"> IETF jsonpath (RFC 9535)</a> standard. Compatible with JsonSchema Draft07 standard. Support for open customization.
 </p>
 <p align="center">
     <a href="https://solon.noear.org/article/snack" target="_blank">https://solon.noear.org/article/snack</a>
