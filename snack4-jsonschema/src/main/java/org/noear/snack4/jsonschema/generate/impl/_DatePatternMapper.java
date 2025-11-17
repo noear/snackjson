@@ -17,27 +17,27 @@ package org.noear.snack4.jsonschema.generate.impl;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
+import org.noear.snack4.jsonschema.SchemaFormat;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
-import org.noear.snack4.jsonschema.generate.SchemaDefiner;
+import org.noear.snack4.jsonschema.generate.SchemaPatternMapper;
+
+import java.util.Date;
 
 /**
  *
- * @author noear 2025/11/14 created
+ * @author noear 2025/10/3 created
  * @since 4.0
  */
-public class CharDefiner implements SchemaDefiner {
-    private static final CharDefiner instance = new CharDefiner();
-
-    public static CharDefiner getInstance() {
-        return instance;
+public class _DatePatternMapper implements SchemaPatternMapper {
+    @Override
+    public boolean supports(TypeEggg typeEggg) {
+        return Date.class.isAssignableFrom(typeEggg.getType());
     }
 
-
     @Override
-    public ONode define(TypeEggg typeEggg, ONode target) {
+    public ONode mapSchema(TypeEggg typeEggg, ONode target) {
         return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
-                .set(SchemaKeyword.MAX_LENGTH, 1)
-                .set(SchemaKeyword.MIN_LENGTH, 1);
+                .set(SchemaKeyword.FORMAT, SchemaFormat.DATE_TIME);
     }
 }

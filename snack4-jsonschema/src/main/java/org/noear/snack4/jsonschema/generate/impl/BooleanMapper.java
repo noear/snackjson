@@ -17,22 +17,24 @@ package org.noear.snack4.jsonschema.generate.impl;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
-import org.noear.snack4.jsonschema.SchemaFormat;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
-import org.noear.snack4.jsonschema.generate.SchemaDefiner;
-
-import java.net.URI;
+import org.noear.snack4.jsonschema.generate.SchemaMapper;
 
 /**
  *
  * @author noear 2025/11/14 created
  * @since 4.0
  */
-public class URIDefiner implements SchemaDefiner<URI> {
+public class BooleanMapper implements SchemaMapper {
+    private static final BooleanMapper instance = new BooleanMapper();
+
+    public static BooleanMapper getInstance() {
+        return instance;
+    }
+
     @Override
-    public ONode define(TypeEggg typeEggg, ONode target) {
-        return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
-                .set(SchemaKeyword.FORMAT, SchemaFormat.URI);
+    public ONode mapSchema(TypeEggg typeEggg, ONode target) {
+        return target.set(SchemaKeyword.TYPE, SchemaType.BOOLEAN);
     }
 }

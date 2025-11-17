@@ -17,22 +17,26 @@ package org.noear.snack4.jsonschema.generate.impl;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
-import org.noear.snack4.jsonschema.SchemaFormat;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
-import org.noear.snack4.jsonschema.generate.SchemaDefiner;
-
-import java.time.LocalDate;
+import org.noear.snack4.jsonschema.generate.SchemaMapper;
 
 /**
  *
  * @author noear 2025/11/14 created
  * @since 4.0
  */
-public class LocalDateDefiner implements SchemaDefiner<LocalDate> {
+public class ByteArrayMapper implements SchemaMapper {
+    private static final ByteArrayMapper instance = new ByteArrayMapper();
+
+    public static ByteArrayMapper getInstance() {
+        return instance;
+    }
+
     @Override
-    public ONode define(TypeEggg typeEggg, ONode target) {
+    public ONode mapSchema(TypeEggg typeEggg, ONode target) {
         return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
-                .set(SchemaKeyword.FORMAT, SchemaFormat.DATE);
+                .set(SchemaKeyword.CONTENT_ENCODING, "base64")
+                .set(SchemaKeyword.CONTENT_MEDIATYPE, "application/octet-stream");
     }
 }

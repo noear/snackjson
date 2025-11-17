@@ -20,19 +20,19 @@ import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.SchemaFormat;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
-import org.noear.snack4.jsonschema.generate.SchemaDefiner;
+import org.noear.snack4.jsonschema.generate.SchemaMapper;
 
-import java.time.LocalTime;
+import java.net.URI;
 
 /**
  *
  * @author noear 2025/11/14 created
  * @since 4.0
  */
-public class LocalTimeDefiner implements SchemaDefiner<LocalTime> {
+public class URIMapper implements SchemaMapper<URI> {
     @Override
-    public ONode define(TypeEggg typeEggg, ONode target) {
+    public ONode mapSchema(TypeEggg typeEggg, ONode target) {
         return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
-                .set(SchemaKeyword.FORMAT, SchemaFormat.TIME);
+                .set(SchemaKeyword.FORMAT, SchemaFormat.URI);
     }
 }

@@ -164,9 +164,9 @@ public class JsonSchemaGenerator {
     // 值转ONode处理
     private ONode generateValueToNode(TypeEggg typeEggg, ONode target) throws Throwable {
         // 优先使用自定义编解码器
-        SchemaDefiner generator = config.getDefiner(typeEggg);
+        SchemaMapper generator = config.getMapper(typeEggg);
         if (generator != null) {
-            return generator.define(typeEggg, target);
+            return generator.mapSchema(typeEggg, target);
         }
 
         if (typeEggg.isCollection()) {

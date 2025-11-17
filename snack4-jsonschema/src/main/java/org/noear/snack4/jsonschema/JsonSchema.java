@@ -17,10 +17,10 @@ package org.noear.snack4.jsonschema;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
-import org.noear.snack4.jsonschema.generate.DefinerLib;
+import org.noear.snack4.jsonschema.generate.MapperLib;
 import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator;
-import org.noear.snack4.jsonschema.generate.SchemaDefiner;
-import org.noear.snack4.jsonschema.generate.SchemaPatternDefiner;
+import org.noear.snack4.jsonschema.generate.SchemaMapper;
+import org.noear.snack4.jsonschema.generate.SchemaPatternMapper;
 import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.util.Asserts;
 
@@ -38,7 +38,7 @@ public class JsonSchema {
     private final SchemaVersion version;
     private final boolean enableDefinitions;
     private final boolean printVersion;
-    private final DefinerLib definerLib = DefinerLib.newInstance();
+    private final MapperLib definerLib = MapperLib.newInstance();
 
     public JsonSchema(SchemaVersion version, boolean enableDefinitions, boolean printVersion) {
         this.version = version;
@@ -59,29 +59,29 @@ public class JsonSchema {
     }
 
     /**
-     * 添加类型定义
+     * 添加架构映射
      */
-    public <T> void addDefiner(SchemaPatternDefiner<T> generator) {
-        definerLib.addDefiner(generator);
+    public <T> void addMapper(SchemaPatternMapper<T> mapper) {
+        definerLib.addMapper(mapper);
     }
 
     /**
-     * 添加类型定义
+     * 添加架构映射
      */
-    public <T> void addDefiner(Class<T> type, SchemaDefiner<T> generator) {
-        if (generator instanceof SchemaPatternDefiner) {
-            addDefiner((SchemaPatternDefiner<T>) generator);
+    public <T> void addMapper(Class<T> type, SchemaMapper<T> mapper) {
+        if (mapper instanceof SchemaPatternMapper) {
+            addMapper((SchemaPatternMapper<T>) mapper);
         }
 
-        definerLib.addDefiner(type, generator);
+        definerLib.addMapper(type, mapper);
     }
 
 
     /**
-     * 获取类型定义
+     * 获取架构映射
      */
-    public SchemaDefiner getDefiner(TypeEggg typeEggg) {
-        return definerLib.getDefiner(typeEggg);
+    public SchemaMapper getMapper(TypeEggg typeEggg) {
+        return definerLib.getMapper(typeEggg);
     }
 
 

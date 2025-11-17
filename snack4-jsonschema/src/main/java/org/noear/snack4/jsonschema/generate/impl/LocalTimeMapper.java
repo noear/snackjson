@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.generate;
+package org.noear.snack4.jsonschema.generate.impl;
 
 import org.noear.eggg.TypeEggg;
+import org.noear.snack4.ONode;
+import org.noear.snack4.jsonschema.SchemaFormat;
+import org.noear.snack4.jsonschema.SchemaKeyword;
+import org.noear.snack4.jsonschema.SchemaType;
+import org.noear.snack4.jsonschema.generate.SchemaMapper;
+
+import java.time.LocalTime;
 
 /**
- * 架构模式定义
  *
  * @author noear 2025/11/14 created
  * @since 4.0
  */
-public interface SchemaPatternDefiner<T> extends SchemaDefiner<T> {
-    /**
-     * 可以定义的
-     */
-    boolean canDefine(TypeEggg typeEggg);
+public class LocalTimeMapper implements SchemaMapper<LocalTime> {
+    @Override
+    public ONode mapSchema(TypeEggg typeEggg, ONode target) {
+        return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
+                .set(SchemaKeyword.FORMAT, SchemaFormat.TIME);
+    }
 }

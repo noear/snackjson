@@ -19,16 +19,24 @@ import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
-import org.noear.snack4.jsonschema.generate.SchemaDefiner;
+import org.noear.snack4.jsonschema.generate.SchemaMapper;
 
 /**
  *
  * @author noear 2025/11/14 created
  * @since 4.0
  */
-public class StringDefiner implements SchemaDefiner<String> {
+public class ByteMapper implements SchemaMapper {
+    private static final ByteMapper instance = new ByteMapper();
+
+    public static ByteMapper getInstance() {
+        return instance;
+    }
+
     @Override
-    public ONode define(TypeEggg typeEggg, ONode target) {
-        return target.set(SchemaKeyword.TYPE, SchemaType.STRING);
+    public ONode mapSchema(TypeEggg typeEggg, ONode target) {
+        return target.set(SchemaKeyword.TYPE, SchemaType.INTEGER)
+                .set(SchemaKeyword.MINIMUM, -128)
+                .set(SchemaKeyword.MAXIMUM, 127);
     }
 }
