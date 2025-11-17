@@ -50,6 +50,14 @@ public class ONodeAttrHolder {
     private ObjectDecoder decoder;
     private long featuresValue;
 
+    public ONodeAttrHolder(String alias, String title, String description, boolean required) {
+        this.alias = alias;
+        this.title = title;
+        this.description = description;
+        this.required = required;
+        this.empty = true;
+    }
+
     public ONodeAttrHolder(ONodeAttr attrAnno, String realName) {
         if (attrAnno != null) {
             alias = attrAnno.name();
