@@ -20,7 +20,11 @@ import org.noear.snack4.annotation.ONodeAttrHolder;
 import org.noear.snack4.annotation.ONodeAttr;
 import org.noear.snack4.annotation.ONodeCreator;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -33,6 +37,21 @@ public class EgggUtil {
             .withDigestHandler(EgggUtil::doDigestHandle)
             .withAliasHandler(EgggUtil::doAliasHandle);
 
+    private static Map<Class<? extends Annotation>, EgggDigestAddin> egggDigestAddins = new ConcurrentHashMap<>();
+
+    /**
+     * 添加提炼扩展
+     *
+     * @param annoType    注解
+     * @param digestAddin 提炼扩展
+     */
+    public static void addDigestAddin(Class<? extends Annotation> annoType, EgggDigestAddin digestAddin) {
+        Objects.requireNonNull(annoType, "annoType");
+        Objects.requireNonNull(digestAddin, "digestAddin");
+
+        egggDigestAddins.put(annoType, digestAddin);
+    }
+
     private static String doAliasHandle(ClassEggg cw, AnnotatedEggg s, String ref) {
         if (s.getDigest() instanceof ONodeAttrHolder) {
             return ((ONodeAttrHolder) s.getDigest()).getAlias();
@@ -44,8 +63,22 @@ public class EgggUtil {
     private static Object doDigestHandle(ClassEggg ce, AnnotatedEggg s, Object ref) {
         ONodeAttr attr = s.getElement().getAnnotation(ONodeAttr.class);
 
-        if (attr == null && ref != null) {
-            return ref;
+        if (attr == null) {
+            if (egggDigestAddins.size() > 0 && s.getAnnotations().length > 0) {
+                for (Map.Entry<Class<? extends Annotation>, EgggDigestAddin> entry : egggDigestAddins.entrySet()) {
+                    Annotation anno = s.getElement().getAnnotation(entry.getKey());
+                    ONodeAttrHolder tmp = entry.getValue().apply(ce, s, anno);
+
+                    if (tmp != null) {
+                        return tmp;
+                    }
+                }
+            }
+
+
+            if (ref != null) {
+                return ref;
+            }
         }
 
         if (s instanceof FieldEggg) {
