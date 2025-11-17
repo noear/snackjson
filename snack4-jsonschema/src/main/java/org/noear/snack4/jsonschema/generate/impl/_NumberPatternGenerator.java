@@ -17,7 +17,6 @@ package org.noear.snack4.jsonschema.generate.impl;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
-import org.noear.snack4.annotation.ONodeAttrHolder;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
 import org.noear.snack4.jsonschema.generate.TypePatternGenerator;
@@ -48,7 +47,7 @@ public class _NumberPatternGenerator implements TypePatternGenerator {
     }
 
     @Override
-    public ONode generate(ONodeAttrHolder att, TypeEggg typeEggg, ONode target) {
+    public ONode generate(TypeEggg typeEggg, ONode target) {
         if (INTEGER_TYPES.contains(typeEggg.getType())) {
             target.set(SchemaKeyword.TYPE, SchemaType.INTEGER);
         } else {

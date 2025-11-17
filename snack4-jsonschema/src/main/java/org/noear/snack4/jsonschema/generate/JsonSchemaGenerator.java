@@ -108,7 +108,7 @@ public class JsonSchemaGenerator {
             target.getOrNew(definitionsKey);
         }
 
-        ONode oNode = generateValueToNode(source0, null, target);
+        ONode oNode = generateValueToNode(source0, target);
 
         if (oNode != null) {
             if (enableDefinitions && !definitions.isEmpty()) {
@@ -162,11 +162,11 @@ public class JsonSchemaGenerator {
     }
 
     // 值转ONode处理
-    private ONode generateValueToNode(TypeEggg typeEggg, ONodeAttrHolder attr, ONode target) throws Throwable {
+    private ONode generateValueToNode(TypeEggg typeEggg, ONode target) throws Throwable {
         // 优先使用自定义编解码器
         TypeGenerator generator = GeneratorLib.getGenerator(typeEggg);
         if (generator != null) {
-            return generator.generate(attr, typeEggg, target);
+            return generator.generate(typeEggg, target);
         }
 
         if (typeEggg.isCollection()) {
@@ -224,7 +224,7 @@ public class JsonSchemaGenerator {
                     continue;
                 }
 
-                ONode propertyNode = generateValueToNode(property.getTypeEggg(), attr, new ONode(options));
+                ONode propertyNode = generateValueToNode(property.getTypeEggg(), new ONode(options));
 
                 if (propertyNode != null) {
                     if (Asserts.isNotEmpty(attr.getDescription())) {
@@ -283,7 +283,7 @@ public class JsonSchemaGenerator {
     private ONode generateArrayToNode(TypeEggg typeEggg, ONode target) throws Throwable {
         target.set(SchemaKeyword.TYPE, SchemaType.ARRAY);
 
-        ONode itemsType = generateValueToNode(EgggUtil.getTypeEggg(typeEggg.getType().getComponentType()), null, new ONode(options));
+        ONode itemsType = generateValueToNode(EgggUtil.getTypeEggg(typeEggg.getType().getComponentType()), new ONode(options));
         target.set(SchemaKeyword.ITEMS, itemsType);
 
         return target;
@@ -294,7 +294,7 @@ public class JsonSchemaGenerator {
         target.set(SchemaKeyword.TYPE, SchemaType.ARRAY);
 
         if (typeEggg.isParameterizedType()) {
-            ONode itemsType = generateValueToNode(EgggUtil.getTypeEggg(typeEggg.getActualTypeArguments()[0]), null, new ONode(options));
+            ONode itemsType = generateValueToNode(EgggUtil.getTypeEggg(typeEggg.getActualTypeArguments()[0]), new ONode(options));
             target.set(SchemaKeyword.ITEMS, itemsType);
         }
 
@@ -312,18 +312,18 @@ public class JsonSchemaGenerator {
 
 
             if (keyEggg.getType() != Object.class && keyEggg.getType() != String.class) {
-                ONode keySchema = generateValueToNode(keyEggg, null, new ONode(options));
+                ONode keySchema = generateValueToNode(keyEggg, new ONode(options));
 
                 if (keySchema != null) {
                     ONode propertyNamesSchema = new ONode(options).asObject();
                     propertyNamesSchema.set(SchemaKeyword.TYPE, SchemaType.STRING);
-                    ONode propertyNamesInnerSchema = generateValueToNode(keyEggg, null, new ONode(options));
+                    ONode propertyNamesInnerSchema = generateValueToNode(keyEggg, new ONode(options));
                     target.set(SchemaKeyword.PROPERTY_NAMES, propertyNamesInnerSchema);
                 }
             }
 
             if (valueEggg.getType() != Object.class) {
-                ONode valueSchema = generateValueToNode(valueEggg, null, new ONode(options));
+                ONode valueSchema = generateValueToNode(valueEggg, new ONode(options));
                 target.set(SchemaKeyword.ADDITIONAL_PROPERTIES, valueSchema);
             } else {
                 target.set(SchemaKeyword.ADDITIONAL_PROPERTIES, true);

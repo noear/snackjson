@@ -17,7 +17,6 @@ package org.noear.snack4.jsonschema.generate;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
-import org.noear.snack4.annotation.ONodeAttrHolder;
 
 /**
  * 类型架构生成器
@@ -26,5 +25,5 @@ import org.noear.snack4.annotation.ONodeAttrHolder;
  * @since 4.0
  */
 public interface TypeGenerator<T> {
-    ONode generate(ONodeAttrHolder att, TypeEggg typeEggg, ONode target);
+    ONode generate(TypeEggg typeEggg, ONode target);
 }
