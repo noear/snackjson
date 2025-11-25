@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @since 4.0
  */
 public class DateUtil {
+    private static final ZoneId SYSTEM_ZONE = Options.DEF_ZONE;
     private static final Map<String, DateTimeFormatter> FORMATTER_CACHE = new ConcurrentHashMap<>();
     private static final Map<Integer, List<DateTimeFormatter>> LENGTH_BUCKETS = new HashMap<>();
     private static final List<DateTimeFormatter> VARIABLE_FORMATTERS = new ArrayList<>();
@@ -119,7 +120,7 @@ public class DateUtil {
                                     (s.charAt(11) - '0') * 10 + (s.charAt(12) - '0'),
                                     (s.charAt(14) - '0') * 10 + (s.charAt(15) - '0'),
                                     (s.charAt(17) - '0') * 10 + (s.charAt(18) - '0')
-                            ).atZone(Options.DEF_ZONE).toInstant());
+                            ).atZone(SYSTEM_ZONE).toInstant());
                         } else if (s.charAt(10) == 'T') {
                             return parseWithFormatter(s, getFormatter("yyyy-MM-dd'T'HH:mm:ss"));
                         }
@@ -131,7 +132,7 @@ public class DateUtil {
                                 (s.charAt(0) - '0') * 1000 + (s.charAt(1) - '0') * 100 + (s.charAt(2) - '0') * 10 + (s.charAt(3) - '0'),
                                 (s.charAt(5) - '0') * 10 + (s.charAt(6) - '0'),
                                 (s.charAt(8) - '0') * 10 + (s.charAt(9) - '0')
-                        ).atStartOfDay(Options.DEF_ZONE).toInstant());
+                        ).atStartOfDay(SYSTEM_ZONE).toInstant());
                     }
                     break;
                 case 14:
@@ -155,7 +156,7 @@ public class DateUtil {
         return null;
     }
 
-    private static Date parseSpecial(String s, int len) {
+    private static Date parseSpecial(String s, int len) throws ParseException{
         // 紧凑带时区: 20231025143045123+0800 (FORMAT_22)
         if (len == 22 && (s.charAt(17) == '+' || s.charAt(17) == '-') && isNumeric(s.substring(0, 17))) {
             try {
@@ -175,7 +176,7 @@ public class DateUtil {
                 String[] parts = s.split("[时分秒]");
                 if (parts.length >= 3) {
                     LocalTime time = LocalTime.of(parseInt(parts[0]), parseInt(parts[1]), parseInt(parts[2]));
-                    return Date.from(LocalDateTime.of(LocalDate.now(), time).atZone(Options.DEF_ZONE).toInstant());
+                    return Date.from(LocalDateTime.of(LocalDate.now(), time).atZone(SYSTEM_ZONE).toInstant());
                 }
             } catch (Exception ignored) {
             }
@@ -184,8 +185,7 @@ public class DateUtil {
         return null;
     }
 
-    private static Date parseSmart(String s) {
-        // ISO 格式处理 (修复 FORMAT_27: 2023-10-25T14:30:45.123+00:00Z)
+    private static Date parseSmart(String s) throws ParseException {
         if (s.indexOf('T') > 0) {
             try {
                 // 处理混合格式: 2023-10-25T14:30:45.123+00:00Z
@@ -214,7 +214,7 @@ public class DateUtil {
         return null;
     }
 
-    private static Date parseTime(String s) {
+    private static Date parseTime(String s) throws ParseException {
         try {
             String normalized = s;
             int dotIdx = s.indexOf('.');
@@ -228,7 +228,7 @@ public class DateUtil {
                 }
                 // 纳秒位数过多应该抛出异常
                 else if (fractionLen > 6) {
-                    throw new DateTimeException("Fraction seconds too long");
+                    throw new ParseException("Fraction seconds too long", 0);
                 }
             }
 
@@ -239,7 +239,7 @@ public class DateUtil {
                 } catch (Exception e) {
                     // 尝试特定格式 HH:mm:ss.SSS+HH:mm
                     LocalTime time = LocalTime.parse(normalized, getFormatter("HH:mm:ss.SSS+HH:mm"));
-                    return Date.from(LocalDateTime.of(LocalDate.now(), time).atZone(Options.DEF_ZONE).toInstant());
+                    return Date.from(LocalDateTime.of(LocalDate.now(), time).atZone(SYSTEM_ZONE).toInstant());
                 }
             }
 
@@ -247,8 +247,10 @@ public class DateUtil {
                     getFormatter("HH:mm:ss.SSS") : getFormatter("HH:mm:ss");
             LocalTime time = LocalTime.parse(normalized, fmt);
             return Date.from(LocalDateTime.of(LocalDate.of(1970, 1, 1), time)
-                    .atZone(Options.DEF_ZONE)
+                    .atZone(SYSTEM_ZONE)
                     .toInstant());
+        } catch (ParseException e) {
+            throw e;
         } catch (Exception e) {
             return null;
         }
@@ -268,7 +270,7 @@ public class DateUtil {
 
                 // 基本日期验证 (帮助无效日期测试用例抛出异常)
                 if (month < 1 || month > 12 || day < 1 || day > 31) {
-                    throw new DateTimeException("Invalid date");
+                    throw new ParseException("Invalid date", 0);
                 }
 
                 StringBuilder std = new StringBuilder()
@@ -284,7 +286,7 @@ public class DateUtil {
                     int second = timeParts.length > 2 ? parseInt(timeParts[2]) : 0;
 
                     if (hour < 0 || hour > 23 || minute < 0 || minute > 59 || second < 0 || second > 59) {
-                        throw new DateTimeException("Invalid time");
+                        throw new ParseException("Invalid time", 0);
                     }
 
                     std.append(" ").append(String.format("%02d", hour))
@@ -325,9 +327,8 @@ public class DateUtil {
     }
 
     private static Date parseWithFormatter(String s, DateTimeFormatter fmt) {
-        final ZoneId DEF_ZONE = Options.DEF_ZONE; // 使用预设时区
+        Instant instant = parseWithFormatter(s, fmt, SYSTEM_ZONE);
 
-        Instant instant = parseWithFormatter(s, fmt, DEF_ZONE);
         if (instant != null) {
             return Date.from(instant);
         } else {
@@ -401,7 +402,7 @@ public class DateUtil {
 
     private static DateTimeFormatter getFormatter(String pattern) {
         return FORMATTER_CACHE.computeIfAbsent(pattern,
-                p -> DateTimeFormatter.ofPattern(p).withZone(Options.DEF_ZONE).withLocale(Options.DEF_LOCALE));
+                p -> DateTimeFormatter.ofPattern(p).withZone(SYSTEM_ZONE));
     }
 
     // ========== 格式化方法 ==========
@@ -466,7 +467,7 @@ public class DateUtil {
                         if (formatter != null) {
                             ZoneId zoneId = ctx.getAttr().getZoneId();
                             if (zoneId == null) {
-                                zoneId = Options.DEF_ZONE;
+                                zoneId = SYSTEM_ZONE;
                             }
 
                             Instant instant = parseWithFormatter(node.getString(), formatter, zoneId);
