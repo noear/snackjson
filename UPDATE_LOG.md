@@ -1,5 +1,9 @@
 
 
+### 4.0.18
+
+* 修复 options:zoneId 没有传导到 JsonWriter 的问题
+
 ### 4.0.17
 
 * 优化 DateUtil

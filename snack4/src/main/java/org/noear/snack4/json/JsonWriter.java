@@ -103,7 +103,9 @@ public class JsonWriter {
                 break;
             case Date:
                 if (opts.hasFeature(Feature.Write_UseDateFormat)) {
-                    writeString(DateUtil.format(node.getDate(), opts.getDateFormat()));
+                    writeString(DateUtil.format(node.getDate(),
+                            opts.getDateFormat(),
+                            opts.getZoneId()));
                 } else {
                     writeNumber(node.getDate().getTime());
                 }
