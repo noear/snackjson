@@ -597,7 +597,7 @@ public class JsonReader {
                 }
 
                 char c = buffer[bufferPosition];
-                if ((c == ' ' || c == '\t' || c == '\n' || c == '\r')) {
+                if ((c < 32 || c == ' ' || c == '\t' || c == '\n' || c == '\r')) {
                     nextChar(); // 使用 nextChar() 确保行/列计数正确
                 } else {
                     break;

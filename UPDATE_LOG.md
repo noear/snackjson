@@ -1,5 +1,9 @@
 
 
+### 4.0.19
+
+* 优化 与 ascii 不可见码(lt 32)的兼容处理
+
 ### 4.0.18
 
 * 修复 options:zoneId 没有传导到 JsonWriter 的问题
