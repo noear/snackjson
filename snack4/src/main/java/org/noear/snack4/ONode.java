@@ -270,6 +270,22 @@ public final class ONode {
         }
     }
 
+    public Byte getByte() {
+        return getByte((byte) 0);
+    }
+
+    public Byte getByte(Byte def) {
+        if (isNumber()) {
+            return getNumber().byteValue();
+        } else if (isEmpty()) {
+            return def;
+        } else if (isString()) {
+            return Byte.parseByte(getString());
+        } else {
+            return def;
+        }
+    }
+
     public Short getShort() {
         return getShort((short) 0);
     }

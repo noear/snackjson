@@ -244,8 +244,8 @@ public class CodecLib {
         addDecoder(Short.class, (c, o) -> o.getShort(null));
         addDecoder(Short.TYPE, (c, o) -> o.getShort((short) 0));
 
-        addDecoder(Byte.class, (c, o) -> o.getNumber().byteValue());
-        addDecoder(Byte.TYPE, (c, o) -> o.getNumber().byteValue());
+        addDecoder(Byte.class, (c, o) -> o.getByte(null));
+        addDecoder(Byte.TYPE, (c, o) -> o.getByte((byte) 0));
     }
 
 
