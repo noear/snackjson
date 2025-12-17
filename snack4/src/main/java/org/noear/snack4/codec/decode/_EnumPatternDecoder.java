@@ -86,9 +86,11 @@ public class _EnumPatternDecoder implements ObjectPatternDecoder<Object> {
         }
 
         if (eItem == null) {
-            throw new SnackException(
-                    "Decode failure for '" + ctx.getType().getTypeName() +
-                            "' from value: " + node.getString());
+            if (node.isNotEmptyString()) {
+                throw new SnackException(
+                        "Decode failure for '" + ctx.getType().getTypeName() +
+                                "' from value: " + node.getString());
+            }
         }
 
         return eItem;

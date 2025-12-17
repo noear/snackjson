@@ -62,6 +62,17 @@ public class EnumTest {
         }
     }
 
+    /**
+     * 序列化测试2
+     */
+    @Test
+    public void case3_2() {
+        String json = "{name:'demo',dict:''}";
+
+        Book book = ONode.ofJson(json).toBean(Book.class);
+        assert book.getDict() == null;
+    }
+
     @Test
     public void case4() {
         String s1 = "'input'";
