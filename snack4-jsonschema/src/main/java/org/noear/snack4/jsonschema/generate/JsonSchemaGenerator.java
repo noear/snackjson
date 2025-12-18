@@ -163,8 +163,16 @@ public class JsonSchemaGenerator {
 
     // 值转ONode处理
     private ONode generateValueToNode(TypeEggg typeEggg, ONode target) throws Throwable {
-        // 优先使用自定义编解码器
-        SchemaMapper generator = config.getMapper(typeEggg);
+        // 优先使用自定义类型映射
+        TypeMapper typeMapper = config.getTypeMapper(typeEggg);
+
+        if (typeMapper != null) {
+            TypeEggg typeEggg1 = typeMapper.mapType(typeEggg);
+            return generateValueToNode(typeEggg1, target);
+        }
+
+        // 优先使用自定义架构映射
+        SchemaMapper generator = config.getSchemaMapper(typeEggg);
         if (generator != null) {
             return generator.mapSchema(typeEggg, target);
         }

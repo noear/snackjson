@@ -17,10 +17,7 @@ package org.noear.snack4.jsonschema;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
-import org.noear.snack4.jsonschema.generate.MapperLib;
-import org.noear.snack4.jsonschema.generate.JsonSchemaGenerator;
-import org.noear.snack4.jsonschema.generate.SchemaMapper;
-import org.noear.snack4.jsonschema.generate.SchemaPatternMapper;
+import org.noear.snack4.jsonschema.generate.*;
 import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.util.Asserts;
 
@@ -61,27 +58,44 @@ public class JsonSchema {
     /**
      * 添加架构映射
      */
-    public <T> void addMapper(SchemaPatternMapper<T> mapper) {
-        definerLib.addMapper(mapper);
+    public <T> void addSchemaMapper(SchemaPatternMapper<T> mapper) {
+        definerLib.addSchemaMapper(mapper);
     }
 
     /**
      * 添加架构映射
      */
-    public <T> void addMapper(Class<T> type, SchemaMapper<T> mapper) {
-        if (mapper instanceof SchemaPatternMapper) {
-            addMapper((SchemaPatternMapper<T>) mapper);
-        }
-
-        definerLib.addMapper(type, mapper);
+    public <T> void addSchemaMapper(Class<T> type, SchemaMapper<T> mapper) {
+        definerLib.addSchemaMapper(type, mapper);
     }
 
 
     /**
      * 获取架构映射
      */
-    public SchemaMapper getMapper(TypeEggg typeEggg) {
-        return definerLib.getMapper(typeEggg);
+    public SchemaMapper getSchemaMapper(TypeEggg typeEggg) {
+        return definerLib.getSchemaMapper(typeEggg);
+    }
+
+    /**
+     * 添加类型映射
+     */
+    public <T> void addTypeMapper(TypePatternMapper<T> mapper) {
+        definerLib.addTypeMapper(mapper);
+    }
+
+    /**
+     * 添加类型映射
+     */
+    public <T> void addTypeMapper(Class<T> type, TypeMapper<T> mapper) {
+        definerLib.addTypeMapper(type, mapper);
+    }
+
+    /**
+     * 获取类型映射
+     */
+    public TypeMapper getTypeMapper(TypeEggg typeEggg) {
+        return definerLib.getTypeMapper(typeEggg);
     }
 
 

@@ -23,9 +23,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 定义库
@@ -36,8 +36,11 @@ import java.util.concurrent.ConcurrentHashMap;
 public class MapperLib {
     private static final MapperLib DEFAULT = new MapperLib(null).loadDefault();
 
-    private final List<SchemaPatternMapper> TYPE_PATTERN_GENERATORS = new ArrayList<>();
-    private final Map<Class<?>, SchemaMapper> TYPE_GENERATOR_MAP = new ConcurrentHashMap<>();
+    private final List<SchemaPatternMapper> schemaPatternMappers = new ArrayList<>();
+    private final Map<Class<?>, SchemaMapper> schemaMapperMap = new HashMap<>();
+    private final List<TypePatternMapper> typePatternMappers = new ArrayList<>();
+    private final Map<Class<?>, TypeMapper> typeMapperMap = new HashMap<>();
+
 
     private final MapperLib parent;
 
@@ -50,65 +53,113 @@ public class MapperLib {
     }
 
     /**
-     * 添加生成器
+     * 添加架构映射器
      */
-    public <T> void addMapper(SchemaPatternMapper<T> generator) {
-        TYPE_PATTERN_GENERATORS.add(generator);
+    public <T> void addSchemaMapper(SchemaPatternMapper<T> generator) {
+        schemaPatternMappers.add(generator);
     }
 
     /**
-     * 添加生成器
+     * 添加架构映射器
      */
-    public <T> void addMapper(Class<T> type, SchemaMapper<T> generator) {
+    public <T> void addSchemaMapper(Class<T> type, SchemaMapper<T> generator) {
         if (generator instanceof SchemaPatternMapper) {
-            addMapper((SchemaPatternMapper<T>) generator);
+            addSchemaMapper((SchemaPatternMapper<T>) generator);
         }
 
-        TYPE_GENERATOR_MAP.put(type, generator);
+        schemaMapperMap.put(type, generator);
     }
 
 
     /**
-     * 获取生成器
+     * 获取架构映射器
      */
-    public SchemaMapper getMapper(TypeEggg typeEggg) {
-        SchemaMapper tmp = TYPE_GENERATOR_MAP.get(typeEggg.getType());
+    public SchemaMapper getSchemaMapper(TypeEggg typeEggg) {
+        SchemaMapper tmp = schemaMapperMap.get(typeEggg.getType());
 
         if (tmp == null) {
-            for (SchemaPatternMapper b1 : TYPE_PATTERN_GENERATORS) {
+            for (SchemaPatternMapper b1 : schemaPatternMappers) {
                 if (b1.supports(typeEggg)) {
                     return b1;
                 }
             }
 
             if (parent != null) {
-                return parent.getMapper(typeEggg);
+                return parent.getSchemaMapper(typeEggg);
             }
         }
 
         return tmp;
     }
 
+    /**
+     * 添加类型映射
+     */
+    public <T> void addTypeMapper(TypePatternMapper<T> mapper) {
+        typePatternMappers.add(mapper);
+    }
+
+    /**
+     * 添加类型映射
+     */
+    public <T> void addTypeMapper(Class<T> type, TypeMapper<T> mapper) {
+        if (mapper instanceof TypePatternMapper) {
+            addTypeMapper((TypePatternMapper<T>) mapper);
+        }
+
+        typeMapperMap.put(type, mapper);
+    }
+
+    /**
+     * 获取类型映射
+     */
+    public TypeMapper getTypeMapper(TypeEggg typeEggg) {
+        if (typeEggg.isParameterizedType()) {
+            TypeMapper tmp = typeMapperMap.get(typeEggg.getType());
+
+            if (tmp == null) {
+                for (TypePatternMapper b1 : typePatternMappers) {
+                    if (b1.supports(typeEggg)) {
+                        return b1;
+                    }
+                }
+
+                if (parent != null) {
+                    return parent.getTypeMapper(typeEggg);
+                }
+            }
+
+            return tmp;
+        }
+
+        return null;
+    }
+
     private MapperLib loadDefault() {
-        TYPE_PATTERN_GENERATORS.add(new _DatePatternMapper());
-        TYPE_PATTERN_GENERATORS.add(new _EnumPatternMapper());
-        TYPE_PATTERN_GENERATORS.add(new _NumberPatternMapper());
+        schemaPatternMappers.add(new _DatePatternMapper());
+        schemaPatternMappers.add(new _EnumPatternMapper());
+        schemaPatternMappers.add(new _NumberPatternMapper());
 
-        TYPE_GENERATOR_MAP.put(Boolean.class, BooleanMapper.getInstance());
-        TYPE_GENERATOR_MAP.put(boolean.class, BooleanMapper.getInstance());
-        TYPE_GENERATOR_MAP.put(Character.class, CharMapper.getInstance());
-        TYPE_GENERATOR_MAP.put(char.class, CharMapper.getInstance());
-        TYPE_GENERATOR_MAP.put(Byte.class, ByteMapper.getInstance());
-        TYPE_GENERATOR_MAP.put(byte.class, ByteMapper.getInstance());
-        TYPE_GENERATOR_MAP.put(Byte[].class, ByteArrayMapper.getInstance());
-        TYPE_GENERATOR_MAP.put(byte[].class, ByteArrayMapper.getInstance());
+        schemaMapperMap.put(Boolean.class, BooleanMapper.getInstance());
+        schemaMapperMap.put(boolean.class, BooleanMapper.getInstance());
+        schemaMapperMap.put(Character.class, CharMapper.getInstance());
+        schemaMapperMap.put(char.class, CharMapper.getInstance());
+        schemaMapperMap.put(Byte.class, ByteMapper.getInstance());
+        schemaMapperMap.put(byte.class, ByteMapper.getInstance());
+        schemaMapperMap.put(Byte[].class, ByteArrayMapper.getInstance());
+        schemaMapperMap.put(byte[].class, ByteArrayMapper.getInstance());
 
-        TYPE_GENERATOR_MAP.put(String.class, new StringMapper());
-        TYPE_GENERATOR_MAP.put(URI.class, new URIMapper());
+        schemaMapperMap.put(String.class, new StringMapper());
+        schemaMapperMap.put(URI.class, new URIMapper());
 
-        TYPE_GENERATOR_MAP.put(LocalDate.class, new LocalDateMapper());
-        TYPE_GENERATOR_MAP.put(LocalTime.class, new LocalTimeMapper());
-        TYPE_GENERATOR_MAP.put(LocalDateTime.class, new LocalDateTimeMapper());
+        schemaMapperMap.put(LocalDate.class, new LocalDateMapper());
+        schemaMapperMap.put(LocalTime.class, new LocalTimeMapper());
+        schemaMapperMap.put(LocalDateTime.class, new LocalDateTimeMapper());
+
+        /// //////////
+
+        typePatternMappers.add(new _OptionalPatternMapper());
+        typePatternMappers.add(new _FuturePatternMapper());
 
         return this;
     }

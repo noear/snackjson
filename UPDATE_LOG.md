@@ -1,5 +1,9 @@
 
 
+### 4.0.20
+
+* 添加 snack4-jsonschema 类型映射机制，支持 Future,Optional 等包装或传递类型
+
 ### 4.0.19
 
 * 添加 ONode:getByte 方法
