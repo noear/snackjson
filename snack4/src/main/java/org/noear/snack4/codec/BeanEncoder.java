@@ -123,10 +123,10 @@ public class BeanEncoder {
             return codec.encode(new EncodeContext(opts, attr, value), value, new ONode(opts));
         }
 
-        if (value instanceof Collection) {
-            return encodeCollectionToNode((Collection<?>) value);
-        } else if (value instanceof Map) {
+        if (value instanceof Map) {
             return encodeMapToNode((Map<?, ?>) value);
+        } else if (value instanceof Iterable) {
+            return encodeCollectionToNode((Iterable<?>) value);
         } else {
             if (value.getClass().isArray()) {
                 return encodeArrayToNode(value);
@@ -265,9 +265,9 @@ public class BeanEncoder {
     }
 
     // 处理集合类型
-    private ONode encodeCollectionToNode(Collection<?> collection) throws Throwable {
+    private ONode encodeCollectionToNode(Iterable<?> iterable) throws Throwable {
         ONode tmp = new ONode(opts).asArray();
-        for (Object item : collection) {
+        for (Object item : iterable) {
             tmp.add(encodeValueToNode(item, null));
         }
         return tmp;
