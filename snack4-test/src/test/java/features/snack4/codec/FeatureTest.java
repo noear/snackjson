@@ -178,7 +178,7 @@ public class FeatureTest {
 
         data = ONode.ofJson(json).toBean(Map.class);
         System.out.println(data);
-        Assertions.assertEquals("{@type=java.util.HashMap, user={@type=features.snack4.codec.FeatureTest$NumberBean, a=1, b=2, c=3.0, d=4.0}}", data.toString());
+        Assertions.assertEquals("{user={a=1, b=2, c=3.0, d=4.0}}", data.toString());
 
         data = ONode.ofJson(json, Feature.Read_AutoType).toBean(Map.class);
         System.out.println(data);

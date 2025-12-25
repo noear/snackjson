@@ -180,7 +180,7 @@ public class BeanDecoder {
         if (failOnUnknownProperties) {
             //以数据为主，才能支持 Read_FailOnUnknownProperties
             for (Map.Entry<String, ONode> kv : node.getObject().entrySet()) {
-                if (kv.getKey().startsWith(opts.getTypePropertyName())) {
+                if (kv.getKey().equals(opts.getTypePropertyName())) {
                     continue;
                 }
 
@@ -343,10 +343,8 @@ public class BeanDecoder {
             }
 
             for (Map.Entry<String, ONode> kv : node.getObject().entrySet()) {
-                if (opts.hasFeature(Feature.Read_AutoType)) {
-                    if (kv.getKey().startsWith(opts.getTypePropertyName())) {
-                        continue;
-                    }
+                if (kv.getKey().equals(opts.getTypePropertyName())) {
+                    continue;
                 }
 
                 //Map 的值是新对象，递归调用时 target 传 null
