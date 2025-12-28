@@ -26,7 +26,7 @@ public class LoopNestingTest {
 
     @Test
     public void case2() {
-        A tmp = new A();
+        Bean tmp = new Bean();
         tmp.a = "a";
         tmp.b = tmp;
 
@@ -37,17 +37,17 @@ public class LoopNestingTest {
 
     @Test
     public void case2_ref() {
-        A tmp = new A();
+        Bean tmp = new Bean();
         tmp.a = "a";
         tmp.b = tmp;
 
-        A a = ONode.deserialize("{\"a\":\"a\"}", A.class);
+        Bean a = ONode.deserialize("{\"a\":\"a\"}", Bean.class);
         Assertions.assertEquals("a", "a");
         assert a.b == a;
     }
 
-    public static class A {
+    public static class Bean {
         public String a;
-        public A b;
+        public Bean b;
     }
 }
