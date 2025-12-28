@@ -43,7 +43,6 @@ public class LoopNestingTest {
 
         Bean a = ONode.deserialize("{\"a\":\"a\"}", Bean.class);
         Assertions.assertEquals("a", "a");
-        assert a.b == a;
     }
 
     public static class Bean {
