@@ -1,7 +1,8 @@
 
 ### 4.0.23
 
-* 添加 ONode.delete 方法，协助 jsonpath 删除
+* 添加 ONode:delete 方法，协助 jsonpath 删除
+* 修复 JsonPathProvider:delete(root, path) 删除多个 arrray index 时会超界的问题
 
 ### 4.0.22
 

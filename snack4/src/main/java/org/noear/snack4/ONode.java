@@ -538,32 +538,6 @@ public final class ONode {
         return self.remove(index);
     }
 
-    public boolean delete() {
-        if (source != null) {
-            if (source.key != null) {
-                //by key
-                if ("*".equals(source.key)) {
-                    source.parent.clear();
-                    return true;
-                } else {
-                    if (source.parent.isObject()) {
-                        source.parent.getObjectUnsafe().remove(source.key);
-                        return true;
-                    }
-                }
-            } else {
-                //by index(item)
-                if (source.parent.isArray()) {
-                    //要用 item 删（index 定位会失效）
-                    source.parent.getArrayUnsafe().remove(this);
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
     public ONode add(Object value) {
         ONode oNode;
         if (value instanceof ONode) {
@@ -657,8 +631,18 @@ public final class ONode {
         return jsonPathProvider.select(this, jsonpath);
     }
 
+    /**
+     * 根据 jsonpath 检测
+     */
     public boolean exists(String jsonpath) {
         return false == select(jsonpath).isUndefined();
+    }
+
+    /**
+     * 根据 jsonpath 生成
+     */
+    public ONode create(String jsonpath) {
+        return jsonPathProvider.create(this, jsonpath);
     }
 
     /**
@@ -669,10 +653,32 @@ public final class ONode {
     }
 
     /**
-     * 根据 jsonpath 生成
+     * 从父级删除自己
      */
-    public ONode create(String jsonpath) {
-        return jsonPathProvider.create(this, jsonpath);
+    public boolean delete() {
+        if (source != null) {
+            if (source.key != null) {
+                //by key
+                if ("*".equals(source.key)) {
+                    source.parent.clear();
+                    return true;
+                } else {
+                    if (source.parent.isObject()) {
+                        source.parent.getObjectUnsafe().remove(source.key);
+                        return true;
+                    }
+                }
+            } else {
+                //by index(item)
+                if (source.parent.isArray()) {
+                    //要用 item 删（index 定位会失效）
+                    source.parent.getArrayUnsafe().remove(this);
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 
