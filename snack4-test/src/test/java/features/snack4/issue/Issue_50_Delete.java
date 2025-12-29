@@ -1,4 +1,4 @@
-package features.snack4.jsonpath.manual;
+package features.snack4.issue;
 
 import org.junit.jupiter.api.Test;
 import org.noear.snack4.ONode;
