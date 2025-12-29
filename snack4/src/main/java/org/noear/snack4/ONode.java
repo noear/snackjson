@@ -538,6 +538,32 @@ public final class ONode {
         return self.remove(index);
     }
 
+    public boolean delete() {
+        if (source != null) {
+            if (source.key != null) {
+                //by key
+                if ("*".equals(source.key)) {
+                    source.parent.clear();
+                    return true;
+                } else {
+                    if (source.parent.isObject()) {
+                        source.parent.getObjectUnsafe().remove(source.key);
+                        return true;
+                    }
+                }
+            } else {
+                //by index(item)
+                if (source.parent.isArray()) {
+                    //要用 item 删（index 定位会失效）
+                    source.parent.getArrayUnsafe().remove(this);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public ONode add(Object value) {
         ONode oNode;
         if (value instanceof ONode) {

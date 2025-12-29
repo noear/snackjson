@@ -1,4 +1,8 @@
 
+### 4.0.23
+
+* 添加 ONode.delete 方法，协助 jsonpath 删除
+
 ### 4.0.22
 
 * 优化 Iterable 支持（替代之前的 Collection）

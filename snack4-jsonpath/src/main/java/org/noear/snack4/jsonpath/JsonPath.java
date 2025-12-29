@@ -115,15 +115,7 @@ public class JsonPath {
 
             for (ONode n1 : result.getNodeList()) {
                 if (n1.source != null) {
-                    if (n1.source.key != null) {
-                        if ("*".equals(n1.source.key)) {
-                            n1.source.parent.clear();
-                        } else {
-                            n1.source.parent.remove(n1.source.key);
-                        }
-                    } else {
-                        n1.source.parent.remove(n1.source.index);
-                    }
+                    n1.delete();
                 }
             }
         } catch (Throwable ex) {
