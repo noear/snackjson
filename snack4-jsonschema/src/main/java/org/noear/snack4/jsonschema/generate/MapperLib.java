@@ -22,10 +22,7 @@ import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 定义库
@@ -158,8 +155,9 @@ public class MapperLib {
 
         /// //////////
 
-        typePatternMappers.add(new _OptionalPatternMapper());
         typePatternMappers.add(new _FuturePatternMapper());
+
+        typeMapperMap.put(Optional.class, new OptionalMapper());
 
         return this;
     }

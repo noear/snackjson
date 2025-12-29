@@ -17,7 +17,7 @@ package org.noear.snack4.jsonschema.generate.impl;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.codec.util.EgggUtil;
-import org.noear.snack4.jsonschema.generate.TypePatternMapper;
+import org.noear.snack4.jsonschema.generate.TypeMapper;
 
 import java.util.Optional;
 
@@ -26,12 +26,7 @@ import java.util.Optional;
  * @author noear 2025/12/18 created
  * @since 4.0
  */
-public class _OptionalPatternMapper implements TypePatternMapper<Optional> {
-    @Override
-    public boolean supports(TypeEggg typeEggg) {
-        return Optional.class.isAssignableFrom(typeEggg.getType());
-    }
-
+public class OptionalMapper implements TypeMapper<Optional> {
     @Override
     public TypeEggg mapType(TypeEggg typeEggg) {
         return EgggUtil.getTypeEggg(typeEggg.getActualTypeArguments()[0]);
