@@ -187,6 +187,8 @@ public class CodecLib {
         addDecoder(new _EnumPatternDecoder());
         addDecoder(new _PropertiesPatternDecoder());
 
+        addDecoder(Optional.class, new OptionalDecoder());
+
         addDecoder(Charset.class, new _CharsetPatternDecoder());
         addDecoder(TimeZone.class, new _TimeZonePatternDecoder());
         addDecoder(Currency.class, new _CurrencytPatternDecoder());
@@ -252,6 +254,8 @@ public class CodecLib {
     private void loadDefaultEncoders() {
         addEncoder(new _EnumPatternEncoder());
         addEncoder(new _PropertiesPatternEncoder());
+
+        addEncoder(Optional.class, new OptionalEncoder());
 
         addEncoder(Charset.class, new _CharsetPatternEncoder());
         addEncoder(Date.class, new _DatePatternEncoder());
