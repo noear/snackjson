@@ -1,20 +1,21 @@
 
 ### 4.0.24
 
-* 添加 Optional 内置编解码器支持（也可以自定义扩展）
+* 添加 snack4 Optional 内置编解码器支持（也可以自定义扩展）
+* 优化 snack4-jsonschema Optional 类型处理
 
 ### 4.0.23
 
-* 添加 ONode:delete 方法，协助 jsonpath 删除
-* 修复 JsonPathProvider:delete(root, path) 删除多个 arrray index 时会超界的问题
+* 添加 snack4 ONode:delete 方法，协助 jsonpath 删除
+* 修复 snack4-jsonpath JsonPathProvider:delete(root, path) 删除多个 arrray index 时会超界的问题
 
 ### 4.0.22
 
-* 优化 Iterable 支持（替代之前的 Collection）
+* 优化 snack4 Iterable 支持（替代之前的 Collection）
 
 ### 4.0.21
 
-* 优化 反序列化自动移除 '@type' 属性申明
+* 优化 snack4 反序列化自动移除 '@type' 属性申明
 
 ### 4.0.20
 
