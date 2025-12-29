@@ -1,3 +1,6 @@
+### 4.0.25
+
+* 添加 AtomicBoolean,AtomicLong,AtomicInteger 支持
 
 ### 4.0.24
 

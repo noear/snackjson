@@ -30,8 +30,7 @@ import java.sql.Clob;
 import java.text.SimpleDateFormat;
 import java.time.*;
 import java.util.*;
-import java.util.concurrent.atomic.DoubleAdder;
-import java.util.concurrent.atomic.LongAdder;
+import java.util.concurrent.atomic.*;
 
 /**
  * 编解码库
@@ -207,6 +206,10 @@ public class CodecLib {
         addDecoder(LongAdder.class, new LongAdderDecoder());
         addDecoder(DoubleAdder.class, new DoubleAdderDecoder());
 
+        addDecoder(AtomicBoolean.class, new AtomicBooleanDecoder());
+        addDecoder(AtomicLong.class, new AtomicLongDecoder());
+        addDecoder(AtomicInteger.class, new AtomicIntegerDecoder());
+
         addDecoder(LocalTime.class, new LocalTimeDecoder());
         addDecoder(LocalDateTime.class, new LocalDateTimeDecoder());
         addDecoder(LocalDate.class, new LocalDateDecoder());
@@ -289,6 +292,7 @@ public class CodecLib {
 
         addEncoder(LongAdder.class, (c, v, t) -> t.setValue(v.longValue()));
         addEncoder(DoubleAdder.class, (c, v, t) -> t.setValue(v.doubleValue()));
+        addEncoder(AtomicBoolean.class, (c, v, t) -> t.setValue(v.get()));
 
         addEncoder(URL.class, (c, v, t) -> t.setValue(v.toString()));
         addEncoder(URI.class, (c, v, t) -> t.setValue(v.toString()));
