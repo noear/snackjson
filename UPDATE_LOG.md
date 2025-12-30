@@ -3,6 +3,8 @@
 ### 4.0.26
 
 * 添加 Options.then 方法，用于链式构建
+* 添加 CodecLib.patternCreators,patternDecoders,patternEncoders 去重处理
+* 添加 MapperLib.schemaPatternMappers,typePatternMappers 去重处理
 
 ### 4.0.25
 

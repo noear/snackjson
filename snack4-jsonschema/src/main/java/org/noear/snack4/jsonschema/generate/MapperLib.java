@@ -33,9 +33,9 @@ import java.util.*;
 public class MapperLib {
     private static final MapperLib DEFAULT = new MapperLib(null).loadDefault();
 
-    private final List<SchemaPatternMapper> schemaPatternMappers = new ArrayList<>();
+    private final Set<SchemaPatternMapper> schemaPatternMappers = new LinkedHashSet<>();
     private final Map<Class<?>, SchemaMapper> schemaMapperMap = new HashMap<>();
-    private final List<TypePatternMapper> typePatternMappers = new ArrayList<>();
+    private final Set<TypePatternMapper> typePatternMappers = new LinkedHashSet<>();
     private final Map<Class<?>, TypeMapper> typeMapperMap = new HashMap<>();
 
 

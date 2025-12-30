@@ -42,13 +42,13 @@ public class CodecLib {
     private static CodecLib DEFAULT = new CodecLib(null).loadDefault();
 
     private final Map<Class<?>, ObjectCreator<?>> creators = new HashMap<>();
-    private final List<ObjectPatternCreator<?>> patternCreators = new ArrayList<>();
+    private final Set<ObjectPatternCreator<?>> patternCreators = new LinkedHashSet<>();
 
     private final Map<Class<?>, ObjectDecoder<?>> decoders = new HashMap<>();
-    private final List<ObjectPatternDecoder<?>> patternDecoders = new ArrayList<>();
+    private final Set<ObjectPatternDecoder<?>> patternDecoders = new LinkedHashSet<>();
 
     private final Map<Class<?>, ObjectEncoder<?>> encoders = new HashMap<>();
-    private final List<ObjectPatternEncoder<?>> patternEncoders = new ArrayList<>();
+    private final Set<ObjectPatternEncoder<?>> patternEncoders = new LinkedHashSet<>();
 
     private final CodecLib parent;
 
