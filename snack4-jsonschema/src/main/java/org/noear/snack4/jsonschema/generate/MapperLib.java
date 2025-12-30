@@ -33,9 +33,9 @@ import java.util.*;
 public class MapperLib {
     private static final MapperLib DEFAULT = new MapperLib(null).loadDefault();
 
-    private final Set<SchemaPatternMapper> schemaPatternMappers = new LinkedHashSet<>();
+    private final Map<Class<?>, SchemaPatternMapper> schemaPatternMappers = new LinkedHashMap<>();
     private final Map<Class<?>, SchemaMapper> schemaMapperMap = new HashMap<>();
-    private final Set<TypePatternMapper> typePatternMappers = new LinkedHashSet<>();
+    private final Map<Class<?>, TypePatternMapper> typePatternMappers = new LinkedHashMap<>();
     private final Map<Class<?>, TypeMapper> typeMapperMap = new HashMap<>();
 
 
@@ -53,7 +53,7 @@ public class MapperLib {
      * 添加架构映射器
      */
     public <T> void addSchemaMapper(SchemaPatternMapper<T> generator) {
-        schemaPatternMappers.add(generator);
+        schemaPatternMappers.put(generator.getClass(), generator);
     }
 
     /**
@@ -75,7 +75,7 @@ public class MapperLib {
         SchemaMapper tmp = schemaMapperMap.get(typeEggg.getType());
 
         if (tmp == null) {
-            for (SchemaPatternMapper b1 : schemaPatternMappers) {
+            for (SchemaPatternMapper b1 : schemaPatternMappers.values()) {
                 if (b1.supports(typeEggg)) {
                     return b1;
                 }
@@ -93,7 +93,7 @@ public class MapperLib {
      * 添加类型映射
      */
     public <T> void addTypeMapper(TypePatternMapper<T> mapper) {
-        typePatternMappers.add(mapper);
+        typePatternMappers.put(mapper.getClass(), mapper);
     }
 
     /**
@@ -115,7 +115,7 @@ public class MapperLib {
             TypeMapper tmp = typeMapperMap.get(typeEggg.getType());
 
             if (tmp == null) {
-                for (TypePatternMapper b1 : typePatternMappers) {
+                for (TypePatternMapper b1 : typePatternMappers.values()) {
                     if (b1.supports(typeEggg)) {
                         return b1;
                     }
@@ -133,9 +133,9 @@ public class MapperLib {
     }
 
     private MapperLib loadDefault() {
-        schemaPatternMappers.add(new _DatePatternMapper());
-        schemaPatternMappers.add(new _EnumPatternMapper());
-        schemaPatternMappers.add(new _NumberPatternMapper());
+        schemaPatternMappers.put(_DatePatternMapper.class, new _DatePatternMapper());
+        schemaPatternMappers.put(_EnumPatternMapper.class, new _EnumPatternMapper());
+        schemaPatternMappers.put(_NumberPatternMapper.class, new _NumberPatternMapper());
 
         schemaMapperMap.put(Boolean.class, BooleanMapper.getInstance());
         schemaMapperMap.put(boolean.class, BooleanMapper.getInstance());
@@ -155,7 +155,7 @@ public class MapperLib {
 
         /// //////////
 
-        typePatternMappers.add(new _FuturePatternMapper());
+        typePatternMappers.put(_FuturePatternMapper.class, new _FuturePatternMapper());
 
         typeMapperMap.put(Optional.class, new OptionalMapper());
 

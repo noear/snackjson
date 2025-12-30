@@ -42,13 +42,13 @@ public class CodecLib {
     private static CodecLib DEFAULT = new CodecLib(null).loadDefault();
 
     private final Map<Class<?>, ObjectCreator<?>> creators = new HashMap<>();
-    private final Set<ObjectPatternCreator<?>> patternCreators = new LinkedHashSet<>();
+    private final Map<Class<?>, ObjectPatternCreator<?>> patternCreators = new LinkedHashMap<>();
 
     private final Map<Class<?>, ObjectDecoder<?>> decoders = new HashMap<>();
-    private final Set<ObjectPatternDecoder<?>> patternDecoders = new LinkedHashSet<>();
+    private final Map<Class<?>, ObjectPatternDecoder<?>> patternDecoders = new LinkedHashMap<>();
 
     private final Map<Class<?>, ObjectEncoder<?>> encoders = new HashMap<>();
-    private final Set<ObjectPatternEncoder<?>> patternEncoders = new LinkedHashSet<>();
+    private final Map<Class<?>, ObjectPatternEncoder<?>> patternEncoders = new LinkedHashMap<>();
 
     private final CodecLib parent;
 
@@ -71,14 +71,14 @@ public class CodecLib {
      * 添加创建器
      */
     public void addCreator(ObjectPatternCreator creator) {
-        patternCreators.add(creator);
+        patternCreators.put(creator.getClass(), creator);
     }
 
     /**
      * 添加解码器
      */
     public void addDecoder(ObjectPatternDecoder decoder) {
-        patternDecoders.add(decoder);
+        patternDecoders.put(decoder.getClass(), decoder);
     }
 
     /**
@@ -86,7 +86,7 @@ public class CodecLib {
      */
     public <T> void addDecoder(Class<T> type, ObjectDecoder<T> decoder) {
         if (decoder instanceof ObjectPatternDecoder<?>) {
-            patternDecoders.add((ObjectPatternDecoder<?>) decoder);
+            patternDecoders.put(decoder.getClass(), (ObjectPatternDecoder<?>) decoder);
         }
 
         decoders.put(type, decoder);
@@ -96,7 +96,7 @@ public class CodecLib {
      * 添加编码器
      */
     public void addEncoder(ObjectPatternEncoder encoder) {
-        patternEncoders.add(encoder);
+        patternEncoders.put(encoder.getClass(), encoder);
     }
 
     /**
@@ -104,7 +104,7 @@ public class CodecLib {
      */
     public <T> void addEncoder(Class<T> type, ObjectEncoder<T> encoder) {
         if (encoder instanceof ObjectPatternEncoder) {
-            patternEncoders.add((ObjectPatternEncoder<T>) encoder);
+            patternEncoders.put(encoder.getClass(), (ObjectPatternEncoder<T>) encoder);
         }
 
         encoders.put(type, encoder);
@@ -114,7 +114,7 @@ public class CodecLib {
         ObjectDecoder tmp = decoders.get(clazz);
 
         if (tmp == null) {
-            for (ObjectPatternDecoder decoder1 : patternDecoders) {
+            for (ObjectPatternDecoder decoder1 : patternDecoders.values()) {
                 if (decoder1.canDecode(clazz)) {
                     return decoder1;
                 }
@@ -132,7 +132,7 @@ public class CodecLib {
         ObjectCreator tmp = creators.get(clazz);
 
         if (tmp == null) {
-            for (ObjectPatternCreator<?> creator1 : patternCreators) {
+            for (ObjectPatternCreator<?> creator1 : patternCreators.values()) {
                 if (creator1.calCreate(clazz)) {
                     return creator1;
                 }
@@ -150,7 +150,7 @@ public class CodecLib {
         ObjectEncoder encoder = encoders.get(value.getClass());
 
         if (encoder == null) {
-            for (ObjectPatternEncoder encoder1 : patternEncoders) {
+            for (ObjectPatternEncoder encoder1 : patternEncoders.values()) {
                 if (encoder1.canEncode(value)) {
                     return encoder1;
                 }
