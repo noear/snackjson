@@ -1,3 +1,9 @@
+
+
+### 4.0.26
+
+* 添加 Options.then 方法，用于链式构建
+
 ### 4.0.25
 
 * 添加 AtomicBoolean,AtomicLong,AtomicInteger 支持

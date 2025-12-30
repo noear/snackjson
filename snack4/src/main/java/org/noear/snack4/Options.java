@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
@@ -67,13 +68,21 @@ public final class Options {
     private TimeZone timeZone = DEF_TIME_ZONE;
 
     private Supplier<Map> mapFactory = LinkedHashMap::new;
-    private Supplier<List> listFactory =  ArrayList::new;
+    private Supplier<List> listFactory = ArrayList::new;
 
 
     private final boolean readonly;
 
     private Options(boolean readonly) {
         this.readonly = readonly;
+    }
+
+    /**
+     * 用于链式构建
+     */
+    public Options then(Consumer<Options> consumer) {
+        consumer.accept(this);
+        return this;
     }
 
     /**
@@ -112,7 +121,8 @@ public final class Options {
 
     /**
      * @deprecated 4.0
-     * */
+     *
+     */
     @Deprecated
     public TimeZone getTimeZone() {
         return timeZone;
