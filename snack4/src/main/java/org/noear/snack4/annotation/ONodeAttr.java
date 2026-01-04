@@ -49,9 +49,14 @@ public @interface ONodeAttr {
     String description() default "";
 
     /**
-     * 必须的
+     * 是否必须
      */
     boolean required() default true;
+
+    /**
+     * 是否打码（脱敏）
+     */
+    boolean masking() default false;
 
     /**
      * 格式化

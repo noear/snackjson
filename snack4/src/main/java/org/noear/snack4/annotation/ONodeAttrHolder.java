@@ -51,6 +51,8 @@ public class ONodeAttrHolder {
     private ObjectDecoder decoder;
     private long featuresValue;
 
+    private boolean masking = false;
+
     public ONodeAttrHolder(String alias, String title, String description, boolean required) {
         this.alias = alias;
         this.title = title;
@@ -73,6 +75,7 @@ public class ONodeAttrHolder {
 
             flat = attrAnno.flat();
             required = attrAnno.required();
+            masking = attrAnno.masking();
 
 
             if (attrAnno.ignore()) {
@@ -147,6 +150,10 @@ public class ONodeAttrHolder {
 
     public boolean isRequired() {
         return required;
+    }
+
+    public boolean isMasking() {
+        return masking;
     }
 
     public boolean isEmpty() {
