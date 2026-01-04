@@ -21,11 +21,9 @@ public class MarkingDemo {
         options.addEncoder(String.class, new StringEncoder() {
             @Override
             public ONode encode(EncodeContext ctx, String value, ONode target) {
-                if (ctx.getElement() != null) {
-                    Marking anno = ctx.getAnnotation(Marking.class);
-                    if(anno != null) {
-                        return target.setValue(value.replace("xxx", "***"));
-                    }
+                Marking anno = ctx.getAnnotation(Marking.class);
+                if(anno != null) {
+                    return target.setValue(value.replace("xxx", "***"));
                 }
 
                 return super.encode(ctx, value, target);
