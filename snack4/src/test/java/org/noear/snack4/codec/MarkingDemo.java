@@ -21,10 +21,10 @@ public class MarkingDemo {
         options.addEncoder(String.class, new StringEncoder() {
             @Override
             public ONode encode(EncodeContext ctx, String value, ONode target) {
-                if (ctx.getAttr().isMasking()) {
+                //if (ctx.getAttr().isMasking()) {
                     //打码（脱每处理）
-                    return target.setValue(value.replace("xxx", "***"));
-                }
+                    //return target.setValue(value.replace("xxx", "***"));
+                //}
 
                 return super.encode(ctx, value, target);
             }
@@ -36,7 +36,7 @@ public class MarkingDemo {
     public static class User {
         String name = "aaa";
 
-        @ONodeAttr(masking = true)
+        //@ONodeAttr(masking = true)
         String password = "xxx";
     }
 }

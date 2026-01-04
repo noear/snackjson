@@ -54,11 +54,6 @@ public @interface ONodeAttr {
     boolean required() default true;
 
     /**
-     * 是否打码（脱敏）
-     */
-    boolean masking() default false;
-
-    /**
      * 格式化
      */
     String format() default "";
