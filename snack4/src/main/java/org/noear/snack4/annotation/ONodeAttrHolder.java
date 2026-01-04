@@ -22,6 +22,7 @@ import org.noear.snack4.codec.util.ClassUtil;
 import org.noear.snack4.codec.util.DateUtil;
 import org.noear.snack4.util.Asserts;
 
+import java.lang.reflect.AnnotatedElement;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.TimeZone;
@@ -50,8 +51,16 @@ public class ONodeAttrHolder {
     private ObjectEncoder encoder;
     private ObjectDecoder decoder;
     private long featuresValue;
+    private AnnotatedElement element;
 
+    @Deprecated
     public ONodeAttrHolder(String alias, String title, String description, boolean required) {
+        this(alias, title, description, required, null);
+    }
+
+    public ONodeAttrHolder(String alias, String title, String description, boolean required, AnnotatedElement element) {
+        this.element = element;
+
         this.alias = alias;
         this.title = title;
         this.description = description;
@@ -59,7 +68,14 @@ public class ONodeAttrHolder {
         this.empty = true;
     }
 
+    @Deprecated
     public ONodeAttrHolder(ONodeAttr attrAnno, String realName) {
+        this(attrAnno, realName, null);
+    }
+
+    public ONodeAttrHolder(ONodeAttr attrAnno, String realName, AnnotatedElement element) {
+        this.element = element;
+
         if (attrAnno != null) {
             alias = attrAnno.name();
             title = attrAnno.title();
@@ -127,7 +143,7 @@ public class ONodeAttrHolder {
 
     /**
      * @deprecated 4.0
-     * */
+     */
     @Deprecated
     public TimeZone getTimezone() {
         return timezone;
@@ -171,5 +187,9 @@ public class ONodeAttrHolder {
 
     public ObjectDecoder getDecoder() {
         return decoder;
+    }
+
+    public AnnotatedElement getElement() {
+        return element;
     }
 }

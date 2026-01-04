@@ -1,29 +1,32 @@
-package org.noear.snack4.codec;
+package features.snack4.codec;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.noear.snack4.ONode;
 import org.noear.snack4.Options;
-import org.noear.snack4.annotation.ONodeAttr;
+import org.noear.snack4.codec.EncodeContext;
 import org.noear.snack4.codec.encode.StringEncoder;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.util.Date;
 
 /**
  *
  * @author noear 2026/1/3 created
  *
  */
-public class MarkingDemo {
-    public void demo() {
-        Options options = Options.of();
-        options.addEncoder(String.class, new StringEncoder() {
+public class MarkingTest {
+    @Test
+    public void case1() {
+        Options options = Options.of().addEncoder(String.class, new StringEncoder() {
             @Override
             public ONode encode(EncodeContext ctx, String value, ONode target) {
                 if (ctx.getElement() != null) {
                     Marking anno = ctx.getAnnotation(Marking.class);
-                    if(anno != null) {
+                    if (anno != null) {
                         return target.setValue(value.replace("xxx", "***"));
                     }
                 }
@@ -32,8 +35,14 @@ public class MarkingDemo {
             }
         });
 
-        ONode.serialize(new User(), options);
+        User user = new User();
+
+        String json = ONode.ofBean(user, options).toJson();
+        System.out.println(json);
+
+        Assertions.assertEquals("{\"name\":\"aaa\",\"password\":\"***\"}", json);
     }
+
 
     public static class User {
         String name = "aaa";

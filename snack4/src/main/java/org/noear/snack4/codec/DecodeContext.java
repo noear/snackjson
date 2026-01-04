@@ -20,6 +20,8 @@ import org.noear.snack4.Feature;
 import org.noear.snack4.Options;
 import org.noear.snack4.annotation.ONodeAttrHolder;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Type;
 
 /**
@@ -32,6 +34,7 @@ public class DecodeContext<T> {
     private final ONodeAttrHolder attr;
     private final T target;
     private final TypeEggg typeEggg;
+    private final AnnotatedElement element;
 
     public DecodeContext(Options options, ONodeAttrHolder attr, T target, TypeEggg typeEggg) {
         this.options = options;
@@ -45,6 +48,12 @@ public class DecodeContext<T> {
         }
 
         this.attr = attr;
+
+        if (attr == null) {
+            this.element = null;
+        } else {
+            this.element = attr.getElement();
+        }
     }
 
     public Options getOptions() {
@@ -53,6 +62,18 @@ public class DecodeContext<T> {
 
     public ONodeAttrHolder getAttr() {
         return attr;
+    }
+
+    public AnnotatedElement getElement() {
+        return element;
+    }
+
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+        if (element == null) {
+            return null;
+        } else {
+            return element.getAnnotation(annotationClass);
+        }
     }
 
     public T getTarget() {

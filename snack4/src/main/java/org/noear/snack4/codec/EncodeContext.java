@@ -21,6 +21,9 @@ import org.noear.snack4.Options;
 import org.noear.snack4.annotation.ONodeAttrHolder;
 import org.noear.snack4.codec.util.EgggUtil;
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.AnnotatedElement;
+
 /**
  *
  * @author noear 2025/10/7 created
@@ -29,6 +32,7 @@ import org.noear.snack4.codec.util.EgggUtil;
 public class EncodeContext {
     private final Options options;
     private final ONodeAttrHolder attr;
+    private final AnnotatedElement element;
 
     public EncodeContext(Options options, ONodeAttrHolder attr, Object value) {
         this.options = options;
@@ -41,6 +45,12 @@ public class EncodeContext {
         }
 
         this.attr = attr;
+
+        if (attr == null) {
+            this.element = null;
+        } else {
+            this.element = attr.getElement();
+        }
     }
 
     public Options getOptions() {
@@ -49,6 +59,18 @@ public class EncodeContext {
 
     public ONodeAttrHolder getAttr() {
         return attr;
+    }
+
+    public AnnotatedElement getElement() {
+        return element;
+    }
+
+    public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+        if (element == null) {
+            return null;
+        } else {
+            return element.getAnnotation(annotationClass);
+        }
     }
 
     public boolean hasFeature(Feature feature) {
