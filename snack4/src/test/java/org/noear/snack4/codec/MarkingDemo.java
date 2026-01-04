@@ -30,13 +30,13 @@ public class MarkingDemo {
             }
         });
 
-        ONode.serialize("", options);
+        ONode.serialize(new User(), options);
     }
 
     public static class User {
-        String name;
+        String name = "aaa";
 
         @ONodeAttr(masking = true)
-        String password;
+        String password = "xxx";
     }
 }
