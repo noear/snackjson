@@ -15,6 +15,7 @@
  */
 package org.noear.snack4.annotation;
 
+import org.noear.eggg.AnnotatedEggg;
 import org.noear.snack4.Feature;
 import org.noear.snack4.codec.ObjectDecoder;
 import org.noear.snack4.codec.ObjectEncoder;
@@ -22,7 +23,6 @@ import org.noear.snack4.codec.util.ClassUtil;
 import org.noear.snack4.codec.util.DateUtil;
 import org.noear.snack4.util.Asserts;
 
-import java.lang.reflect.AnnotatedElement;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.TimeZone;
@@ -51,15 +51,15 @@ public class ONodeAttrHolder {
     private ObjectEncoder encoder;
     private ObjectDecoder decoder;
     private long featuresValue;
-    private AnnotatedElement element;
+    private AnnotatedEggg eggg;
 
     @Deprecated
     public ONodeAttrHolder(String alias, String title, String description, boolean required) {
         this(alias, title, description, required, null);
     }
 
-    public ONodeAttrHolder(String alias, String title, String description, boolean required, AnnotatedElement element) {
-        this.element = element;
+    public ONodeAttrHolder(String alias, String title, String description, boolean required, AnnotatedEggg eggg) {
+        this.eggg = eggg;
 
         this.alias = alias;
         this.title = title;
@@ -73,8 +73,8 @@ public class ONodeAttrHolder {
         this(attrAnno, realName, null);
     }
 
-    public ONodeAttrHolder(ONodeAttr attrAnno, String realName, AnnotatedElement element) {
-        this.element = element;
+    public ONodeAttrHolder(ONodeAttr attrAnno, String realName, AnnotatedEggg eggg) {
+        this.eggg = eggg;
 
         if (attrAnno != null) {
             alias = attrAnno.name();
@@ -189,7 +189,7 @@ public class ONodeAttrHolder {
         return decoder;
     }
 
-    public AnnotatedElement getElement() {
-        return element;
+    public AnnotatedEggg getEggg() {
+        return eggg;
     }
 }

@@ -49,10 +49,10 @@ public class DecodeContext<T> {
 
         this.attr = attr;
 
-        if (attr == null) {
+        if (attr == null || attr.getEggg() == null) {
             this.element = null;
         } else {
-            this.element = attr.getElement();
+            this.element = attr.getEggg().getElement();
         }
     }
 

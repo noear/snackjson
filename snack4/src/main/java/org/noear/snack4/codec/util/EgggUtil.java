@@ -84,14 +84,14 @@ public class EgggUtil {
         }
 
         if (s instanceof FieldEggg) {
-            return new ONodeAttrHolder(attr, ((Field) s.getElement()).getName(), s.getElement());
+            return new ONodeAttrHolder(attr, ((Field) s.getElement()).getName(), s);
         } else if (s instanceof PropertyMethodEggg) {
-            return new ONodeAttrHolder(attr, Property.resolvePropertyName(((Method) s.getElement()).getName()), s.getElement());
+            return new ONodeAttrHolder(attr, Property.resolvePropertyName(((Method) s.getElement()).getName()), s);
         } else if (s instanceof ParamEggg) {
-            return new ONodeAttrHolder(attr, ((Parameter) s.getElement()).getName(), s.getElement());
+            return new ONodeAttrHolder(attr, ((Parameter) s.getElement()).getName(), s);
         } else if (s instanceof ClassEggg) {
             if (attr != null) {
-                return new ONodeAttrHolder(attr, ((Class) s.getElement()).getName(), s.getElement());
+                return new ONodeAttrHolder(attr, ((Class) s.getElement()).getName(), s);
             }
         }
 
