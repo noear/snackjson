@@ -1,5 +1,9 @@
 
 
+### 4.0.27
+
+* 添加 ONodeAttr.masking 标记（方便脱敏定制）
+
 ### 4.0.26
 
 * 添加 Options.then 方法，用于链式构建
