@@ -95,6 +95,11 @@ public class BeanDecoder {
             return null;
         }
 
+        //如果是ONode 类型，则直接返回
+        if(typeEggg.getType().equals(ONode.class)){
+            return node;
+        }
+
         // 优先使用自定义编解码器
         //提前找到@type类型，便于自定义解码器定位
         typeEggg = confirmNodeType(node, typeEggg);
