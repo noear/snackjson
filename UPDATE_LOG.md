@@ -1,4 +1,8 @@
 
+### 4.0.30
+
+* 修复 BeanDecoder array.item 为 null 不能原还的问题（补过滤了）
+
 ### 4.0.29
 
 * 添加 ONode 字段类型反序列化支持

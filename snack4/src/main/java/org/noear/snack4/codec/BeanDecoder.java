@@ -289,9 +289,7 @@ public class BeanDecoder {
             for (ONode n1 : node.getArray()) {
                 //填充集合时，元素为新创建的，所以 target 传 null
                 Object item = decodeValueFromNode(n1, elementTypeEggg, null, null);
-                if (item != null) {
-                    coll.add(item);
-                }
+                coll.add(item);
             }
         } else if (node.isString()) {
             if (coll == Collections.EMPTY_LIST) {
@@ -306,9 +304,7 @@ public class BeanDecoder {
 
             for (String str : strArray) {
                 Object item = decodeValueFromNode(new ONode(opts, str), elementTypeEggg, null, null);
-                if (item != null) {
-                    coll.add(item);
-                }
+                coll.add(item);
             }
         } else {
             throw new CodecException("The type of node " + node.type() + " cannot be converted to collection.");
