@@ -14,7 +14,12 @@ import java.util.List;
  */
 public class NullTest {
     @Test
-    public void case1() {
+    public void csae1() {
+        assert ONode.ofBean(null).isNull();
+    }
+
+    @Test
+    public void case2() {
         List<Number> list = new ArrayList<>();
 
         list.add(null);
