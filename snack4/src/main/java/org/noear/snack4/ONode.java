@@ -686,13 +686,17 @@ public final class ONode {
 
     public static ONode ofBean(Object bean, Feature... features) {
         if (Asserts.isEmpty(features)) {
-            return BeanEncoder.encode(bean, Options.DEF_OPTIONS);
+            return ofBean(bean, Options.DEF_OPTIONS);
         } else {
-            return BeanEncoder.encode(bean, Options.of(features));
+            return ofBean(bean, Options.of(features));
         }
     }
 
     public static ONode ofBean(Object bean, Options opts) {
+        if (bean == null) {
+            return new ONode();
+        }
+
         return BeanEncoder.encode(bean, opts);
     }
 
@@ -706,6 +710,10 @@ public final class ONode {
 
     public static ONode ofJson(String json, Options opts) {
         try {
+            if (json == null) {
+                return new ONode();
+            }
+
             return JsonReader.read(json, opts);
         } catch (SnackException ex) {
             throw ex;
@@ -716,6 +724,10 @@ public final class ONode {
 
     public static ONode ofJson(Reader reader, Options opts) {
         try {
+            if (reader == null) {
+                return new ONode();
+            }
+
             return JsonReader.read(reader, opts);
         } catch (SnackException ex) {
             throw ex;

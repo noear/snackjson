@@ -36,4 +36,12 @@ public class NullTest {
         System.out.println(json2);
         Assertions.assertEquals("[null,1,2]", json2);
     }
+
+    @Test
+    public void case3(){
+        ONode oNode = ONode.ofJson(null);
+
+        System.out.println(oNode.toJson());
+        Assertions.assertTrue(oNode.isNull());
+    }
 }
