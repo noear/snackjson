@@ -1,4 +1,10 @@
 
+### 4.0.31
+
+* 添加 JsonReader.streamRead 方法
+* 修复 ONode.ofBean 和 ofJson 传入 null 会异常的问题
+
+
 ### 4.0.30
 
 * 修复 BeanDecoder array.item 为 null 不能原还的问题（补过滤了）

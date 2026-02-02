@@ -18,6 +18,7 @@ package org.noear.snack4.json;
 import org.noear.snack4.Feature;
 import org.noear.snack4.ONode;
 import org.noear.snack4.Options;
+import org.noear.snack4.SnackException;
 import org.noear.snack4.json.util.IoUtil;
 import org.noear.snack4.json.util.NameUtil;
 
@@ -106,6 +107,32 @@ public class JsonReader {
             return node;
         } finally {
             state.reader.close();
+        }
+    }
+
+    /**
+     * 流式读取：不断读出一段完整的 json 并返回 ONode
+     *
+     * @return 如果没有更多数据，则返回 null
+     */
+    public ONode streamRead() throws IOException {
+        try {
+            state.skipWhitespace();
+
+            if (Read_AllowComment) {
+                state.skipComments();
+                state.skipWhitespace();
+            }
+
+            // 检查是否已到达流末尾
+            if (state.peekChar() == 0) {
+                return null;
+            }
+
+            // 解析当前位置的一个完整值（Object, Array, String...）
+            return parseValue();
+        } catch (SnackException e) {
+            return null;
         }
     }
 
