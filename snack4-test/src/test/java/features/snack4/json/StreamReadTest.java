@@ -17,7 +17,7 @@ public class StreamReadTest {
         JsonReader reader = new JsonReader(new StringReader("{\"name\":\"noear\"}{'a':1}aaa"));
 
         while (true) {
-            ONode oNode = reader.streamRead();
+            ONode oNode = reader.readNext();
 
             if (oNode == null) {
                 break;
@@ -32,7 +32,7 @@ public class StreamReadTest {
         JsonReader reader = new JsonReader(new StringReader("{\"name\":\"noear\"}{'a':1}"));
 
         while (true) {
-            ONode oNode = reader.streamRead();
+            ONode oNode = reader.readNext();
 
             if (oNode == null) {
                 break;

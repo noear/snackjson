@@ -71,6 +71,14 @@ public class JsonReader {
         return stringBuilder;
     }
 
+    public JsonReader(String json) {
+        this(json, null);
+    }
+
+    public JsonReader(String json, Options opts) {
+        this(new StringReader(json), opts);
+    }
+
     public JsonReader(Reader reader) {
         this(reader, null);
     }
@@ -114,8 +122,9 @@ public class JsonReader {
      * 流式读取：不断读出一段完整的 json 并返回 ONode
      *
      * @return 如果没有更多数据，则返回 null
+     * @since 4.0.32
      */
-    public ONode streamRead() throws IOException {
+    public ONode readNext() {
         try {
             state.skipWhitespace();
 
@@ -131,9 +140,20 @@ public class JsonReader {
 
             // 解析当前位置的一个完整值（Object, Array, String...）
             return parseValue();
-        } catch (SnackException e) {
+        } catch (Throwable e) {
             return null;
         }
+    }
+
+    /**
+     * 流式读取：不断读出一段完整的 json 并返回 ONode
+     *
+     * @return 如果没有更多数据，则返回 null
+     * @deprecated 4.0.32
+     */
+    @Deprecated
+    public ONode streamRead() throws IOException {
+        return readNext();
     }
 
     private ONode parseValue() throws IOException {
