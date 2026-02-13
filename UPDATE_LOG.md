@@ -1,7 +1,8 @@
 
 ### 4.0.32
 
-* 添加 JsonReader.streamRead 更名为 readNext
+* 添加 JsonReader.iterableNext 方法
+* 调整 JsonReader.streamRead 更名为 readNext（前者标为弃用）
 
 ### 4.0.31
 

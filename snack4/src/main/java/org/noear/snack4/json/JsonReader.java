@@ -140,9 +140,39 @@ public class JsonReader {
 
             // 解析当前位置的一个完整值（Object, Array, String...）
             return parseValue();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * 获取迭代器，以便使用 for-each 遍历 JSON 流
+     *
+     * @since 4.0.32
+     */
+    public Iterable<ONode> iterableNext() {
+        return () -> new Iterator<ONode>() {
+            private ONode nextNode;
+            private boolean searched = false;
+
+            @Override
+            public boolean hasNext() {
+                if (!searched) {
+                    nextNode = readNext();
+                    searched = true;
+                }
+                return nextNode != null;
+            }
+
+            @Override
+            public ONode next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                searched = false;
+                return nextNode;
+            }
+        };
     }
 
     /**
