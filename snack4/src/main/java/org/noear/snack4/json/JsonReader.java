@@ -18,9 +18,10 @@ package org.noear.snack4.json;
 import org.noear.snack4.Feature;
 import org.noear.snack4.ONode;
 import org.noear.snack4.Options;
-import org.noear.snack4.SnackException;
 import org.noear.snack4.json.util.IoUtil;
 import org.noear.snack4.json.util.NameUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -34,8 +35,10 @@ import java.util.*;
  *
  * @author noear noear 2025/3/16 created
  * @since 4.0
- * */
+ */
 public class JsonReader {
+    private static final Logger LOG = LoggerFactory.getLogger(JsonReader.class);
+
     public static ONode read(String json) throws IOException {
         return read(json, null);
     }
@@ -141,8 +144,26 @@ public class JsonReader {
             // 解析当前位置的一个完整值（Object, Array, String...）
             return parseValue();
         } catch (Exception e) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("ReadNext finished with partial content: {}", e.getMessage());
+            }
+
             return null;
         }
+    }
+
+    /**
+     * 流式读取：跳过中间节点，直接读出当前流中最后一个完整的 json 节点
+     *
+     * @return 如果没有有效数据，则返回 null
+     * @since 4.0.32
+     */
+    public ONode readLast() {
+        ONode last = null, next;
+        while ((next = readNext()) != null) {
+            last = next;
+        }
+        return last;
     }
 
     /**
