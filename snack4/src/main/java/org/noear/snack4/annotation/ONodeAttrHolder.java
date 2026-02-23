@@ -38,7 +38,7 @@ public class ONodeAttrHolder {
     private String title;
     private String description;
     private boolean required;
-    private String defaultValue;
+    private String defaultValue; //@since 4.0.33
 
     private String format;
     private ZoneId zoneId;
@@ -56,17 +56,16 @@ public class ONodeAttrHolder {
 
     @Deprecated
     public ONodeAttrHolder(String alias, String title, String description, boolean required) {
-        this(alias, title, description, required, null);
+        this(alias, title, description, required, null, null);
     }
 
+    /**
+     * @deprecated 4.0.33
+     *
+     */
+    @Deprecated
     public ONodeAttrHolder(String alias, String title, String description, boolean required, AnnotatedEggg eggg) {
-        this.eggg = eggg;
-
-        this.alias = alias;
-        this.title = title;
-        this.description = description;
-        this.required = required;
-        this.empty = true;
+        this(alias, title, description, required, null, eggg);
     }
 
     public ONodeAttrHolder(String alias, String title, String description, boolean required, String defaultValue, AnnotatedEggg eggg) {
