@@ -1,4 +1,8 @@
 
+### 4.0.33
+
+* 添加 jsonschema 默认值生成
+
 ### 4.0.32
 
 * 添加 JsonReader.iterableNext 方法

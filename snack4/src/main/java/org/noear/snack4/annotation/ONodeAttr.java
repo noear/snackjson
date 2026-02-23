@@ -54,6 +54,11 @@ public @interface ONodeAttr {
     boolean required() default true;
 
     /**
+     * 默认值（用于 JsonSchema）
+     */
+    String defaultValue() default "";
+
+    /**
      * 格式化
      */
     String format() default "";

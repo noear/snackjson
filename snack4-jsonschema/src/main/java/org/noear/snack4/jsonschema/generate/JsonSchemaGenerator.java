@@ -239,6 +239,13 @@ public class JsonSchemaGenerator {
                         propertyNode.set(SchemaKeyword.DESCRIPTION, attr.getDescription());
                     }
 
+                    if(Asserts.isNotEmpty(attr.getDefaultValue())) {
+                        Object defVal = ONode.ofBean(attr.getDefaultValue())
+                                .toBean(property.getTypeEggg().getType());
+
+                        propertyNode.set(SchemaKeyword.DEFAULT, defVal);
+                    }
+
                     if (Asserts.isNotEmpty(attr.getTitle())) {
                         propertyNode.set(SchemaKeyword.TITLE, attr.getTitle());
                     }

@@ -37,13 +37,14 @@ public class ONodeAttrHolder {
     private String alias;
     private String title;
     private String description;
+    private boolean required;
+    private String defaultValue;
 
     private String format;
     private ZoneId zoneId;
     private TimeZone timezone;
 
     private boolean flat;
-    private boolean required;
     private final boolean empty;
 
     private boolean encode = true;
@@ -68,6 +69,17 @@ public class ONodeAttrHolder {
         this.empty = true;
     }
 
+    public ONodeAttrHolder(String alias, String title, String description, boolean required, String defaultValue, AnnotatedEggg eggg) {
+        this.eggg = eggg;
+
+        this.alias = alias;
+        this.title = title;
+        this.description = description;
+        this.required = required;
+        this.defaultValue = defaultValue;
+        this.empty = true;
+    }
+
     @Deprecated
     public ONodeAttrHolder(ONodeAttr attrAnno, String realName) {
         this(attrAnno, realName, null);
@@ -80,6 +92,8 @@ public class ONodeAttrHolder {
             alias = attrAnno.name();
             title = attrAnno.title();
             description = attrAnno.description();
+            required = attrAnno.required();
+            defaultValue = attrAnno.defaultValue();
 
             format = attrAnno.format();
             if (Asserts.isNotEmpty(attrAnno.timezone())) {
@@ -88,7 +102,6 @@ public class ONodeAttrHolder {
             }
 
             flat = attrAnno.flat();
-            required = attrAnno.required();
 
 
             if (attrAnno.ignore()) {
@@ -133,6 +146,14 @@ public class ONodeAttrHolder {
         return description;
     }
 
+    public boolean isRequired() {
+        return required;
+    }
+
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
     public String getFormat() {
         return format;
     }
@@ -159,10 +180,6 @@ public class ONodeAttrHolder {
 
     public boolean isFlat() {
         return flat;
-    }
-
-    public boolean isRequired() {
-        return required;
     }
 
     public boolean isEmpty() {
