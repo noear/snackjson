@@ -1,4 +1,8 @@
 
+### 4.0.34
+
+* 添加 Read_TrimString 特性
+
 ### 4.0.33
 
 * 添加 jsonschema 默认值生成

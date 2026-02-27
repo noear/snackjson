@@ -68,6 +68,11 @@ public enum Feature {
     Read_UnwrapJsonString,
 
     /**
+     * 读取时自动去除字符串的前后空格
+     */
+    Read_TrimString,
+
+    /**
      * 读取时允许对任何字符进行反斜杠转义
      */
     Read_AllowBackslashEscapingAnyCharacter,

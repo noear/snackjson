@@ -39,6 +39,12 @@ public class StringEncoder implements ObjectEncoder<String> {
             }
         }
 
+        if (ctx.hasFeature(Feature.Read_TrimString)) {
+            if (value.length() > 1) {
+                value = value.trim();
+            }
+        }
+
         return target.setValue(value);
     }
 }

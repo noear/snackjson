@@ -66,6 +66,7 @@ public class JsonReader {
     private final boolean Read_DisableUnquotedKeys;
     private final boolean Read_DisableSingleQuotes;
     private final boolean Read_UnwrapJsonString;
+    private final boolean Read_TrimString;
     private final boolean Read_ConvertSnakeToCamel;
     private final boolean Read_ConvertCamelToSnake;
 
@@ -98,6 +99,7 @@ public class JsonReader {
         this.Read_DisableUnquotedKeys = this.opts.hasFeature(Feature.Read_DisableUnquotedKeys);
         this.Read_DisableSingleQuotes = this.opts.hasFeature(Feature.Read_DisableSingleQuotes);
         this.Read_UnwrapJsonString = this.opts.hasFeature(Feature.Read_UnwrapJsonString);
+        this.Read_TrimString = this.opts.hasFeature(Feature.Read_TrimString);
         this.Read_ConvertSnakeToCamel = this.opts.hasFeature(Feature.Read_ConvertSnakeToSmlCamel);
         this.Read_ConvertCamelToSnake = this.opts.hasFeature(Feature.Read_ConvertCamelToSmlSnake);
     }
@@ -228,6 +230,12 @@ public class JsonReader {
                     if ((c1 == '{' && c2 == '}') || (c1 == '[' && c2 == ']')) {
                         return ONode.ofJson(str, opts);
                     }
+                }
+            }
+
+            if (Read_TrimString) {
+                if (str.length() > 1) {
+                    str = str.trim();
                 }
             }
 
