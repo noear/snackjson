@@ -38,7 +38,7 @@ public class ONodeAttrHolder {
     private String title;
     private String description;
     private boolean required;
-    private String defaultValue; //@since 4.0.34
+    private String defaultValue; //@since 4.0.35
 
     private String format;
     private ZoneId zoneId;
@@ -60,7 +60,7 @@ public class ONodeAttrHolder {
     }
 
     /**
-     * @deprecated 4.0.34
+     * @deprecated 4.0.35
      *
      */
     @Deprecated

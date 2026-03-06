@@ -56,7 +56,7 @@ public @interface ONodeAttr {
     /**
      * 默认值（用于 JsonSchema）
      *
-     * @since 4.0.34
+     * @since 4.0.35
      */
     String defaultValue() default "";
 
