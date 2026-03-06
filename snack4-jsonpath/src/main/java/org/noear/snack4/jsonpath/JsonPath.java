@@ -107,20 +107,25 @@ public class JsonPath {
         }
     }
 
-    public void delete(ONode root) {
+    public boolean delete(ONode root) {
         QueryContextImpl ctx = new QueryContextImpl(root, QueryMode.DELETE);
 
         try {
+            boolean deleted = false;
             QueryResult result = evaluate(ctx, root);
 
             for (ONode n1 : result.getNodeList()) {
                 if (n1.source != null) {
                     n1.delete();
+                    deleted = true;
                 }
             }
+
+            return deleted;
         } catch (Throwable ex) {
             if (ctx.hasFeature(Feature.JsonPath_SuppressExceptions)) {
                 //...
+                return false;
             } else {
                 throw ex;
             }
@@ -167,7 +172,7 @@ public class JsonPath {
     /**
      * 根据 jsonpath 删除
      */
-    public static void delete(ONode root, String path) {
-        parse(path).delete(root);
+    public static boolean delete(ONode root, String path) {
+        return parse(path).delete(root);
     }
 }

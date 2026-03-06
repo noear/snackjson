@@ -1,4 +1,8 @@
 
+### 4.0.35
+
+* 调整 JsonPath.delete 改为返回 bool（之前为 void）
+
 ### 4.0.34
 
 * 添加 Read_TrimString 特性

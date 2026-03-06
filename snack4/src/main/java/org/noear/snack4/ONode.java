@@ -648,8 +648,8 @@ public final class ONode {
     /**
      * 根据 jsonpath 删除
      */
-    public void delete(String jsonpath) {
-        jsonPathProvider.delete(this, jsonpath);
+    public boolean delete(String jsonpath) {
+       return jsonPathProvider.delete(this, jsonpath);
     }
 
     /**

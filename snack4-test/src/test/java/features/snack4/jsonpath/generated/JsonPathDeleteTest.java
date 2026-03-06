@@ -11,7 +11,7 @@ public class JsonPathDeleteTest {
     @Test
     public void testDeleteSimplePath() {
         ONode root = new ONode().set("name", "John");
-        JsonPath.delete(root, "$.name");
+        assertTrue(JsonPath.delete(root, "$.name"));
         assertFalse(root.hasKey("name"));
     }
 

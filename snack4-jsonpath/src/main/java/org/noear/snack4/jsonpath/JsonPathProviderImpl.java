@@ -44,8 +44,8 @@ public class JsonPathProviderImpl implements JsonPathProvider {
      * 根据 jsonpath 删除
      */
     @Override
-    public void delete(ONode root, String path) {
-        JsonPath.delete(root, path);
+    public boolean delete(ONode root, String path) {
+        return JsonPath.delete(root, path);
     }
 
     @Override

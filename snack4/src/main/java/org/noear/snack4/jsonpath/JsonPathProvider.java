@@ -33,7 +33,7 @@ public interface JsonPathProvider {
         throw new UnsupportedOperationException(warnHint());
     }
 
-    default void delete(ONode root, String path) {
+    default boolean delete(ONode root, String path) {
         throw new UnsupportedOperationException(warnHint());
     }
 
