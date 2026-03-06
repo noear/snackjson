@@ -35,11 +35,11 @@
 	</a>
     <br />
     <a target="_blank" href='https://gitee.com/noear/snack-jsonpath/stargazers'>
-        <img src='https://gitee.com/noear/snack-jsonpath/badge/star.svg' alt='gitee star'/>
-    </a>
+		<img src='https://gitee.com/noear/snack-jsonpath/badge/star.svg?theme=gvp' alt='gitee star'/>
+	</a>
     <a target="_blank" href='https://github.com/noear/snack-jsonpath/stargazers'>
-        <img src="https://img.shields.io/github/stars/noear/snack-jsonpath.svg?style=flat&logo=github" alt="github star"/>
-    </a>
+		<img src="https://img.shields.io/github/stars/noear/snack-jsonpath.svg?style=flat&logo=github" alt="github star"/>
+	</a>
 </p>
 
 <hr />
