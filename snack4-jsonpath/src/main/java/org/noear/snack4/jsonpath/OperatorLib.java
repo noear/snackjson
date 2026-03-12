@@ -15,13 +15,9 @@
  */
 package org.noear.snack4.jsonpath;
 
-
-import org.noear.snack4.ONode;
-import org.noear.snack4.jsonpath.filter.Term;
 import org.noear.snack4.jsonpath.operator.*;
 
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
