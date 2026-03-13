@@ -58,6 +58,46 @@ public class RFC9535_s2353_Comparison extends AbsRFC9535 {
         comparisonAssert("true > true", false);
     }
 
+    @Test
+    public void comparisonTest_NoSpace() {
+        //https://www.rfc-editor.org/rfc/rfc9535.html#filter-selector
+
+        comparisonAssert("$.absent1==$.absent2", true); //Empty nodelists
+        comparisonAssert("$.absent1<=$.absent2", true); //== implies <=
+        comparisonAssert("$.absent=='g'", false);
+        comparisonAssert("$.absent1!=$.absent2", false);
+        comparisonAssert("$.absent!='g'", true);
+
+        comparisonAssert("1<=2", true);
+        comparisonAssert("1>2", false);
+        comparisonAssert("13=='13'", false);
+        comparisonAssert("'a'<='b'", true);
+        comparisonAssert("'a'>'b'", false);
+
+        comparisonAssert("$.obj==$.arr", false);
+        comparisonAssert("$.obj!=$.arr", true);
+        comparisonAssert("$.obj==$.obj", true);
+        comparisonAssert("$.obj!=$.obj", false);
+        comparisonAssert("$.arr==$.arr", true);
+        comparisonAssert("$.arr!=$.arr", false);
+
+        comparisonAssert("$.obj==17", false);
+        comparisonAssert("$.obj!=17", true);
+
+        comparisonAssert("$.obj<=$.arr", false);
+        comparisonAssert("$.obj<$.arr", false);
+        comparisonAssert("$.obj<=$.obj", true);
+        comparisonAssert("$.arr<=$.arr", true);
+
+        comparisonAssert("1<=$.arr", false);
+        comparisonAssert("1>=$.arr", false);
+        comparisonAssert("1>$.arr", false);
+        comparisonAssert("1<$.arr", false);
+
+        comparisonAssert("true<=true", true);
+        comparisonAssert("true>true", false);
+    }
+
 
     private void comparisonAssert(String expr, boolean expected) {
         System.out.println("----------------------: " + expr);
