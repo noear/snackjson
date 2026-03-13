@@ -10,11 +10,11 @@
 
 ### 4.0.34
 
-* 添加 Read_TrimString 特性
+* 添加 Json Feature.Read_TrimString 特性
 
 ### 4.0.33
 
-* 添加 jsonschema 默认值生成
+* 添加 JsonSchema 默认值生成
 
 ### 4.0.32
 
@@ -30,7 +30,7 @@
 
 ### 4.0.30
 
-* 修复 BeanDecoder array.item 为 null 不能原还的问题（补过滤了）
+* 修复 Json BeanDecoder array.item 为 null 不能原还的问题（补过滤了）
 
 ### 4.0.29
 
