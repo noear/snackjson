@@ -1,8 +1,8 @@
 
 ### 4.0.36
 
-* 优化 逻辑表达式兼容性支持无空隔的 "a=='a'"
-* 修复 TypeRule.getSchemaTypeName 没有把初始节点识别为 null 的问题（识别为 undefined 了）
+* 优化 JsonPath 逻辑表达式兼容性支持无空隔的 "a=='a'"
+* 修复 JsonSchema TypeRule.getSchemaTypeName 没有把初始节点识别为 null 的问题（识别为 undefined 了）
 
 ### 4.0.35
 
