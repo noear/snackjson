@@ -6,7 +6,7 @@
 
     <groupId>org.noear</groupId>
     <artifactId>snack4-parent</artifactId>
-    <version>4.0.35</version>
+    <version>4.0.36</version>
     <packaging>pom</packaging>
 
     <name>${project.artifactId}</name>

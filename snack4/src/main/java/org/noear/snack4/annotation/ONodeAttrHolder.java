@@ -61,7 +61,6 @@ public class ONodeAttrHolder {
 
     /**
      * @deprecated 4.0.35
-     *
      */
     @Deprecated
     public ONodeAttrHolder(String alias, String title, String description, boolean required, AnnotatedEggg eggg) {
