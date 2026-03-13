@@ -73,11 +73,38 @@ public class Issue_56 {
         rst = oNode.select("$['paths']['/api/overlay']['get']['parameters'][?@.name]");
         System.out.println(rst.toJson());
 
-        rst = oNode.select("$['paths']['/api/overlay']['get']['parameters'][?@.name == 'x']");
-        System.out.println(rst.toJson());
+        ONode rst11 = oNode.select("$['paths']['/api/overlay']['get']['parameters'][?@.name = 'x']");
+        System.out.println(rst11.toJson());
 
-        rst = oNode.select("$['paths']['/api/overlay']['get']['parameters'][?@.name == 'x']");
-        System.out.println(rst.toJson());
+        ONode rst12 = oNode.select("$['paths']['/api/overlay']['get']['parameters'][?@.name='x']");
+        System.out.println(rst12.toJson());
 
+        ONode rst21 = oNode.select("$['paths']['/api/overlay']['get']['parameters'][?@.name == 'x']");
+        System.out.println(rst21.toJson());
+
+        ONode rst22 = oNode.select("$['paths']['/api/overlay']['get']['parameters'][?@.name=='x']");
+        System.out.println(rst22.toJson());
+
+        assert rst11.toJson().equals(rst12.toJson());
+        assert rst21.toJson().equals(rst22.toJson());
+        assert rst11.toJson().equals(rst22.toJson());
+
+        assert "[{\"name\":\"x\",\"in\":\"query\",\"required\":true,\"schema\":{\"type\":\"string\"}}]"
+                .equals(rst22.toJson());
+    }
+
+    @Test
+    public void case2() {
+        ONode oNode = ONode.ofJson(json);
+
+        ONode rst21 = oNode.select("$['paths']['/api/overlay']['get']['parameters'][?@.name != 'x']");
+        System.out.println(rst21.toJson());
+
+        ONode rst22 = oNode.select("$['paths']['/api/overlay']['get']['parameters'][?@.name!='x']");
+        System.out.println(rst22.toJson());
+
+        assert rst21.toJson().equals(rst22.toJson());
+        assert "[{\"name\":\"y\",\"in\":\"query\",\"required\":true,\"schema\":{\"type\":\"string\"}}]"
+                .equals(rst22.toJson());
     }
 }

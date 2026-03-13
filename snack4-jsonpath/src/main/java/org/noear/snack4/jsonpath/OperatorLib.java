@@ -32,6 +32,7 @@ public class OperatorLib {
     static {
         //协议规定
         register("==", new CompareOperator(CompareType.EQ));
+        register("=", new CompareOperator(CompareType.EQ)); //兼容 sql 表达式
         register("!=", new CompareOperator(CompareType.NEQ));
         register(">", new CompareOperator(CompareType.GT));
         register(">=", new CompareOperator(CompareType.GTE));
