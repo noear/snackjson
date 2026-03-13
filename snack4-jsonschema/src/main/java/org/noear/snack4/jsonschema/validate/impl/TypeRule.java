@@ -72,7 +72,6 @@ public class TypeRule implements ValidationRule {
     private static String getSchemaTypeName(ONode node) {
         switch (node.type()) {
             case Undefined:
-                return "undefined";
             case Null:
                 return "null";
             case Boolean:
