@@ -2,9 +2,12 @@ package features.snack4.jsonpath.RFC9535;
 
 import org.junit.jupiter.api.Test;
 import org.noear.snack4.ONode;
+import org.noear.snack4.jsonpath.JsonPathException;
 import org.noear.snack4.jsonpath.QueryContextImpl;
 import org.noear.snack4.jsonpath.filter.Expression;
 import org.noear.snack4.jsonpath.QueryMode;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * @author noear 2025/5/6 created
@@ -98,16 +101,75 @@ public class RFC9535_s2353_Comparison extends AbsRFC9535 {
         comparisonAssert("true>true", false);
     }
 
+    @Test
+    public void comparisonTest_SpaceSymbols_constant() {
+        /*
+            RFC 9535 defines 4 symbols to be considered as spaces: ' ', '\n', '\r', '\t'
+         */
+
+        comparisonAssert("1==2", false);
+        comparisonAssert("1==1", true);
+        comparisonAssert("1 == 1", true);
+        comparisonAssert("1  == 1", true);
+        comparisonAssert("1== 1", true);
+//        comparisonAssert("1 ==1", true); // TODO this fails
+        comparisonAssert("1\t==\t1", true);
+        comparisonAssert("1\t==1", true);
+        comparisonAssert("1==\t1", true);
+        comparisonAssert("1\r==\r1", true);
+        comparisonAssert("1==\r1", true);
+        comparisonAssert("1\r==1", true);
+        comparisonAssert("1\n==\n1", true);
+        comparisonAssert("1==\n1", true);
+        comparisonAssert("1\n==1", true);
+        comparisonAssert("1\n\r\t==1", true);
+        comparisonAssert("1\n==\t1", true);
+//        comparisonAssert("1 == \t \t \n    \r1", true); // TODO this fails
+    }
+
+
+    @Test
+    public void comparisonTest_SpaceSymbols_identifier() {
+        /*
+            RFC 9535 defines 4 symbols to be considered as spaces: ' ', '\n', '\r', '\t'
+         */
+
+        comparisonAssert("$.arr==$.obj", false);
+        comparisonAssert("$.arr==$.arr", true);
+        comparisonAssert("$.arr == $.arr", true);
+        comparisonAssert("$.arr  == $.arr", true);
+        comparisonAssert("$.arr== $.arr", true);
+//        comparisonAssert("$.arr ==$.arr", true); // TODO this fails
+        comparisonAssert("$.arr\t==\t$.arr", true);
+        comparisonAssert("$.arr\t==$.arr", true);
+        comparisonAssert("$.arr==\t$.arr", true);
+        comparisonAssert("$.arr\r==\r$.arr", true);
+        comparisonAssert("$.arr==\r$.arr", true);
+        comparisonAssert("$.arr\r==$.arr", true);
+        comparisonAssert("$.arr\n==\n$.arr", true);
+        comparisonAssert("$.arr==\n$.arr", true);
+        comparisonAssert("$.arr\n==$.arr", true);
+        comparisonAssert("$.arr\n\r\t==$.arr", true);
+        comparisonAssert("$.arr\n==\t$.arr", true);
+//        comparisonAssert("$.arr == \t \t \n    \r$.arr", true); // TODO this fails
+    }
 
     private void comparisonAssert(String expr, boolean expected) {
         System.out.println("----------------------: " + expr);
         ONode node = ofJson(comparisonJson);
-        boolean actual = Expression.of(expr).test(node, new QueryContextImpl(node, QueryMode.SELECT));
+        boolean actual;
+        try {
+            actual = Expression.of(expr).test(node, new QueryContextImpl(node, QueryMode.SELECT));
+        } catch (JsonPathException e) {
+            fail("Failed to parse expression: " + expr, e);
+            return;
+        }
 
         if (expected != actual) {
             System.out.println("::: " + actual + " != " + expected);
             System.out.println(comparisonJson);
-            assert false;
+            //assert false; //fail() will work even without -ea, and provide msg
+            fail("Failed to correctly handle the boolean result of expression: " + expr);
         }
     }
 }
