@@ -112,7 +112,7 @@ public class RFC9535_s2353_Comparison extends AbsRFC9535 {
         comparisonAssert("1 == 1", true);
         comparisonAssert("1  == 1", true);
         comparisonAssert("1== 1", true);
-//        comparisonAssert("1 ==1", true); // TODO this fails
+        comparisonAssert("1 ==1", true); // TODO this fails
         comparisonAssert("1\t==\t1", true);
         comparisonAssert("1\t==1", true);
         comparisonAssert("1==\t1", true);
@@ -124,7 +124,7 @@ public class RFC9535_s2353_Comparison extends AbsRFC9535 {
         comparisonAssert("1\n==1", true);
         comparisonAssert("1\n\r\t==1", true);
         comparisonAssert("1\n==\t1", true);
-//        comparisonAssert("1 == \t \t \n    \r1", true); // TODO this fails
+        comparisonAssert("1 == \t \t \n    \r1", true); // TODO this fails
     }
 
 
@@ -139,7 +139,7 @@ public class RFC9535_s2353_Comparison extends AbsRFC9535 {
         comparisonAssert("$.arr == $.arr", true);
         comparisonAssert("$.arr  == $.arr", true);
         comparisonAssert("$.arr== $.arr", true);
-//        comparisonAssert("$.arr ==$.arr", true); // TODO this fails
+        comparisonAssert("$.arr ==$.arr", true); // TODO this fails
         comparisonAssert("$.arr\t==\t$.arr", true);
         comparisonAssert("$.arr\t==$.arr", true);
         comparisonAssert("$.arr==\t$.arr", true);
@@ -151,7 +151,7 @@ public class RFC9535_s2353_Comparison extends AbsRFC9535 {
         comparisonAssert("$.arr\n==$.arr", true);
         comparisonAssert("$.arr\n\r\t==$.arr", true);
         comparisonAssert("$.arr\n==\t$.arr", true);
-//        comparisonAssert("$.arr == \t \t \n    \r$.arr", true); // TODO this fails
+        comparisonAssert("$.arr == \t \t \n    \r$.arr", true); // TODO this fails
     }
 
     private void comparisonAssert(String expr, boolean expected) {

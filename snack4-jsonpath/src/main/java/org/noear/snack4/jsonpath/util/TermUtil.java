@@ -35,7 +35,12 @@ public class TermUtil {
      * @param expr 待解析的表达式字符串。
      * @return 包含 [leftStr, opStr, rightStr] 三个元素的字符串数组。
      */
-    private static final String[] symbolOps = {"==", "!=", "<=", ">=", "=", "<", ">"}; // '=' 考虑 sql jsonpath 兼容性
+    private static final String[] symbolOps = {"==", "=~", "!=", "<=", ">=", "=", "<", ">"};
+
+    private static boolean isWhitespace(char c) {
+        // RFC 9535 定义的空白符：空格 (0x20), HT (0x09), LF (0x0A), CR (0x0D)
+        return c == ' ' || c == '\t' || c == '\n' || c == '\r';
+    }
 
     public static String[] resolve(String expr) {
         expr = expr.trim();
@@ -45,179 +50,137 @@ public class TermUtil {
         String opStr = null;
         String rightStr = null;
 
-        // 层级状态变量，用于保护表达式内部的空格
-        int parenLevel = 0;   // 圆括号 () 层级
-        int bracketLevel = 0; // 方括号 [] 层级
-        int braceLevel = 0;   // 花括号 {} 层级
-        char quoteChar = 0;   // 当前激活的引号类型 (' 或 ")
+        int parenLevel = 0;
+        int bracketLevel = 0;
+        int braceLevel = 0;
+        char quoteChar = 0;
 
-        int endOfLeft = -1; // 左操作数结束（第一个顶级空格）
-        String foundSymbolOp = null; // 优化点 2：记录是否命中了无空格的符号操作符
+        int endOfLeft = -1;
+        String foundSymbolOp = null;
 
-        // 1. 正向扫描：寻找 leftStr 和 op/right 的分隔符 (第一个顶级空格)
+        // 1. 正向扫描：寻找 leftStr 的边界
         for (int i = 0; i < inputLength; i++) {
             char c = expr.charAt(i);
 
-            // 处于引号内时，忽略所有字符，直到引号结束
             if (quoteChar != 0) {
                 if (c == quoteChar) quoteChar = 0;
                 continue;
             }
 
-            // 探测符号。即使有空格，如果符号在空格前或位置重合，也优先记录。
             if (parenLevel == 0 && bracketLevel == 0 && braceLevel == 0) {
+                // 优先探测符号操作符（处理 1==1, 1\t==1）
+                String matchedOp = null;
                 for (String sOp : symbolOps) {
                     if (expr.startsWith(sOp, i)) {
-                        endOfLeft = i;
-                        foundSymbolOp = sOp;
-                        i = inputLength;
+                        matchedOp = sOp;
                         break;
                     }
                 }
-                if (foundSymbolOp != null) break;
 
-                if (c == ' ') {
+                if (matchedOp != null) {
+                    endOfLeft = i;
+                    foundSymbolOp = matchedOp;
+                    break;
+                }
+
+                // 探测空白（处理 1 == 1, 1 starts with 1）
+                if (isWhitespace(c)) {
                     endOfLeft = i;
                     break;
                 }
             }
 
             switch (c) {
-                case '\'':
-                case '"':
-                    quoteChar = c;
-                    break;
-                case '(':
-                    parenLevel++;
-                    break;
-                case ')':
-                    if (parenLevel > 0) parenLevel--;
-                    break;
-                case '[':
-                    bracketLevel++;
-                    break;
-                case ']':
-                    if (bracketLevel > 0) bracketLevel--;
-                    break;
-                case '{':
-                    braceLevel++;
-                    break;
-                case '}':
-                    if (braceLevel > 0) braceLevel--;
-                    break;
-                case ' ':
-                    // 顶级空格是分隔符
-                    if (parenLevel == 0 && bracketLevel == 0 && braceLevel == 0) {
-                        endOfLeft = i;
-                        i = inputLength; // 跳出循环
-                    }
-                    break;
+                case '\'': case '"': quoteChar = c; break;
+                case '(': parenLevel++; break;
+                case ')': if (parenLevel > 0) parenLevel--; break;
+                case '[': bracketLevel++; break;
+                case ']': if (bracketLevel > 0) bracketLevel--; break;
+                case '{': braceLevel++; break;
+                case '}': if (braceLevel > 0) braceLevel--; break;
             }
         }
 
         if (endOfLeft == -1) {
-            // 表达式中没有顶级空格，整个字符串是左操作数（如函数调用或无操作符表达式）
             leftStr = expr;
         } else {
-            // 3. 分割出左操作数
-            leftStr = expr.substring(0, endOfLeft);
+            leftStr = expr.substring(0, endOfLeft).trim();
 
-            // 优化点 4：根据匹配模式采取不同的后续拆解逻辑
-            if (foundSymbolOp != null) {
-                // 模式 A：符号模式。 (e.g., @.name=='x' 或 @.name == 'x')
-                opStr = foundSymbolOp;
-                rightStr = expr.substring(endOfLeft + foundSymbolOp.length()).trim();
+            // 确定操作符的起始位置（跳过 leftStr 后的空白）
+            int startOfOp = endOfLeft;
+            while (startOfOp < inputLength && isWhitespace(expr.charAt(startOfOp))) {
+                startOfOp++;
+            }
+
+            if (startOfOp == inputLength) {
+                return new String[]{leftStr, null, null};
+            }
+
+            // 检查 startOfOp 处是否是符号操作符（修复 1 ==1, 1\t==1）
+            // 如果 foundSymbolOp 不为空，说明正向扫描直接命中了符号（1==1）
+            // 如果为空，这里需要二次确认是否存在被空格隔开的符号（1 == 1）
+            String finalSymbolOp = foundSymbolOp;
+            if (finalSymbolOp == null) {
+                for (String sOp : symbolOps) {
+                    if (expr.startsWith(sOp, startOfOp)) {
+                        finalSymbolOp = sOp;
+                        break;
+                    }
+                }
+            }
+
+            if (finalSymbolOp != null) {
+                // 模式 A：符号模式
+                opStr = finalSymbolOp;
+                // 必须基于发现符号的实际位置截取 rightStr
+                int opOffset = (foundSymbolOp != null) ? endOfLeft : startOfOp;
+                rightStr = expr.substring(opOffset + finalSymbolOp.length()).trim();
             } else {
-                // 模式 B：空格分隔的多词操作符模式 (e.g., @.name starts with 'x')
-                // 确定操作符起始索引（跳过 left 后的空格）
-                // 确定操作符/右操作数的起始索引（跳过 leftStr 后的所有空格）
-                int startOfOp = endOfLeft;
-                while (startOfOp < inputLength && expr.charAt(startOfOp) == ' ') {
-                    startOfOp++;
-                }
-
-                // 如果操作符/右操作数部分为空，则返回
-                if (startOfOp == inputLength) {
-                    return new String[]{leftStr, null, null};
-                }
-
-                // 4. 反向扫描：寻找操作符 op 和 右操作数 right 之间的最后一个顶级空格
-                // 这个空格就是 op 和 right 的边界，它允许 op 是多词操作符
-                parenLevel = 0;
-                bracketLevel = 0;
-                braceLevel = 0;
-                quoteChar = 0;
-                int separatorIndex = -1; // 记录 op 和 right 边界的空格索引 (相对于 inputExpr)
+                // 模式 B：多词操作符模式（反向扫描）
+                int separatorIndex = -1;
+                parenLevel = 0; bracketLevel = 0; braceLevel = 0; quoteChar = 0;
 
                 for (int i = inputLength - 1; i >= startOfOp; i--) {
                     char c = expr.charAt(i);
-
-                    // 反向层级保护（从右到左）
                     if (quoteChar != 0) {
                         if (c == quoteChar) quoteChar = 0;
                         continue;
                     }
                     switch (c) {
-                        case '\'':
-                        case '"':
-                            quoteChar = c;
-                            break;
-                        case ')':
-                            parenLevel++;
-                            break;
-                        case '(':
-                            if (parenLevel > 0) parenLevel--;
-                            break;
-                        case ']':
-                            bracketLevel++;
-                            break;
-                        case '[':
-                            if (bracketLevel > 0) bracketLevel--;
-                            break;
-                        case '}':
-                            braceLevel++;
-                            break;
-                        case '{':
-                            if (braceLevel > 0) braceLevel--;
-                            break;
-                        case ' ':
-                            if (parenLevel == 0 && bracketLevel == 0 && braceLevel == 0) {
+                        case '\'': case '"': quoteChar = c; break;
+                        case ')': parenLevel++; break;
+                        case '(': if (parenLevel > 0) parenLevel--; break;
+                        case ']': bracketLevel++; break;
+                        case '[': if (bracketLevel > 0) bracketLevel--; break;
+                        case '}': braceLevel++; break;
+                        case '{': if (braceLevel > 0) braceLevel--; break;
+                        default:
+                            if (isWhitespace(c) && parenLevel == 0 && bracketLevel == 0 && braceLevel == 0) {
                                 separatorIndex = i;
-                                i = startOfOp - 1; // 跳出循环
+                                i = startOfOp - 1;
                             }
                             break;
                     }
                 }
 
                 if (separatorIndex == -1) {
-                    // 没有找到 op 和 right 的分隔空格，整个剩余部分都是操作符 op
                     opStr = expr.substring(startOfOp);
                 } else {
-                    // 找到 opStr 的精确结束索引（separatorIndex 之前的非空格字符）
                     int endOfOp = separatorIndex - 1;
-                    while (endOfOp >= startOfOp && expr.charAt(endOfOp) == ' ') {
-                        endOfOp--;
-                    }
+                    while (endOfOp >= startOfOp && isWhitespace(expr.charAt(endOfOp))) endOfOp--;
 
-                    // 找到 rightStr 的精确起始索引（separatorIndex 之后的非空格字符）
                     int startOfRight = separatorIndex + 1;
-                    while (startOfRight < inputLength && expr.charAt(startOfRight) == ' ') {
-                        startOfRight++;
-                    }
+                    while (startOfRight < inputLength && isWhitespace(expr.charAt(startOfRight))) startOfRight++;
 
-                    // 使用精确索引截取 opStr
                     if (endOfOp >= startOfOp) {
                         opStr = expr.substring(startOfOp, endOfOp + 1);
                     }
-
-                    // 使用精确索引截取 rightStr
                     if (startOfRight < inputLength) {
-                        rightStr = expr.substring(startOfRight);
+                        rightStr = expr.substring(startOfRight).trim();
                     }
 
-                    // 修正：如果解析后 rightStr 为空或不存在，则认为整个剩余部分都是 op
                     if (opStr != null && (rightStr == null || rightStr.isEmpty())) {
-                        opStr = expr.substring(startOfOp);
+                        opStr = expr.substring(startOfOp).trim();
                         rightStr = null;
                     }
                 }
