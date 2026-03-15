@@ -69,6 +69,7 @@ public class JsonReader {
     private final boolean Read_TrimString;
     private final boolean Read_ConvertSnakeToCamel;
     private final boolean Read_ConvertCamelToSnake;
+    private final boolean Read_AutoRepair;
 
     private StringBuilder getStringBuilder() {
         stringBuilder.setLength(0);
@@ -90,9 +91,7 @@ public class JsonReader {
     public JsonReader(Reader reader, Options opts) {
         Objects.requireNonNull(reader, "reader");
 
-        this.state = new ParserState(reader);
         this.opts = opts == null ? Options.DEF_OPTIONS : opts;
-
         this.stringBuilder = new StringBuilder(32);
 
         this.Read_AllowComment = this.opts.hasFeature(Feature.Read_AllowComment);
@@ -102,6 +101,10 @@ public class JsonReader {
         this.Read_TrimString = this.opts.hasFeature(Feature.Read_TrimString);
         this.Read_ConvertSnakeToCamel = this.opts.hasFeature(Feature.Read_ConvertSnakeToSmlCamel);
         this.Read_ConvertCamelToSnake = this.opts.hasFeature(Feature.Read_ConvertCamelToSmlSnake);
+        this.Read_AutoRepair = this.opts.hasFeature(Feature.Read_AutoRepair);
+
+
+        this.state = new ParserState(reader, Read_AutoRepair);
     }
 
     public ONode read() throws IOException {
@@ -114,7 +117,7 @@ public class JsonReader {
                 state.skipComments();
             }
 
-            if (state.bufferPosition < state.bufferLimit) {
+            if (!Read_AutoRepair && state.bufferPosition < state.bufferLimit) {
                 throw state.error("Unexpected data after json root");
             }
             return node;
@@ -252,6 +255,11 @@ public class JsonReader {
         if (c == 'n') return parseKeyword("null", null);
         if (c == 'N') return parseKeyword("NaN", null);
         if (c == 'u') return parseKeyword("undefined", null);
+
+        if (Read_AutoRepair) {
+            return new ONode(opts);
+        }
+
         throw state.error("Unexpected character: " + c);
     }
 
@@ -297,7 +305,12 @@ public class JsonReader {
         state.expect('{');
         while (true) {
             state.skipWhitespace();
-            if (state.peekChar() == '}') {
+            char c = state.peekChar();
+            if (c == 0) {
+                // 增加对 EOF 的支持
+                break;
+            }
+            if (c == '}') {
                 state.bufferPosition++;
                 break;
             }
@@ -309,7 +322,11 @@ public class JsonReader {
             }
 
             state.skipWhitespace();
-            state.expect(':');
+
+            if (!state.expect(':')) {
+                break;
+            }
+
             ONode value = parseValue();
             map.put(key, value);
 
@@ -321,9 +338,14 @@ public class JsonReader {
             } else if (state.peekChar() == '}') {
                 // Continue to closing
             } else {
-                throw state.error("Expected ',' or '}'");
+                if (Read_AutoRepair) {
+                    break;
+                } else {
+                    throw state.error("Expected ',' or '}'");
+                }
             }
         }
+
         return new ONode(opts, map);
     }
 
@@ -382,7 +404,11 @@ public class JsonReader {
             } else if (state.peekChar() == ']') {
                 // Continue to closing
             } else {
-                throw state.error("Expected ',' or ']'");
+                if (Read_AutoRepair) {
+                    break;
+                } else {
+                    throw state.error("Expected ',' or ']'");
+                }
             }
         }
         return new ONode(opts, list);
@@ -401,7 +427,11 @@ public class JsonReader {
             // 确保缓冲区有内容
             if (state.bufferPosition >= state.bufferLimit) {
                 if (!state.fillBuffer()) {
-                    throw state.error("Unclosed string");
+                    if (Read_AutoRepair) {
+                        break;
+                    } else {
+                        throw state.error("Unclosed string");
+                    }
                 }
             }
 
@@ -481,7 +511,11 @@ public class JsonReader {
                             } else if (hex_char >= 'A' && hex_char <= 'F') {
                                 val += hex_char - 'A' + 10;
                             } else {
-                                throw state.error("Invalid Unicode escape");
+                                if (Read_AutoRepair) {
+                                    break;
+                                } else {
+                                    throw state.error("Invalid Unicode escape");
+                                }
                             }
                         }
                         sb.append((char) val);
@@ -551,10 +585,13 @@ public class JsonReader {
         if (state.peekChar() == '.') {
             sb.append(state.nextChar());
             if (!isDigit(state.peekChar())) {
-                throw state.error("Invalid decimal format");
-            }
-            while (isDigit(state.peekChar())) {
-                sb.append(state.nextChar());
+                if (Read_AutoRepair == false) {
+                    throw state.error("Invalid decimal format");
+                }
+            } else {
+                while (isDigit(state.peekChar())) {
+                    sb.append(state.nextChar());
+                }
             }
         }
 
@@ -579,6 +616,16 @@ public class JsonReader {
         }
 
         String numStr = sb.toString();
+        if (Read_AutoRepair) {
+            // 如果以小数点或正负号结尾，则清理掉非法末尾
+            if (numStr.endsWith(".") || numStr.endsWith("-") || numStr.endsWith("+")) {
+                numStr = numStr.substring(0, numStr.length() - 1);
+            }
+        }
+        if (numStr.isEmpty()) {
+            return 0;
+        }
+
         try {
             // 根据后缀类型解析数字
             if (postfix == 'D') {
@@ -618,7 +665,11 @@ public class JsonReader {
             char actualChar = state.nextChar(); // 使用 nextChar 确保自动处理缓冲区填充
 
             if (actualChar != expectedChar) {
-                throw state.error("Unexpected keyword: expected '" + expect + "'");
+                if (Read_AutoRepair) {
+                    break;
+                } else {
+                    throw state.error("Unexpected keyword: expected '" + expect + "'");
+                }
             }
         }
 
@@ -632,6 +683,8 @@ public class JsonReader {
     static class ParserState {
         private static final int BUFFER_SIZE = 8192;
         private final Reader reader;
+        private final boolean autoRepair;
+
         private long line = 1;
         private long column = 0;
 
@@ -639,14 +692,20 @@ public class JsonReader {
         private int bufferPosition;
         private int bufferLimit;
 
-        public ParserState(Reader reader) {
+        public ParserState(Reader reader, boolean autoRepair) {
             this.reader = reader;
+            this.autoRepair = autoRepair;
         }
 
         private char nextChar() throws IOException {
             if (bufferPosition >= bufferLimit && !fillBuffer()) {
-                throw error("Unexpected end of input");
+                if (autoRepair) {
+                    return 0;
+                } else {
+                    throw error("Unexpected end of input");
+                }
             }
+
             char c = buffer[bufferPosition++];
 
             // 集中处理行/列计数
@@ -685,10 +744,16 @@ public class JsonReader {
             return bufferLimit > 0;
         }
 
-        private void expect(char expected) throws IOException {
+        private boolean expect(char expected) throws IOException {
             char c = nextChar();
             if (c != expected) {
-                throw error("Expected '" + expected + "' but found '" + c + "'");
+                if (autoRepair) {
+                    return false;
+                } else {
+                    throw error("Expected '" + expected + "' but found '" + c + "'");
+                }
+            } else {
+                return true;
             }
         }
 

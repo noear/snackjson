@@ -112,6 +112,11 @@ public enum Feature {
      */
     Read_AutoType,
 
+    /**
+     * 读取时自动修复结构
+     */
+    Read_AutoRepair,
+
 
     //-----------------------------
     // 写入（序列化）

@@ -1,4 +1,8 @@
 
+### 4.0.38
+
+* 添加 Feature.Read_AutoRepair 特性
+
 ### 4.0.37
 
 * 优化 JsonPath 逻辑表达式处理，兼容 RFC9535 `\r\n\t` 空隔符
