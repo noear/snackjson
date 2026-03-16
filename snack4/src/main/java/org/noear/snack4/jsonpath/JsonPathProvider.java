@@ -29,6 +29,10 @@ public interface JsonPathProvider {
         throw new UnsupportedOperationException(warnHint());
     }
 
+    default boolean exists(ONode root, String path) {
+        throw new UnsupportedOperationException(warnHint());
+    }
+
     default ONode create(ONode root, String path) {
         throw new UnsupportedOperationException(warnHint());
     }

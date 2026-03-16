@@ -50,6 +50,37 @@ public class RepairReadTest {
     }
 
     @Test
+    public void case3() throws Exception{
+        testRepair("{\"employees\":[\"John\", \"Anna\", \"Peter\"]} ","{\"employees\": [\"John\", \"Anna\", \"Peter\"]}");
+        testRepair("{\"key\": \"value:value\"}","{\"key\": \"value:value\"}");
+        testRepair("{\"text\": \"The quick brown fox,\"}","{\"text\": \"The quick brown fox,\"}");
+        testRepair("{\"text\": \"The quick brown fox won\\'t jump\"}","{\"text\": \"The quick brown fox won\\'t jump\"}");
+        testRepair("{\"key\": \"\"","{\"key\": \"\"}");
+        testRepair("{\"key1\": {\"key2\": [1, 2, 3]}}","{\"key1\": {\"key2\": [1, 2, 3]}}");
+        testRepair("{\"key\": 12345678901234567890}","{\"key\": 12345678901234567890}");
+        testRepair("{\"key\": \"value\u263a\"}","{\"key\": \"value\\u263a\"}");
+        testRepair("{\"key\": \"value\\\\nvalue\"}","{\"key\": \"value\\\\nvalue\"}");
+
+        testRepair("[]{}","[]");
+//        testRepair("[]{\"key\":\"value\"}","{\"key\": \"value\"}");
+//        testRepair("{\"key\":\"value\"}[1,2,3,True]","[{\"key\": \"value\"}, [1, 2, 3, true]]");
+//        testRepair("{\"key\":\"value\"} [1,2,3,True]","xxx");
+//        testRepair("[{\"key\":\"value\"}][{\"key\":\"value_after\"}]","[{\"key\": \"value_after\"}]");
+
+//        testRepair("{\"key\": true, \"key2\": false, \"key3\": null}","{\"key\": true, \"key2\": false, \"key3\": null}");
+//        testRepair("xxx","xxx");
+//        testRepair("xxx","xxx");
+//        testRepair("xxx","xxx");
+//        testRepair("xxx","xxx");
+    }
+
+    public void testRepair(String json1, String json2) throws Exception{
+        ONode oNode = JsonReader.read(json1, Options.of(Feature.Read_AutoRepair));
+
+        Assertions.assertEquals(ONode.ofJson(json2).toJson(), oNode.toJson());
+    }
+
+    @Test
     public void case_key_truncated() throws Exception {
         String json = "{\"id\":1, \"na"; // Key 还没写完
         ONode node =  new JsonReader(json, Options.of(Feature.Read_AutoRepair)).read();
@@ -124,4 +155,5 @@ public class RepairReadTest {
         ONode node = JsonReader.read(json, Options.of(Feature.Read_AutoRepair));
         Assertions.assertEquals(3, node.size());
     }
+
 }

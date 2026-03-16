@@ -82,7 +82,7 @@ public class JsonPath {
             return evaluate(ctx, root);
         } catch (Throwable ex) {
             if (ctx.hasFeature(Feature.JsonPath_SuppressExceptions)) {
-                return new QueryResult(ctx, Collections.emptyList());
+                return new QueryResult(ctx, null);
             } else {
                 throw ex;
             }
@@ -100,7 +100,7 @@ public class JsonPath {
             return evaluate(ctx, root);
         } catch (Throwable ex) {
             if (ctx.hasFeature(Feature.JsonPath_SuppressExceptions)) {
-                return new QueryResult(ctx, Collections.emptyList());
+                return new QueryResult(ctx, null);
             } else {
                 throw ex;
             }
@@ -160,6 +160,13 @@ public class JsonPath {
      */
     public static ONode select(ONode root, String path) {
         return parse(path).select(root).asNode();
+    }
+
+    /**
+     * 根据 jsonpath 查询
+     */
+    public static boolean exists(ONode root, String path) {
+        return parse(path).select(root).isEmpty() == false;
     }
 
     /**

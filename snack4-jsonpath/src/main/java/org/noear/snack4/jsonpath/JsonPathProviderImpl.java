@@ -32,6 +32,11 @@ public class JsonPathProviderImpl implements JsonPathProvider {
         return JsonPath.select(root, path);
     }
 
+    @Override
+    public boolean exists(ONode root, String path) {
+        return JsonPath.exists(root, path);
+    }
+
     /**
      * 根据 jsonpath 生成
      */

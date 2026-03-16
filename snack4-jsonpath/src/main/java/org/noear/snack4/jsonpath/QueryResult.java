@@ -18,6 +18,7 @@ package org.noear.snack4.jsonpath;
 import org.noear.snack4.Feature;
 import org.noear.snack4.ONode;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -31,7 +32,12 @@ public class QueryResult {
 
     public QueryResult(QueryContext ctx, List<ONode> nodeList) {
         this.ctx = ctx;
-        this.nodeList = nodeList;
+
+        if (nodeList == null) {
+            this.nodeList = Collections.emptyList();
+        } else {
+            this.nodeList = nodeList;
+        }
     }
 
     public QueryContext getContext() {
@@ -44,6 +50,10 @@ public class QueryResult {
      */
     public List<ONode> getNodeList() {
         return nodeList;
+    }
+
+    public boolean isEmpty(){
+        return nodeList.isEmpty();
     }
 
     /**

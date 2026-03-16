@@ -635,7 +635,7 @@ public final class ONode {
      * 根据 jsonpath 检测
      */
     public boolean exists(String jsonpath) {
-        return false == select(jsonpath).isUndefined();
+        return jsonPathProvider.exists(this, jsonpath);
     }
 
     /**
