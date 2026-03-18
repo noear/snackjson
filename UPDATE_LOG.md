@@ -1,4 +1,9 @@
 
+
+### 4.0.40
+
+* 优化 Feature.Read_AutoRepair 特性
+
 ### 4.0.39
 
 * 优化 jsonpath.exists 实现

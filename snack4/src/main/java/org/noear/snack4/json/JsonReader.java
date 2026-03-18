@@ -394,13 +394,23 @@ public class JsonReader {
                 break;
             }
 
-            list.add(parseValue());
+            ONode tmp = parseValue();
+
+            if(tmp.isUndefined() == false) {
+                list.add(tmp);
+            }
 
             state.skipWhitespace();
             if (state.peekChar() == ',') {
                 state.bufferPosition++;
                 state.skipWhitespace();
-                if (state.peekChar() == ']') throw state.error("Trailing comma in array");
+                if (state.peekChar() == ']') {
+                    if(Read_AutoRepair){
+                        break;
+                    } else {
+                        throw state.error("Trailing comma in array");
+                    }
+                }
             } else if (state.peekChar() == ']') {
                 // Continue to closing
             } else {
