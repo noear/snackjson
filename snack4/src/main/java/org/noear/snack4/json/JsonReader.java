@@ -285,6 +285,10 @@ public class JsonReader {
         // 🌟 优化点：使用 parseNumber() 解析时间戳
         Number number = parseNumber();
 
+        if (number == null) {
+            return new ONode(opts);
+        }
+
         // 确保数字是 Long 类型或可以安全转换为 Long
         long timestamp;
         if (number instanceof Long) {
@@ -402,7 +406,7 @@ public class JsonReader {
 
             ONode tmp = parseValue();
 
-            if(tmp.isUndefined() == false) {
+            if (tmp.isUndefined() == false) {
                 list.add(tmp);
             }
 
@@ -411,7 +415,7 @@ public class JsonReader {
                 state.bufferPosition++;
                 state.skipWhitespace();
                 if (state.peekChar() == ']') {
-                    if(Read_AutoRepair){
+                    if (Read_AutoRepair) {
                         break;
                     } else {
                         throw state.error("Trailing comma in array");
@@ -548,7 +552,7 @@ public class JsonReader {
                             // 允许 \X 形式的任意转义，追加 \ 和 X
                             sb.append('\\').append(c);
                         } else {
-                            if(Read_AutoRepair){
+                            if (Read_AutoRepair) {
                                 break;
                             } else {
                                 // 严格模式 (RFC 8259)
@@ -560,7 +564,7 @@ public class JsonReader {
             } else if (c < 32) { //0x20
                 // 处理未转义的控制字符
                 if (opts.hasFeature(Feature.Read_AllowUnescapedControlCharacters) == false) {
-                    if(Read_AutoRepair){
+                    if (Read_AutoRepair) {
                         break;
                     } else {
                         // 严格模式
@@ -602,7 +606,11 @@ public class JsonReader {
                 sb.append(state.nextChar());
             }
         } else if (sb.length() == 0) {
-            throw state.error("Invalid number format");
+            if (Read_AutoRepair) {
+                return null;
+            } else {
+                throw state.error("Invalid number format");
+            }
         }
 
         // 解析小数部分
@@ -622,14 +630,21 @@ public class JsonReader {
         // 解析指数部分
         if (state.peekChar() == 'e' || state.peekChar() == 'E') {
             sb.append(state.nextChar());
+
             if (state.peekChar() == '+' || state.peekChar() == '-') {
                 sb.append(state.nextChar());
             }
+
             if (!isDigit(state.peekChar())) {
-                throw state.error("Invalid exponent format");
-            }
-            while (isDigit(state.peekChar())) {
-                sb.append(state.nextChar());
+                if (Read_AutoRepair) {
+                    sb.setLength(sb.length() - 1);
+                } else {
+                    throw state.error("Invalid exponent format");
+                }
+            } else {
+                while (isDigit(state.peekChar())) {
+                    sb.append(state.nextChar());
+                }
             }
         }
 

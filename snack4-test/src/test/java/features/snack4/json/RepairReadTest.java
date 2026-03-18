@@ -51,12 +51,21 @@ public class RepairReadTest {
 
     @Test
     public void case3() throws Exception{
+        // 基础补全测试
         testRepair("{\"status\": tru","{\"status\": true}");
         testRepair("{\"a\":{\"b\":1","{\"a\":{\"b\":1}}");
         testRepair("[1, 2, ]","[1, 2]");
         testRepair("[1, 2, ","[1, 2]");
+
+        // 结构异常补全测试
         testRepair("{\"key\":","{\"key\": null}");
         testRepair("{\"a\":1} #comment","{\"a\":1}");
+
+        // 补充：极端截断场景
+        testRepair("{", "{}");
+        testRepair("[", "[]");
+        testRepair("{\"id\":1,", "{\"id\":1}"); // 逗号后截断，应忽略后续缺失的 key
+        testRepair("{\"a\":1, \"b\": { \"c\": [1,2", "{\"a\":1, \"b\":{\"c\":[1,2]}}");
     }
 
     public void testRepair(String json1, String json2) throws Exception{
@@ -142,4 +151,43 @@ public class RepairReadTest {
         Assertions.assertEquals(2, node.size());
     }
 
+    @Test
+    public void case_number_boundary_truncated() throws Exception {
+        // 场景 1：停在负号上
+        testRepair("{\"val\": -", "{\"val\": 0}");
+
+        // 场景 2：停在小数点上
+        testRepair("{\"price\": 12.", "{\"price\": 12}");
+
+        // 场景 3：指数符号截断
+        testRepair("{\"exp\": 1.2e", "{\"exp\": 1.2}");
+    }
+
+    @Test
+    public void case_string_escape_truncated() throws Exception {
+        // 场景 1：Unicode 只有两位
+        testRepair("{\"msg\":\"abc\\u00", "{\"msg\":\"abc\\u0000\"}");
+
+        // 场景 2：转义符本身被截断
+        testRepair("{\"path\":\"C:\\", "{\"path\":\"C:\"}");
+
+        // 场景 3：双引号内部截断且包含控制字符
+        testRepair("{\"text\":\"hello\nworld", "{\"text\":\"hello\"}");
+    }
+
+    @Test
+    public void case_keyword_mixed_truncated() throws Exception {
+        testRepair("{\"f1\": fal", "{\"f1\": false}");
+        testRepair("{\"f2\": nul", "{\"f2\": null}");
+        testRepair("{\"f3\": un", "{\"f3\": null}"); // undefined 修复为 null
+    }
+
+    @Test
+    public void case_date_truncated() throws Exception {
+        // 场景：new Date( 还没写完
+        testRepair("{\"time\": new Da", "{\"time\": null}");
+
+        // 场景：时间戳写了一半
+        testRepair("{\"time\": new Date(1710", "{\"time\":1710}"); // 视具体的 Date 处理逻辑而定
+    }
 }
