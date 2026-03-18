@@ -258,9 +258,9 @@ public class JsonReader {
 
         if (Read_AutoRepair) {
             return new ONode(opts);
+        } else {
+            throw state.error("Unexpected character: " + c);
         }
-
-        throw state.error("Unexpected character: " + c);
     }
 
     /**
@@ -334,7 +334,13 @@ public class JsonReader {
             if (state.peekChar() == ',') {
                 state.bufferPosition++;
                 state.skipWhitespace();
-                if (state.peekChar() == '}') throw state.error("Trailing comma in object");
+                if (state.peekChar() == '}') {
+                    if (Read_AutoRepair) {
+                        break;
+                    } else {
+                        throw state.error("Trailing comma in object");
+                    }
+                }
             } else if (state.peekChar() == '}') {
                 // Continue to closing
             } else {
@@ -542,16 +548,24 @@ public class JsonReader {
                             // 允许 \X 形式的任意转义，追加 \ 和 X
                             sb.append('\\').append(c);
                         } else {
-                            // 严格模式 (RFC 8259)
-                            throw state.error("Invalid escape character: \\" + c);
+                            if(Read_AutoRepair){
+                                break;
+                            } else {
+                                // 严格模式 (RFC 8259)
+                                throw state.error("Invalid escape character: \\" + c);
+                            }
                         }
                     }
                 }
             } else if (c < 32) { //0x20
                 // 处理未转义的控制字符
                 if (opts.hasFeature(Feature.Read_AllowUnescapedControlCharacters) == false) {
-                    // 严格模式
-                    throw state.error("Unescaped control character: 0x" + Integer.toHexString(c));
+                    if(Read_AutoRepair){
+                        break;
+                    } else {
+                        // 严格模式
+                        throw state.error("Unescaped control character: 0x" + Integer.toHexString(c));
+                    }
                 }
                 sb.append(c); // 宽松模式下追加
             } else {
