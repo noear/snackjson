@@ -249,7 +249,7 @@ public class JsonReader {
             return parseDate();
         }
 
-        if (c == '-' || (c >= '0' && c <= '9')) return new ONode(opts, parseNumber());
+        if (c == '-' || c == '+' || (c >= '0' && c <= '9')) return new ONode(opts, parseNumber());
         if (c == 't') return parseKeyword("true", true);
         if (c == 'f') return parseKeyword("false", false);
         if (c == 'n') return parseKeyword("null", null);
@@ -586,6 +586,13 @@ public class JsonReader {
         StringBuilder sb = getStringBuilder();
         char c = state.peekChar();
 
+        // 处理正号
+        if (c == '+') {
+            //跳过
+            state.nextChar();
+            c = state.peekChar();
+        }
+
         // 处理负数
         if (c == '-') {
             sb.append(state.nextChar());
@@ -637,7 +644,13 @@ public class JsonReader {
 
             if (!isDigit(state.peekChar())) {
                 if (Read_AutoRepair) {
-                    sb.setLength(sb.length() - 1);
+                    char c2 = sb.charAt(sb.length() - 1);
+
+                    if (c2 == '+' || c2 == '-') {
+                        sb.setLength(sb.length() - 2);
+                    } else {
+                        sb.setLength(sb.length() - 1);
+                    }
                 } else {
                     throw state.error("Invalid exponent format");
                 }

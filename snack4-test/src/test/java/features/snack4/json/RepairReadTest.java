@@ -161,6 +161,8 @@ public class RepairReadTest {
 
         // 场景 3：指数符号截断
         testRepair("{\"exp\": 1.2e", "{\"exp\": 1.2}");
+        testRepair("{\"exp\": 1.2e-", "{\"exp\": 1.2}");
+        testRepair("{\"exp\": 1.2e+", "{\"exp\": 1.2}");
     }
 
     @Test
@@ -189,5 +191,56 @@ public class RepairReadTest {
 
         // 场景：时间戳写了一半
         testRepair("{\"time\": new Date(1710", "{\"time\":1710}"); // 视具体的 Date 处理逻辑而定
+    }
+
+    @Test
+    public void case_illegal_char_infinite_loop() throws Exception {
+        // 在对象 Key 之后，本该是冒号的地方出现了非法字符 @
+        String json = "{\"a\" @ \"b\"}";
+        // 预期：不抛出异常，能识别出 a 即可，或者直接返回已解析的部分
+        Assertions.assertDoesNotThrow(() -> {
+            ONode node = JsonReader.read(json, Options.of(Feature.Read_AutoRepair));
+            System.out.println("Result: " + node.toJson());
+        });
+    }
+
+    @Test
+    public void case_truncate_after_colon() throws Exception {
+        // 场景：写了冒号，但 Value 一点都没写就断了
+        String json = "{\"id\":1, \"name\":";
+        ONode node = JsonReader.read(json, Options.of(Feature.Read_AutoRepair));
+
+        Assertions.assertEquals(1, node.get("id").getInt());
+        // 这里的行为取决于实现：是忽略 name，还是将 name 设为 null/undefined
+        Assertions.assertTrue(node.get("name").isNull() || node.get("name").isUndefined());
+    }
+
+    @Test
+    public void case_number_invalid_format() throws Exception {
+        // 场景 1：多个小数点
+        testRepair("{\"val\": 1.2.3}", "{\"val\": 1.2}");
+
+        // 场景 2：正负号连用
+        testRepair("{\"val\": +-123}", "{\"val\": -123}");
+    }
+
+    @Test
+    public void case_string_end_with_backslash() throws Exception {
+        // 场景：字符串以转义符结尾，后面直接 EOF
+        String json = "{\"path\": \"C:\\";
+        ONode node = JsonReader.read(json, Options.of(Feature.Read_AutoRepair));
+
+        // 预期：不要尝试去读反斜杠后面的字符（会导致 EOF 错误），而是直接结束字符串
+        Assertions.assertNotNull(node.get("path").getString());
+    }
+
+    @Test
+    public void case_date_truncated_refined() throws Exception {
+        // 场景：new Date( 后面没数字了
+        String json = "{\"time\": new Date(";
+        ONode node = JsonReader.read(json, Options.of(Feature.Read_AutoRepair));
+
+        // 此时 parseDate 内部 parseNumber 返回 null，函数返回 new ONode(opts)
+        Assertions.assertTrue(node.get("time").isUndefined());
     }
 }
