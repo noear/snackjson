@@ -61,22 +61,22 @@ public class BeanEncoder {
     }
 
     private final Object source0;
-    private final Options opts;
+    private final Options opts0;
 
     private final Map<Object, Object> visited;
 
     private final boolean Write_Nulls;
-    private final boolean onlyUseGetter;
-    private final boolean allowUseGetter;
+    private final boolean Encode_OnlyUseGetter;
+    private final boolean Encode_AllowUseGetter;
 
     private BeanEncoder(Object value, Options opts) {
         this.source0 = value;
-        this.opts = opts == null ? Options.DEF_OPTIONS : opts;
+        this.opts0 = opts == null ? Options.DEF_OPTIONS : opts;
         this.visited = new IdentityHashMap<>();
 
-        this.Write_Nulls = this.opts.hasFeature(Feature.Write_Nulls);
-        this.onlyUseGetter = this.opts.hasFeature(Feature.Read_OnlyUseGetter);
-        this.allowUseGetter = onlyUseGetter || this.opts.hasFeature(Feature.Read_AllowUseGetter);
+        this.Write_Nulls = opts0.hasFeature(Feature.Write_Nulls);
+        this.Encode_OnlyUseGetter =  opts0.hasFeature(Feature.Encode_OnlyUseGetter) || opts0.hasFeature(Feature.Read_OnlyUseGetter);
+        this.Encode_AllowUseGetter = Encode_OnlyUseGetter || opts0.hasFeature(Feature.Encode_AllowUseGetter) || opts0.hasFeature(Feature.Read_AllowUseGetter);
     }
 
     /**
@@ -86,8 +86,8 @@ public class BeanEncoder {
         try {
             ONode oNode = encodeValueToNode(source0, null);
 
-            if (oNode.isObject() && opts.hasFeature(Feature.Write_NotRootClassName)) {
-                oNode.remove(opts.getTypePropertyName());
+            if (oNode.isObject() && opts0.hasFeature(Feature.Write_NotRootClassName)) {
+                oNode.remove(opts0.getTypePropertyName());
             }
 
             return oNode;
@@ -103,7 +103,7 @@ public class BeanEncoder {
     private ONode encodeValueToNode(Object value, ONodeAttrHolder attr) throws Throwable {
         if (value == null) {
             if (Write_Nulls) {
-                return new ONode(opts, null);
+                return new ONode(opts0, null);
             } else {
                 return null;
             }
@@ -114,13 +114,13 @@ public class BeanEncoder {
         }
 
         if (value instanceof ObjectEncoder) {
-            return ((ObjectEncoder) value).encode(new EncodeContext(opts, attr, value), value, new ONode(opts));
+            return ((ObjectEncoder) value).encode(new EncodeContext(opts0, attr, value), value, new ONode(opts0));
         }
 
         // 优先使用自定义编解码器
-        ObjectEncoder codec = opts.getEncoder(value);
+        ObjectEncoder codec = opts0.getEncoder(value);
         if (codec != null) {
-            return codec.encode(new EncodeContext(opts, attr, value), value, new ONode(opts));
+            return codec.encode(new EncodeContext(opts0, attr, value), value, new ONode(opts0));
         }
 
         if (value instanceof Map) {
@@ -146,20 +146,20 @@ public class BeanEncoder {
             visited.put(bean, null);
         }
 
-        ONode tmp = new ONode(opts).asObject();
+        ONode tmp = new ONode(opts0).asObject();
 
         try {
-            if (isWriteClassName(opts, bean)) {
-                tmp.set(opts.getTypePropertyName(), bean.getClass().getName());
+            if (isWriteClassName(opts0, bean)) {
+                tmp.set(opts0.getTypePropertyName(), bean.getClass().getName());
             }
 
             ClassEggg classEggg = EgggUtil.getTypeEggg(bean.getClass()).getClassEggg();
 
             for (PropertyEggg pw : classEggg.getPropertyEgggs()) {
                 final Property property;
-                if (onlyUseGetter) {
+                if (Encode_OnlyUseGetter) {
                     property = pw.getGetterEggg();
-                } else if (allowUseGetter && pw.getGetterEggg() != null) {
+                } else if (Encode_AllowUseGetter && pw.getGetterEggg() != null) {
                     property = pw.getGetterEggg();
                 } else {
                     property = pw.getFieldEggg();
@@ -200,25 +200,25 @@ public class BeanEncoder {
         ONodeAttrHolder attr = property.getDigest();
 
         if (attr.getEncoder() != null) {
-            propNode = attr.getEncoder().encode(new EncodeContext(opts, attr, propValue), propValue, new ONode(opts));
+            propNode = attr.getEncoder().encode(new EncodeContext(opts0, attr, propValue), propValue, new ONode(opts0));
         } else {
             if (propValue == null) {
                 TypeEggg ptw = property.getTypeEggg();
                 //分类控制
                 if (ptw.getType() == List.class) {
-                    if ((opts.hasFeature(Feature.Write_NullListAsEmpty) || attr.hasFeature(Feature.Write_NullListAsEmpty))) {
+                    if ((opts0.hasFeature(Feature.Write_NullListAsEmpty) || attr.hasFeature(Feature.Write_NullListAsEmpty))) {
                         propValue = new ArrayList<>();
                     }
                 } else if (ptw.isString()) {
-                    if ((opts.hasFeature(Feature.Write_NullStringAsEmpty) || attr.hasFeature(Feature.Write_NullStringAsEmpty))) {
+                    if ((opts0.hasFeature(Feature.Write_NullStringAsEmpty) || attr.hasFeature(Feature.Write_NullStringAsEmpty))) {
                         propValue = "";
                     }
                 } else if (ptw.isBoolean()) {
-                    if ((opts.hasFeature(Feature.Write_NullBooleanAsFalse) || attr.hasFeature(Feature.Write_NullBooleanAsFalse))) {
+                    if ((opts0.hasFeature(Feature.Write_NullBooleanAsFalse) || attr.hasFeature(Feature.Write_NullBooleanAsFalse))) {
                         propValue = false;
                     }
                 } else if (ptw.isNumber()) {
-                    if ((opts.hasFeature(Feature.Write_NullNumberAsZero) || attr.hasFeature(Feature.Write_NullNumberAsZero))) {
+                    if ((opts0.hasFeature(Feature.Write_NullNumberAsZero) || attr.hasFeature(Feature.Write_NullNumberAsZero))) {
                         if (ptw.getType() == Long.class) {
                             propValue = 0L;
                         } else if (ptw.getType() == Double.class) {
@@ -242,7 +242,7 @@ public class BeanEncoder {
             if (propValue instanceof Date) {
                 if (Asserts.isNotEmpty(attr.getFormat())) {
                     String dateStr = attr.formatDate((Date) propValue);
-                    propNode = new ONode(opts, dateStr);
+                    propNode = new ONode(opts0, dateStr);
                 }
             }
 
@@ -256,7 +256,7 @@ public class BeanEncoder {
 
     // 处理数组类型
     private ONode encodeArrayToNode(Object array) throws Throwable {
-        ONode tmp = new ONode(opts).asArray();
+        ONode tmp = new ONode(opts0).asArray();
         int length = Array.getLength(array);
         for (int i = 0; i < length; i++) {
             tmp.add(encodeValueToNode(Array.get(array, i), null));
@@ -266,7 +266,7 @@ public class BeanEncoder {
 
     // 处理集合类型
     private ONode encodeCollectionToNode(Iterable<?> iterable) throws Throwable {
-        ONode tmp = new ONode(opts).asArray();
+        ONode tmp = new ONode(opts0).asArray();
         for (Object item : iterable) {
             tmp.add(encodeValueToNode(item, null));
         }
@@ -282,10 +282,10 @@ public class BeanEncoder {
         }
 
         try {
-            ONode tmp = new ONode(opts).asObject();
+            ONode tmp = new ONode(opts0).asObject();
 
-            if (isWriteClassName(opts, map)) {
-                tmp.set(opts.getTypePropertyName(), map.getClass().getName());
+            if (isWriteClassName(opts0, map)) {
+                tmp.set(opts0.getTypePropertyName(), map.getClass().getName());
             }
 
             for (Map.Entry<?, ?> entry : map.entrySet()) {

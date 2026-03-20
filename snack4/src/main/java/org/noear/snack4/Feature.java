@@ -99,12 +99,18 @@ public enum Feature {
 
     /**
      * 读取时允许使用获取器
+     *
+     * @deprecated 4.0.41 {@link #Encode_AllowUseGetter}
      */
+    @Deprecated
     Read_AllowUseGetter,
 
     /**
      * 读取时只能使用获取器
+     *
+     * @deprecated 4.0.41 {@link #Encode_OnlyUseGetter}
      */
+    @Deprecated
     Read_OnlyUseGetter,
 
     /**
@@ -166,12 +172,18 @@ public enum Feature {
 
     /**
      * 写入允许使用设置器（默认为字段模式）
+     *
+     * @deprecated 4.0.41 {@link #Decode_AllowUseSetter}
      */
+    @Deprecated
     Write_AllowUseSetter,
 
     /**
      * 写入只能使用设置器
+     *
+     * @deprecated 4.0.41 {@link #Decode_OnlyUseSetter}
      */
+    @Deprecated
     Write_OnlyUseSetter,
 
     /**
@@ -268,6 +280,33 @@ public enum Feature {
      * 写入大数时使用 plain 模式
      */
     Write_BigDecimalAsPlain,
+
+
+    /**
+     * 读取时允许使用获取器
+     */
+    Encode_AllowUseGetter,
+
+    /**
+     * 读取时只能使用获取器
+     */
+    Encode_OnlyUseGetter,
+
+    /**
+     * 写入允许使用设置器（默认为字段模式）
+     */
+    Decode_AllowUseSetter,
+
+    /**
+     * 写入只能使用设置器
+     */
+    Decode_OnlyUseSetter,
+
+    /**
+     * 解析时乎略错误
+     */
+    Decode_IgnoreError,
+
 
     /**
      * IETF_RFC_9535 兼容模式（默认）

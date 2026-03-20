@@ -62,18 +62,21 @@ public class BeanDecoder {
     private final Type targetType0;
     private final Object target0;
 
-    private final Options opts;
-    private final boolean onlyUseSetter;
-    private final boolean allowUseSetter;
+    private final Options opts0;
+
+    private final boolean Decode_OnlyUseSetter;
+    private final boolean Decode_AllowUseSetter;
+    private final boolean Decode_IgnoreError;
 
     private BeanDecoder(ONode source, Type type, Object target, Options opts) {
         this.source0 = source;
         this.targetType0 = type;
         this.target0 = target;
-        this.opts = opts == null ? Options.DEF_OPTIONS : opts;
+        this.opts0 = opts == null ? Options.DEF_OPTIONS : opts;
 
-        this.onlyUseSetter = this.opts.hasFeature(Feature.Write_OnlyUseSetter);
-        this.allowUseSetter = onlyUseSetter || this.opts.hasFeature(Feature.Write_AllowUseSetter);
+        this.Decode_OnlyUseSetter = opts0.hasFeature(Feature.Decode_OnlyUseSetter) || opts0.hasFeature(Feature.Write_OnlyUseSetter);
+        this.Decode_AllowUseSetter = Decode_OnlyUseSetter || opts0.hasFeature(Feature.Decode_AllowUseSetter) || opts0.hasFeature(Feature.Write_AllowUseSetter);
+        this.Decode_IgnoreError = opts0.hasFeature(Feature.Decode_IgnoreError);
     }
 
     public <T> T decode() {
@@ -105,15 +108,23 @@ public class BeanDecoder {
         typeEggg = confirmNodeType(node, typeEggg);
 
         // 优先使用自定义编解码器
-        ObjectDecoder decoder = opts.getDecoder(typeEggg.getType());
+        ObjectDecoder decoder = opts0.getDecoder(typeEggg.getType());
         if (decoder != null) {
-            return decoder.decode(new DecodeContext(opts, attr, target, typeEggg), node);
+            if (Decode_IgnoreError) {
+                try {
+                    return decoder.decode(new DecodeContext(opts0, attr, target, typeEggg), node);
+                } catch (Throwable e) {
+                    return null;
+                }
+            } else {
+                return decoder.decode(new DecodeContext(opts0, attr, target, typeEggg), node);
+            }
         }
 
         if (node.isValue()) {
             if (typeEggg.getType().isInterface() || Modifier.isAbstract(typeEggg.getType().getModifiers())) {
                 if (node.isString() && node.getString().indexOf('.') > 0) {
-                    Class<?> clz = opts.loadClass(node.getString());
+                    Class<?> clz = opts0.loadClass(node.getString());
 
                     if (clz == null) {
                         return null;
@@ -131,9 +142,9 @@ public class BeanDecoder {
 
         if (target == null) {
             // 如果没有传入 target，则执行原有的创建新对象的逻辑
-            ObjectCreator creator = opts.getCreator(typeEggg.getType());
+            ObjectCreator creator = opts0.getCreator(typeEggg.getType());
             if (creator != null) {
-                target = creator.create(opts, node, typeEggg.getType());
+                target = creator.create(opts0, node, typeEggg.getType());
             }
 
             if (target == null) {
@@ -154,7 +165,7 @@ public class BeanDecoder {
                     target = constrEggg.newInstance();
                 } else {
                     if (constrEggg.isSecurity() == false //有参数
-                            && opts.hasFeature(Feature.Write_AllowParameterizedConstructor) == false //不支持参数
+                            && opts0.hasFeature(Feature.Write_AllowParameterizedConstructor) == false //不支持参数
                             && typeEggg.getClassEggg().isLikeRecordClass() == false)  //不像记录类
                     {
                         throw new CodecException("Parameterized constructor are not allowed: " + typeEggg.getType());
@@ -178,14 +189,14 @@ public class BeanDecoder {
     }
 
     private Object decodeBeanFromNode(ONode node, TypeEggg typeEggg, Object target) throws Throwable {
-        boolean failOnUnknownProperties = opts.hasFeature(Feature.Write_FailOnUnknownProperties);
+        boolean failOnUnknownProperties = opts0.hasFeature(Feature.Write_FailOnUnknownProperties);
 
         ClassEggg classEggg = typeEggg.getClassEggg();
 
         if (failOnUnknownProperties) {
             //以数据为主，才能支持 Read_FailOnUnknownProperties
             for (Map.Entry<String, ONode> kv : node.getObject().entrySet()) {
-                if (kv.getKey().equals(opts.getTypePropertyName())) {
+                if (kv.getKey().equals(opts0.getTypePropertyName())) {
                     continue;
                 }
 
@@ -221,9 +232,9 @@ public class BeanDecoder {
 
     private void decodeBeanPropertyFromNode(ONode node, PropertyEggg pe, Object target) throws Throwable {
         final Property property;
-        if (onlyUseSetter) {
+        if (Decode_OnlyUseSetter) {
             property = pe.getSetterEggg();
-        } else if (allowUseSetter && pe.getSetterEggg() != null) {
+        } else if (Decode_AllowUseSetter && pe.getSetterEggg() != null) {
             property = pe.getSetterEggg();
         } else {
             property = pe.getFieldEggg();
@@ -248,7 +259,7 @@ public class BeanDecoder {
             if (property.<ONodeAttrHolder>getDigest().getDecoder() != null) {
                 propValue = property.<ONodeAttrHolder>getDigest()
                         .getDecoder()
-                        .decode(new DecodeContext(opts, property.getDigest(), exisValue, property.getTypeEggg()), oNode);
+                        .decode(new DecodeContext(opts0, property.getDigest(), exisValue, property.getTypeEggg()), oNode);
             } else {
                 propValue = decodeValueFromNode(oNode, property.getTypeEggg(), exisValue, property.getDigest());
             }
@@ -303,7 +314,7 @@ public class BeanDecoder {
             TypeEggg elementTypeEggg = EgggUtil.getTypeEggg(elementType);
 
             for (String str : strArray) {
-                Object item = decodeValueFromNode(new ONode(opts, str), elementTypeEggg, null, null);
+                Object item = decodeValueFromNode(new ONode(opts0, str), elementTypeEggg, null, null);
                 coll.add(item);
             }
         } else {
@@ -344,7 +355,7 @@ public class BeanDecoder {
             }
 
             for (Map.Entry<String, ONode> kv : node.getObject().entrySet()) {
-                if (kv.getKey().equals(opts.getTypePropertyName())) {
+                if (kv.getKey().equals(opts0.getTypePropertyName())) {
                     continue;
                 }
 
@@ -366,11 +377,11 @@ public class BeanDecoder {
         if (keyType.getType() == Integer.class || keyType.getType() == int.class) return Integer.parseInt(key);
         if (keyType.getType() == Long.class || keyType.getType() == long.class) return Long.parseLong(key);
         if (keyType.getType().isEnum()) {
-            ObjectDecoder decoder = opts.getDecoder(keyType.getType());
+            ObjectDecoder decoder = opts0.getDecoder(keyType.getType());
             if (decoder == null) {
                 return Enum.valueOf((Class<Enum>) keyType.getType(), key);
             } else {
-                return decoder.decode(new DecodeContext(opts, null, null, keyType), new ONode(opts, key));
+                return decoder.decode(new DecodeContext(opts0, null, null, keyType), new ONode(opts0, key));
             }
         }
 
@@ -424,7 +435,7 @@ public class BeanDecoder {
         if (oRef.isObject()) {
             String typeStr = null;
             if (isReadClassName(oRef)) {
-                ONode n1 = oRef.getObject().get(opts.getTypePropertyName());
+                ONode n1 = oRef.getObject().get(opts0.getTypePropertyName());
                 if (n1 != null) {
                     typeStr = n1.getString();
                 }
@@ -437,7 +448,7 @@ public class BeanDecoder {
                         throw new CodecException("Unsupported type, class: " + typeStr);
                     }
 
-                    Class<?> clz = opts.loadClass(typeStr);
+                    Class<?> clz = opts0.loadClass(typeStr);
                     if (clz == null) {
                         throw new CodecException("Unsupported type, class: " + typeStr);
                     } else {
@@ -464,7 +475,7 @@ public class BeanDecoder {
      * 是否读取类名字
      */
     private boolean isReadClassName(ONode node) {
-        if (opts.hasFeature(Feature.Read_AutoType) == false) {
+        if (opts0.hasFeature(Feature.Read_AutoType) == false) {
             return false;
         }
 

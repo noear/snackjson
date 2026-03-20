@@ -1,4 +1,11 @@
 
+### 4.0.41
+
+* 添加 Decode_IgnoreError （新特性，解析时乎略错误）
+* 添加 Decode_OnlyUseSetter ，替代 Write_OnlyUseSetter （后者标为弃用，新名更表意）
+* 添加 Decode_AllowUseSetter ，替代 Write_AllowUseSetter （后者标为弃用，新名更表意）
+* 添加 Encode_OnlyUseGetter ，替代 Read_OnlyUseGetter
+* 添加 Encode_AllowUseGetter ，替代 Read_AllowUseGetter
 
 ### 4.0.40
 
