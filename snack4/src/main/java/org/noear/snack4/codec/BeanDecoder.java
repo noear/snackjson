@@ -310,11 +310,11 @@ public class BeanDecoder {
             }
 
             // string 支持自动转数组
-            String[] strArray = node.toString().split(",");
+            String[] strArray = node.getString().split(",");
             TypeEggg elementTypeEggg = EgggUtil.getTypeEggg(elementType);
 
             for (String str : strArray) {
-                Object item = decodeValueFromNode(new ONode(opts0, str), elementTypeEggg, null, null);
+                Object item = decodeValueFromNode(new ONode(opts0, str.trim()), elementTypeEggg, null, null);
                 coll.add(item);
             }
         } else {

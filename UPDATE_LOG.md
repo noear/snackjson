@@ -6,6 +6,7 @@
 * 添加 Decode_AllowUseSetter ，替代 Write_AllowUseSetter （后者标为弃用，新名更表意）
 * 添加 Encode_OnlyUseGetter ，替代 Read_OnlyUseGetter
 * 添加 Encode_AllowUseGetter ，替代 Read_AllowUseGetter
+* 修复 Json 反序列化时，string 自动转 list 会多出双引号的问题（并优化自动去掉空隔）
 
 ### 4.0.40
 
