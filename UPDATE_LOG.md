@@ -1,4 +1,8 @@
 
+### 4.0.42
+
+* 添加 ONodeAttrHolder 新的构造方法，可以传入 format
+
 ### 4.0.41
 
 * 添加 Decode_IgnoreError （新特性，解析时乎略错误）
