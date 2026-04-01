@@ -3,7 +3,6 @@
 
 * 添加 ONodeAttrHolder 新的构造方法，可以传入 format
 * 添加 BeanDecoder.decode(node, parameter) 方法
-* 修复 Json 反序列化时，string 自动转 list 会多出双引号的问题
 * eggg 升为 1.0.11
 
 ### 4.0.41
