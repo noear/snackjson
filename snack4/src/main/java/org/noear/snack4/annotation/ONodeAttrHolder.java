@@ -67,7 +67,15 @@ public class ONodeAttrHolder {
         this(alias, title, description, required, null, eggg);
     }
 
+    /**
+     * @deprecated 4.0.42
+     */
+    @Deprecated
     public ONodeAttrHolder(String alias, String title, String description, boolean required, String defaultValue, AnnotatedEggg eggg) {
+        this(alias, title, description, required, null, null, eggg);
+    }
+
+    public ONodeAttrHolder(String alias, String title, String description, boolean required, String defaultValue, String format, AnnotatedEggg eggg) {
         this.eggg = eggg;
 
         this.alias = alias;
@@ -75,6 +83,7 @@ public class ONodeAttrHolder {
         this.description = description;
         this.required = required;
         this.defaultValue = defaultValue;
+        this.format = format;
         this.empty = true;
     }
 
