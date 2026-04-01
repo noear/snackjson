@@ -429,7 +429,6 @@ public class BeanDecoder {
 
     /**
      * 分析节点类型
-     *
      */
     private TypeEggg resolveNodeType(ONode oRef, TypeEggg def) {
         if (oRef.isObject()) {
