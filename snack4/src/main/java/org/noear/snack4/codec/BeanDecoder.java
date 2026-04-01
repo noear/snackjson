@@ -58,6 +58,25 @@ public class BeanDecoder {
         return new BeanDecoder(node, type, target, opts).decode();
     }
 
+    public static <T> T decode(ONode node, Parameter parameter) throws Throwable {
+        if (node == null || parameter == null) {
+            return null;
+        }
+
+        Executable executable = parameter.getDeclaringExecutable();
+        ClassEggg classEggg = EgggUtil.getClassEggg(executable.getDeclaringClass());
+
+        ParamEggg paramEggg;
+        if (executable instanceof Method) {
+            paramEggg = classEggg.findMethodEgggOrNew((Method) executable).getParamEgggBy(parameter);
+        } else {
+            paramEggg = classEggg.findConstrEggg(executable.getParameterTypes()).getParamEgggBy(parameter);
+        }
+
+        BeanDecoder decoder = new BeanDecoder(node, paramEggg.getGenericType(), null, node.options());
+        return (T) decoder.getParam(paramEggg, node);
+    }
+
     private final ONode source0;
     private final Type targetType0;
     private final Object target0;
@@ -388,22 +407,26 @@ public class BeanDecoder {
         throw new CodecException("Unsupported map key type: " + keyType.getType());
     }
 
-    private Object[] getConstrArgs(ConstrEggg constrEggg, ONode node) throws Throwable {
+    public Object[] getConstrArgs(ConstrEggg constrEggg, ONode node) throws Throwable {
         //只有带参数的构造函（像 java record, kotlin data）
         Object[] argsV = new Object[constrEggg.getParamCount()];
 
         for (int j = 0; j < argsV.length; j++) {
             ParamEggg p = constrEggg.getParamEgggAt(j);
-            if (node.hasKey(p.getAlias())) {
-                ONodeAttrHolder attr = p.getDigest();
-                Object val = decodeValueFromNode(node.get(p.getAlias()), p.getTypeEggg(), null, attr);
-                argsV[j] = val;
-            } else {
-                argsV[j] = null;
-            }
+            argsV[j] = getParam(p, node);
         }
 
         return argsV;
+    }
+
+    private Object getParam(ParamEggg p, ONode node) throws Throwable {
+        if (node.hasKey(p.getAlias())) {
+            ONodeAttrHolder attr = p.getDigest();
+            Object val = decodeValueFromNode(node.get(p.getAlias()), p.getTypeEggg(), null, attr);
+            return val;
+        } else {
+            return null;
+        }
     }
 
     /**
