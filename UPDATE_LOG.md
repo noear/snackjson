@@ -2,6 +2,7 @@
 ### 4.0.42
 
 * 添加 ONodeAttrHolder 新的构造方法，可以传入 format
+* eggg 升为 1.0.11
 
 ### 4.0.41
 

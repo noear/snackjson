@@ -37,6 +37,10 @@ public class EgggUtil {
             .withDigestHandler(EgggUtil::doDigestHandle)
             .withAliasHandler(EgggUtil::doAliasHandle);
 
+    public static Eggg getEggg() {
+        return eggg;
+    }
+
     private static Map<Class<? extends Annotation>, EgggDigestAddin> egggDigestAddins = new ConcurrentHashMap<>();
 
     /**
