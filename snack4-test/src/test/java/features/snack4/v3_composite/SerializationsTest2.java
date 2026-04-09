@@ -174,7 +174,7 @@ public class SerializationsTest2 {
         sModel.age = 11;
         sModel.name = "test";
 
-        String json = ONode.ofBean(sModel, Feature.Read_OnlyUseGetter, Feature.Write_OnlyUseSetter).toJson();
+        String json = ONode.ofBean(sModel, Feature.Encode_OnlyUseGetter, Feature.Decode_OnlyUseSetter).toJson();
         System.out.println(json);
         assert json.contains("name") == false;
         assert json.contains("age");
@@ -184,7 +184,7 @@ public class SerializationsTest2 {
     public void test8() {
         String json = "{age:11,name:'test'}";
 
-        SModel sModel = ONode.ofJson(json, Feature.Read_OnlyUseGetter, Feature.Write_OnlyUseSetter).toBean(SModel.class);
+        SModel sModel = ONode.ofJson(json, Feature.Encode_OnlyUseGetter, Feature.Decode_OnlyUseSetter).toBean(SModel.class);
         System.out.println(sModel);
 
         assert sModel.name == null;

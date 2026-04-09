@@ -79,7 +79,7 @@ public class SpeedSnack4Test {
         obj.put("list", list);
 
         Options options = Options.of(Feature.Write_ClassName, Feature.Write_BrowserCompatible,
-                Feature.Read_AllowUseGetter, Feature.Write_AllowUseSetter);
+                Feature.Encode_AllowUseGetter, Feature.Decode_AllowUseSetter);
 
         String tmp = ONode.ofBean(obj, options).toJson();
         System.out.println(tmp);
@@ -121,7 +121,7 @@ public class SpeedSnack4Test {
         }
 
         Options options = Options.of(Feature.Write_ClassName, Feature.Write_BrowserCompatible,
-                Feature.Read_AllowUseGetter, Feature.Write_AllowUseSetter);
+                Feature.Encode_AllowUseGetter, Feature.Decode_AllowUseSetter);
 
         String tmp = ONode.ofBean(group, options).toJson();
         System.out.println(tmp);
@@ -167,7 +167,7 @@ public class SpeedSnack4Test {
 
         Options options = Options.of(Feature.Write_ClassName, Feature.Write_BrowserCompatible,
                 Feature.Read_AutoType,
-                Feature.Read_AllowUseGetter, Feature.Write_AllowUseSetter);
+                Feature.Encode_AllowUseGetter, Feature.Decode_AllowUseSetter);
 
         String json = ONode.ofBean(group, options).toJson();
         System.out.println(json);
@@ -259,7 +259,7 @@ public class SpeedSnack4Test {
         }
 
 
-        Options options = Options.of(Feature.Read_AllowUseGetter, Feature.Write_AllowUseSetter);
+        Options options = Options.of(Feature.Encode_AllowUseGetter, Feature.Decode_AllowUseSetter);
 
         String json = ONode.ofBean(group, options).toJson();
         System.out.println(json);
@@ -344,7 +344,7 @@ public class SpeedSnack4Test {
 
         obj.put("list", list);
 
-        Options options = Options.of(Feature.Read_AllowUseGetter, Feature.Write_AllowUseSetter);
+        Options options = Options.of(Feature.Encode_AllowUseGetter, Feature.Decode_AllowUseSetter);
 
         String json = ONode.ofBean(obj, options).toJson();
         System.out.println(json);
@@ -416,7 +416,7 @@ public class SpeedSnack4Test {
 
         obj.put("list", list);
 
-        Options options = Options.of(Feature.Read_AllowUseGetter, Feature.Write_AllowUseSetter);
+        Options options = Options.of(Feature.Encode_AllowUseGetter, Feature.Decode_AllowUseSetter);
 
         String json = ONode.ofBean(obj, options).toJson();
         System.out.println(json);

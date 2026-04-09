@@ -37,7 +37,7 @@ public class AttrTest {
 
     @Test
     public void case1_2() {
-        Options options = Options.of(Feature.Read_OnlyUseGetter)
+        Options options = Options.of(Feature.Encode_OnlyUseGetter)
                 .addEncoder(Date.class, (ctx, value, target) -> {
                     return target.setValue(value.getTime());
                 });
@@ -51,7 +51,7 @@ public class AttrTest {
 
     @Test
     public void case2() {
-        Options options = Options.of(Feature.Read_AllowUseGetter)
+        Options options = Options.of(Feature.Encode_AllowUseGetter)
                 .addEncoder(Date.class, (ctx, value, target) -> {
                     return target.setValue(value.getTime());
                 });
@@ -79,7 +79,7 @@ public class AttrTest {
 
     @Test
     public void case3() {
-        Options options = Options.of(Feature.Read_AllowUseGetter)
+        Options options = Options.of(Feature.Encode_AllowUseGetter)
                 .addEncoder(Date.class, (ctx, value, target) -> {
                     return target.setValue(value.getTime());
                 });
@@ -104,7 +104,7 @@ public class AttrTest {
         System.out.println(json);
         assert "{\"date\":1760453997855,\"date2\":1760453997855}".equals(json);
 
-        DemoDo3 demoDo3 = ONode.ofJson(json, Feature.Write_AllowUseSetter).toBean(DemoDo3.class);
+        DemoDo3 demoDo3 = ONode.ofJson(json, Feature.Decode_AllowUseSetter).toBean(DemoDo3.class);
 
         System.out.println(demoDo3.getDate2().getTime());
         assert demoDo3.getDate2().getTime() == 1L;

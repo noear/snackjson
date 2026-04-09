@@ -144,27 +144,27 @@ public class FeatureTest {
     }
 
     @Test
-    public void Read_AllowUseGetter() {
+    public void Encode_AllowUseGetter() {
         NumberBean bean = new NumberBean();
 
         String json = ONode.ofBean(bean).toJson();
         System.out.println(json);
         Assertions.assertEquals("{\"a\":1,\"b\":2,\"c\":3.0,\"d\":4.0}", json);
 
-        json = ONode.ofBean(bean, Feature.Read_AllowUseGetter).toJson();
+        json = ONode.ofBean(bean, Feature.Encode_AllowUseGetter).toJson();
         System.out.println(json);
         Assertions.assertEquals("{\"a\":101,\"b\":2,\"c\":3.0,\"d\":4.0}", json);
     }
 
     @Test
-    public void Read_OnlyUseGetter() {
+    public void Encode_OnlyUseGetter() {
         NumberBean bean = new NumberBean();
 
         String json = ONode.ofBean(bean).toJson();
         System.out.println(json);
         Assertions.assertEquals("{\"a\":1,\"b\":2,\"c\":3.0,\"d\":4.0}", json);
 
-        json = ONode.ofBean(bean, Feature.Read_OnlyUseGetter).toJson();
+        json = ONode.ofBean(bean, Feature.Encode_OnlyUseGetter).toJson();
         System.out.println(json);
         Assertions.assertEquals("{\"a\":101}", json);
     }
@@ -192,7 +192,7 @@ public class FeatureTest {
         ONode.ofJson(json).toBean(NumberBean.class);
 
         Assertions.assertThrows(Throwable.class, () -> {
-            ONode.ofJson(json, Feature.Write_OnlyUseSetter, Feature.Write_FailOnUnknownProperties).toBean(NumberBean.class);
+            ONode.ofJson(json, Feature.Decode_OnlyUseSetter, Feature.Write_FailOnUnknownProperties).toBean(NumberBean.class);
         });
     }
 
@@ -273,14 +273,14 @@ public class FeatureTest {
     }
 
     @Test
-    public void Write_AllowUseSetter() {
+    public void Decode_AllowUseSetter() {
         String json0 = "{\"a\":11,\"b\":12,\"c\":13.0,\"d\":14.0}";
 
         NumberBean bean = ONode.ofJson(json0).toBean(NumberBean.class);
         System.out.println(bean);
         Assertions.assertEquals("NumberBean{a=11, b=12, c=13.0, d=14.0}", bean.toString());
 
-        bean = ONode.ofJson(json0, Feature.Write_AllowUseSetter).toBean(NumberBean.class);
+        bean = ONode.ofJson(json0, Feature.Decode_AllowUseSetter).toBean(NumberBean.class);
         System.out.println(bean);
         Assertions.assertEquals("NumberBean{a=111, b=12, c=13.0, d=14.0}", bean.toString());
     }
@@ -293,7 +293,7 @@ public class FeatureTest {
         System.out.println(bean);
         Assertions.assertEquals("NumberBean{a=11, b=12, c=13.0, d=14.0}", bean.toString());
 
-        bean = ONode.ofJson(json0, Feature.Write_OnlyUseSetter).toBean(NumberBean.class);
+        bean = ONode.ofJson(json0, Feature.Decode_OnlyUseSetter).toBean(NumberBean.class);
         System.out.println(bean);
         Assertions.assertEquals("NumberBean{a=111, b=2, c=3.0, d=4.0}", bean.toString());
     }

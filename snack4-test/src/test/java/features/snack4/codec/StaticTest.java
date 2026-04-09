@@ -20,7 +20,7 @@ public class StaticTest {
 
     @Test
     public void case2() {
-        String json = ONode.serialize(new DemoDo2(), Feature.Read_AllowUseGetter);
+        String json = ONode.serialize(new DemoDo2(), Feature.Encode_AllowUseGetter);
         System.out.println(json);
 
         assert "{\"name\":\"aaa\"}".equals(json);

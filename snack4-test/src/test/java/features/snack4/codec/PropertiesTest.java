@@ -22,7 +22,7 @@ public class PropertiesTest {
         properties.put("aaa[0]", "1");
         properties.put("id", "3");
 
-        UserModel rst = ONode.ofBean(properties, Feature.Write_AllowUseSetter).toBean(UserModel.class);
+        UserModel rst = ONode.ofBean(properties, Feature.Decode_AllowUseSetter).toBean(UserModel.class);
         String json = ONode.serialize(rst);
         System.out.println(json);
 
@@ -36,7 +36,7 @@ public class PropertiesTest {
         properties.put("aaa[0]", "1");
         properties.put("id", "3");
 
-        UserModel rst = ONode.ofBean(properties, Feature.Write_AllowUseSetter).toBean(UserModel.class);
+        UserModel rst = ONode.ofBean(properties, Feature.Decode_AllowUseSetter).toBean(UserModel.class);
         String json = ONode.ofBean(rst).toJson();
         System.out.println(json);
 
@@ -50,7 +50,7 @@ public class PropertiesTest {
         properties.add("aaa[]", "2");
         properties.add("id", "3");
 
-        UserModel rst = ONode.ofBean(properties, Feature.Write_AllowUseSetter).toBean(UserModel.class);
+        UserModel rst = ONode.ofBean(properties, Feature.Decode_AllowUseSetter).toBean(UserModel.class);
         String json = ONode.serialize(rst);
         System.out.println(json);
 
