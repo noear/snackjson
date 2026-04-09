@@ -57,7 +57,7 @@ public class JsonSchemaValidator {
         validateNode(schema, data, PathTracker.begin(), null);
     }
 
-    public void validate(ONode data, PathTracker path) throws JsonSchemaException {
+    private void validate(ONode data, PathTracker path) throws JsonSchemaException {
         validateNode(schema, data, path, null);
     }
 

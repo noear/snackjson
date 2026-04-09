@@ -43,14 +43,23 @@ public class JsonSchema {
         this.printVersion = printVersion;
     }
 
+    /**
+     * 草案版本
+     */
     public SchemaVersion getVersion() {
         return version;
     }
 
+    /**
+     * 是否启用定义规范
+     */
     public boolean isEnableDefinitions() {
         return enableDefinitions;
     }
 
+    /**
+     * 是否打印草案版本
+     */
     public boolean isPrintVersion() {
         return printVersion;
     }
@@ -98,6 +107,41 @@ public class JsonSchema {
         return definerLib.getTypeMapper(typeEggg);
     }
 
+
+    /**
+     * 生成类型的 Json 架构
+     */
+    public ONode generate(Type type){
+        return createGenerator(type).generate();
+    }
+
+    /**
+     * 生成类型的 Json 架构
+     */
+    public ONode generate(TypeEggg typeEggg){
+        return createGenerator(typeEggg).generate();
+    }
+
+    /**
+     * 参照类型架构验证数据
+     */
+    public void validate(Type type, ONode data) throws  JsonSchemaException {
+        createValidator(type).validate(data);
+    }
+
+    /**
+     * 参照类型架构验证数据
+     */
+    public void validate(TypeEggg typeEggg, ONode data) throws  JsonSchemaException {
+        createValidator(typeEggg).validate(data);
+    }
+
+    /**
+     * 参照 Json 架构验证数据
+     */
+    public void validate(ONode jsonSchema, ONode data) throws  JsonSchemaException {
+        createValidator(jsonSchema).validate(data);
+    }
 
     /**
      * 创建生成器
