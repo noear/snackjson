@@ -1,4 +1,8 @@
 
+### 4.0.43
+
+* 添加 JsonSchema.generate, validate 快捷方法
+
 ### 4.0.42
 
 * 添加 ONodeAttrHolder 新的构造方法，可以传入 format
