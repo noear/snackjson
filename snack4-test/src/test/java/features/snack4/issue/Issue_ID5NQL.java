@@ -1,4 +1,4 @@
-package features.snack4.json;
+package features.snack4.issue;
 
 import org.junit.jupiter.api.Test;
 import org.noear.snack4.json.JsonReader;
