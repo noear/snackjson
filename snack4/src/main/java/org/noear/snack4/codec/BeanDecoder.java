@@ -142,7 +142,7 @@ public class BeanDecoder {
 
         if (node.isValue()) {
             if (typeEggg.getType().isInterface() || Modifier.isAbstract(typeEggg.getType().getModifiers())) {
-                if (node.isString() && node.getString().indexOf('.') > 0) {
+                if (node.isString() && node.<String>getValueAs().indexOf('.') > 0 && node.<String>getValueAs().indexOf(' ') < 0) {
                     Class<?> clz = opts0.loadClass(node.getString());
 
                     if (clz == null) {
