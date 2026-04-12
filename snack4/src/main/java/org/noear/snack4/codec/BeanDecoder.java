@@ -141,22 +141,39 @@ public class BeanDecoder {
         }
 
         if (node.isValue()) {
-            if (typeEggg.getType().isInterface() || Modifier.isAbstract(typeEggg.getType().getModifiers())) {
-                if (node.isString() && node.<String>getValueAs().indexOf('.') > 0 && node.<String>getValueAs().indexOf(' ') < 0) {
-                    Class<?> clz = opts0.loadClass(node.getString());
+            if (node.isString()) {
+                String str = node.getValueAs();
 
-                    if (clz == null) {
-                        return null;
-                    } else {
-                        return ClassUtil.newInstance(clz);
+                if (typeEggg.getType().isInterface() || Modifier.isAbstract(typeEggg.getType().getModifiers())) {
+                    if (str.length() > 3) {
+                        //可能是 class
+                        if (str.indexOf('.') > 0 && str.indexOf(' ') < 0) {
+                            Class<?> clz = opts0.loadClass(node.getString());
+
+                            if (clz == null) {
+                                return null;
+                            } else {
+                                return ClassUtil.newInstance(clz);
+                            }
+                        }
+
+                        if ((typeEggg.isCollection() || typeEggg.isArray()) && isArrayJsonString(str)) {
+                            return ONode.ofJson(str, opts0).toBean(typeEggg.getOriginType());
+                        }
                     }
                 }
-            }
 
-            if (((Collection.class.isAssignableFrom(typeEggg.getType()) || typeEggg.getType().isArray()) && node.isString()) == false) {
+                if ((typeEggg.isCollection() || typeEggg.isArray()) == false) {
+                    //如果不是集合（直接返回值）
+                    if(typeEggg.isString() == false && isObjectJsonString(str)){
+                        return ONode.ofJson(str, opts0).toBean(typeEggg.getOriginType());
+                    } else {
+                        return str;
+                    }
+                }
+            } else {
                 return node.getValue();
             }
-
         }
 
         if (target == null) {
@@ -296,13 +313,13 @@ public class BeanDecoder {
             elementType = typeEggg.getActualTypeArguments()[0];
         }
 
-        if(elementType instanceof WildcardType) {
+        if (elementType instanceof WildcardType) {
             WildcardType tmp = (WildcardType) elementType;
 
-            if(Asserts.isEmpty(tmp.getLowerBounds())){
-                elementType =  tmp.getUpperBounds()[0];
+            if (Asserts.isEmpty(tmp.getLowerBounds())) {
+                elementType = tmp.getUpperBounds()[0];
             } else {
-                elementType =  tmp.getLowerBounds()[0];
+                elementType = tmp.getLowerBounds()[0];
             }
         }
 
@@ -328,19 +345,48 @@ public class BeanDecoder {
                 coll = new HashSet();
             }
 
-            // string 支持自动转数组
-            String[] strArray = node.getString().split(",");
-            TypeEggg elementTypeEggg = EgggUtil.getTypeEggg(elementType);
+            String strValue = node.getValueAs();
 
-            for (String str : strArray) {
-                Object item = decodeValueFromNode(new ONode(opts0, str.trim()), elementTypeEggg, null, null);
-                coll.add(item);
+            if (isArrayJsonString(strValue)) {
+                // string 支持嵌套 json 自动加载
+                ONode aryNode = ONode.ofJson(strValue, opts0);
+                TypeEggg elementTypeEggg = EgggUtil.getTypeEggg(elementType);
+
+                for (ONode o1 : aryNode.getArrayUnsafe()) {
+                    Object item = decodeValueFromNode(o1, elementTypeEggg, null, null);
+                    coll.add(item);
+                }
+            } else {
+                // string 支持自动转数组
+                String[] strArray = strValue.split(",");
+                TypeEggg elementTypeEggg = EgggUtil.getTypeEggg(elementType);
+
+                for (String str : strArray) {
+                    Object item = decodeValueFromNode(new ONode(opts0, str.trim()), elementTypeEggg, null, null);
+                    coll.add(item);
+                }
             }
         } else {
             throw new CodecException("The type of node " + node.type() + " cannot be converted to collection.");
         }
 
         return coll;
+    }
+
+    private boolean isArrayJsonString(String str) {
+        if (str.length() > 3 && str.charAt(0) == '[' && str.charAt(str.length() - 1) == ']') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private boolean isObjectJsonString(String str) {
+        if (str.length() > 3 && str.charAt(0) == '{' && str.charAt(str.length() - 1) == '}') {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     // 处理Map泛型

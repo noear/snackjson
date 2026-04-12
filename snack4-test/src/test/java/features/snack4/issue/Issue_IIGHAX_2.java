@@ -1,8 +1,10 @@
 package features.snack4.issue;
 
 import org.junit.jupiter.api.Test;
+import org.noear.snack4.Feature;
 import org.noear.snack4.ONode;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,7 +12,7 @@ import java.util.List;
  * @author noear 2026/4/11 created
  *
  */
-public class Issue_IIGHAX {
+public class Issue_IIGHAX_2 {
     @Test
     public void case1() {
         Task task = ONode.ofJson("{todos:[{idx:1, note:'a'},{idx:2, note:'b'}],title:'ab'}")
@@ -43,31 +45,8 @@ public class Issue_IIGHAX {
         assert "b".equals(task.todos.get(1).note);
     }
 
-    @Test
-    public void case3() {
-        TodoHold todoHold = ONode.ofJson("{todo:{idx:1, note:'a'},title:'ab'}")
-                .toBean(TodoHold.class);
-
-        assert "ab".equals(todoHold.title);
-        assert "a".equals(todoHold.todo.note);
-    }
-
-    @Test
-    public void case4() {
-        TodoHold todoHold = ONode.ofJson("{todo:\"{idx:1, note:'a'}\",title:'ab'}")
-                .toBean(TodoHold.class);
-
-        assert "ab".equals(todoHold.title);
-        assert "a".equals(todoHold.todo.note);
-    }
-
     public static class Task {
-        List<Todo> todos;
-        String title;
-    }
-
-    public static class TodoHold {
-        Todo todo;
+        ArrayList<Todo> todos;
         String title;
     }
 

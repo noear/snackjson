@@ -1,4 +1,8 @@
 
+### 4.0.44
+
+* 添加 BeanDecoder 内嵌 json 字符串，在解码时自动解包处理（方便处理 llm 不稳定情况）
+
 ### 4.0.43
 
 * 添加 JsonSchema.generate, validate 快捷方法

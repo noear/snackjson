@@ -1,5 +1,6 @@
 package features.snack4.v3_composite;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.noear.snack4.Feature;
 import org.noear.snack4.ONode;
@@ -34,12 +35,12 @@ public class ComplicatedTest {
         System.out.println(json);
 
         //开始反序列化
-        Object obj2 = ONode.ofJson(json,Feature.Read_AutoType).toBean();
+        Object obj2 = ONode.ofJson(json, Feature.Read_AutoType).toBean();
         String json2 = ONode.ofBean(obj2, Feature.Write_ClassName).toJson();
         System.out.println(json2);
 
         assert obj2 instanceof List;
-        assert json.equals(json2);
+        Assertions.assertEquals(json, json2);
     }
 
     @Test
