@@ -174,7 +174,7 @@ public class RepairReadTest {
         testRepair("{\"path\":\"C:\\", "{\"path\":\"C:\"}");
 
         // 场景 3：双引号内部截断且包含控制字符
-        testRepair("{\"text\":\"hello\nworld", "{\"text\":\"hello\"}");
+        testRepair("{\"text\":\"hello\nworld", "{\"text\":\"hello\\nworld\"}");
     }
 
     @Test

@@ -563,15 +563,23 @@ public class JsonReader {
                 }
             } else if (c < 32) { //0x20
                 // 处理未转义的控制字符
-                if (opts.hasFeature(Feature.Read_AllowUnescapedControlCharacters) == false) {
+                if (opts.hasFeature(Feature.Read_AllowUnescapedControlCharacters)) {
+                    // 允许追加
+                    sb.append(c);
+                } else {
                     if (Read_AutoRepair) {
-                        break;
+                        //自动修正
+                        char mapping = IoUtil.CHARS_MARK[c];
+                        if (mapping > 0) {
+                            sb.append(IoUtil.CHARS_MARK_REV[mapping]);
+                        } else {
+                            sb.append(c);
+                        }
                     } else {
                         // 严格模式
                         throw state.error("Unescaped control character: 0x" + Integer.toHexString(c));
                     }
                 }
-                sb.append(c); // 宽松模式下追加
             } else {
                 // 理论上，在块复制逻辑中，普通字符已经被处理了，
                 // 除非 nextChar() 意外读取了一个普通字符，但为了安全保留。
