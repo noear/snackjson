@@ -152,11 +152,14 @@ public class BeanDecoder {
 
                             if (clz == null) {
                                 return null;
-                            } else {
+                            } else if (typeEggg.getType().isAssignableFrom(clz)) {
                                 return ClassUtil.newInstance(clz);
+                            } else {
+                                return null;
                             }
                         }
 
+                        //可能是 json array
                         if ((typeEggg.isCollection() || typeEggg.isArray()) && isArrayJsonString(str)) {
                             return ONode.ofJson(str, opts0).toBean(typeEggg.getOriginType());
                         }
