@@ -1,4 +1,9 @@
 
+### 4.0.45
+
+* 优化 BeanDecoder 对 className 的识别处理
+* 添加 JsonReader Read_AutoRepair 对非规范转义控制符的自动修正处理
+
 ### 4.0.44
 
 * 添加 BeanDecoder 内嵌 json 字符串，在解码时自动解包处理（方便处理 llm 不稳定情况）
