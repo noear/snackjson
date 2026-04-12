@@ -145,4 +145,56 @@ public class Asserts {
                 num instanceof BigInteger ||
                 num instanceof BigDecimal;
     }
+
+    public static boolean isClassName(String str) {
+        if (str == null || str.length() < 3) { // 至少 a.B 这样长度为 3
+            return false;
+        }
+
+        int len = str.length();
+        // 类名不会以 . 开始或结尾
+        if (str.charAt(0) == '.' || str.charAt(len - 1) == '.') {
+            return false;
+        }
+
+        boolean hasDot = false;
+        for (int i = 0; i < len; i++) {
+            char c = str.charAt(i);
+
+            if (c == '.') {
+                hasDot = true;
+                // 不允许连续的点 ..
+                if (i + 1 < len && str.charAt(i + 1) == '.') {
+                    return false;
+                }
+                continue;
+            }
+
+            // 检查是否是合法的 Java 标识符字符（字母、数字、_、$）
+            // 类名中通常不含空格、斜杠、括号等
+            if (!Character.isJavaIdentifierPart(c)) {
+                return false;
+            }
+        }
+
+        return hasDot;
+    }
+
+    public static boolean isArrayJsonString(String str) {
+        //[]
+        if (str.length() > 1 && str.charAt(0) == '[' && str.charAt(str.length() - 1) == ']') {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public static boolean isObjectJsonString(String str) {
+        //{}
+        if (str.length() > 1 && str.charAt(0) == '{' && str.charAt(str.length() - 1) == '}') {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

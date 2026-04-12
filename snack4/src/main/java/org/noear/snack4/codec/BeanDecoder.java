@@ -118,7 +118,7 @@ public class BeanDecoder {
         }
 
         //如果是ONode 类型，则直接返回
-        if(typeEggg.getType().equals(ONode.class)){
+        if (typeEggg.getType().equals(ONode.class)) {
             return node;
         }
 
@@ -143,32 +143,36 @@ public class BeanDecoder {
         if (node.isValue()) {
             if (node.isString()) {
                 String str = node.getValueAs();
+                boolean isColl = typeEggg.isCollection() || typeEggg.isArray();
 
                 if (typeEggg.getType().isInterface() || Modifier.isAbstract(typeEggg.getType().getModifiers())) {
-                    if (str.length() > 3) {
-                        //可能是 class
-                        if (str.indexOf('.') > 0 && str.indexOf(' ') < 0) {
-                            Class<?> clz = opts0.loadClass(node.getString());
-
-                            if (clz == null) {
-                                return null;
-                            } else if (typeEggg.getType().isAssignableFrom(clz)) {
-                                return ClassUtil.newInstance(clz);
-                            } else {
-                                return null;
-                            }
+                    if (str.length() > 1) {
+                        //可能是 json array
+                        if (isColl && Asserts.isArrayJsonString(str)) {
+                            return ONode.ofJson(str, opts0).toBean(typeEggg.getOriginType());
                         }
 
-                        //可能是 json array
-                        if ((typeEggg.isCollection() || typeEggg.isArray()) && isArrayJsonString(str)) {
-                            return ONode.ofJson(str, opts0).toBean(typeEggg.getOriginType());
+                        //可能是 class
+                        if (Asserts.isClassName(str)) {
+                            Class<?> clz = opts0.loadClass(node.getString());
+
+                            if (clz != null && typeEggg.getType().isAssignableFrom(clz)) {
+                                return ClassUtil.newInstance(clz);
+                            } else {
+                                if (Decode_IgnoreError) {
+                                    return null;
+                                } else {
+                                    String clzName = (clz == null ? str : clz.getName());
+                                    throw new CodecException("Incompatible type: " + typeEggg.getType().getName() + " <- " + clzName);
+                                }
+                            }
                         }
                     }
                 }
 
-                if ((typeEggg.isCollection() || typeEggg.isArray()) == false) {
+                if (isColl == false) {
                     //如果不是集合（直接返回值）
-                    if(typeEggg.isString() == false && isObjectJsonString(str)){
+                    if (typeEggg.isString() == false && Asserts.isObjectJsonString(str)) {
                         return ONode.ofJson(str, opts0).toBean(typeEggg.getOriginType());
                     } else {
                         return str;
@@ -350,7 +354,7 @@ public class BeanDecoder {
 
             String strValue = node.getValueAs();
 
-            if (isArrayJsonString(strValue)) {
+            if (Asserts.isArrayJsonString(strValue)) {
                 // string 支持嵌套 json 自动加载
                 ONode aryNode = ONode.ofJson(strValue, opts0);
                 TypeEggg elementTypeEggg = EgggUtil.getTypeEggg(elementType);
@@ -376,22 +380,6 @@ public class BeanDecoder {
         return coll;
     }
 
-    private boolean isArrayJsonString(String str) {
-        if (str.length() > 3 && str.charAt(0) == '[' && str.charAt(str.length() - 1) == ']') {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private boolean isObjectJsonString(String str) {
-        if (str.length() > 3 && str.charAt(0) == '{' && str.charAt(str.length() - 1) == '}') {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
     // 处理Map泛型
     private Map decodeMapFromNode(ONode node, TypeEggg targetTypeEggg, Object target) throws Throwable {
         if (node.isObject()) {
@@ -402,13 +390,13 @@ public class BeanDecoder {
                 valueType = targetTypeEggg.getActualTypeArguments()[1];
             }
 
-            if(valueType instanceof WildcardType) {
+            if (valueType instanceof WildcardType) {
                 WildcardType tmp = (WildcardType) valueType;
 
-                if(Asserts.isEmpty(tmp.getLowerBounds())){
-                    valueType =  tmp.getUpperBounds()[0];
+                if (Asserts.isEmpty(tmp.getLowerBounds())) {
+                    valueType = tmp.getUpperBounds()[0];
                 } else {
-                    valueType =  tmp.getLowerBounds()[0];
+                    valueType = tmp.getLowerBounds()[0];
                 }
             }
 
