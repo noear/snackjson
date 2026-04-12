@@ -2,6 +2,7 @@ package features.snack4.issue;
 
 import org.junit.jupiter.api.Test;
 import org.noear.snack4.ONode;
+import org.noear.snack4.codec.TypeRef;
 
 import java.util.List;
 
@@ -12,7 +13,7 @@ import java.util.List;
  */
 public class Issue_IIGHAX {
     @Test
-    public void case1() {
+    public void case11() {
         Task task = ONode.ofJson("{todos:[{idx:1, note:'a'},{idx:2, note:'b'}],title:'ab'}")
                 .toBean(Task.class);
 
@@ -21,7 +22,7 @@ public class Issue_IIGHAX {
     }
 
     @Test
-    public void case2() {
+    public void case12() {
         Task task = ONode.ofJson("{todos:\"[{idx:1, note:'a'},{idx:2, note:'b'}]\",title:'ab'}")
                 .toBean(Task.class);
 
@@ -44,7 +45,15 @@ public class Issue_IIGHAX {
     }
 
     @Test
-    public void case3() {
+    public void case13() {
+        ONode oNode = ONode.ofJson("{todos:\"[{idx:1, note:'a'},{idx:2, note:'b'}]\",title:'ab'}");
+
+        List<Todo> list = oNode.get("todos").toBean(TypeRef.listOf(Todo.class));
+        assert "b".equals(list.get(1).note);
+    }
+
+    @Test
+    public void case21() {
         TodoHold todoHold = ONode.ofJson("{todo:{idx:1, note:'a'},title:'ab'}")
                 .toBean(TodoHold.class);
 
@@ -53,12 +62,20 @@ public class Issue_IIGHAX {
     }
 
     @Test
-    public void case4() {
+    public void case22() {
         TodoHold todoHold = ONode.ofJson("{todo:\"{idx:1, note:'a'}\",title:'ab'}")
                 .toBean(TodoHold.class);
 
         assert "ab".equals(todoHold.title);
         assert "a".equals(todoHold.todo.note);
+    }
+
+    @Test
+    public void case23() {
+        ONode oNode = ONode.ofJson("{todo:\"{idx:1, note:'a'}\",title:'ab'}");
+
+        Todo todo = oNode.get("todo").toBean(Todo.class);
+        assert "a".equals(todo.note);
     }
 
     public static class Task {
