@@ -53,6 +53,14 @@ public class Issue_IIGHAX {
     }
 
     @Test
+    public void case14() {
+        ONode oNode = ONode.ofJson("{todos:\"[{idx:1, note:'a'},{idx:2, note:'b'}]\",title:'ab'}");
+
+        Object tmp = oNode.get("todos").toBean();
+        assert tmp instanceof String;
+    }
+
+    @Test
     public void case21() {
         TodoHold todoHold = ONode.ofJson("{todo:{idx:1, note:'a'},title:'ab'}")
                 .toBean(TodoHold.class);

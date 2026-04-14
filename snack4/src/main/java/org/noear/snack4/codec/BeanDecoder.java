@@ -172,7 +172,10 @@ public class BeanDecoder {
 
                 if (isColl == false) {
                     //如果不是集合（直接返回值）
-                    if (typeEggg.isString() == false && Asserts.isObjectJsonString(str)) {
+                    if (typeEggg.isString() == false &&
+                            typeEggg.isObject() == false &&
+                            Asserts.isObjectJsonString(str)) {
+                        //如果不是字符串，不是对象，且是 json string；则自动解码（否则类型对不上）
                         return ONode.ofJson(str, opts0).toBean(typeEggg.getOriginType());
                     } else {
                         return str;

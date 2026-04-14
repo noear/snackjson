@@ -1,4 +1,8 @@
 
+### 4.0.46
+
+* 修复 BeanDecoder Map 解码时，会把内嵌 jsonString 自动转为对象的问题（v4.0.45 引起）
+
 ### 4.0.45
 
 * 优化 BeanDecoder 对 className 的识别处理
