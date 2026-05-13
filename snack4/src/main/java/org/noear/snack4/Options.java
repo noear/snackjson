@@ -78,6 +78,30 @@ public final class Options {
     }
 
     /**
+     * 克隆一个新的选项（非只读）
+     */
+    public Options copy() {
+        Options tmp = new Options(false); // 内部执行了 codecLib = CodecLib.newInstance()
+
+        // 复制基础属性
+        tmp.featuresValue = this.featuresValue;
+        tmp.dateFormat = this.dateFormat;
+        tmp.writeIndent = this.writeIndent;
+        tmp.typePropertyName = this.typePropertyName;
+        tmp.classLoader = this.classLoader;
+        tmp.locale = this.locale;
+        tmp.zoneId = this.zoneId;
+        tmp.timeZone = this.timeZone;
+        tmp.mapFactory = this.mapFactory;
+        tmp.listFactory = this.listFactory;
+
+        // 将旧 options 的特有编解码器填充到新 options 的 codecLib 中
+        tmp.codecLib.fill(this.codecLib);
+
+        return tmp;
+    }
+
+    /**
      * 用于链式构建
      */
     public Options then(Consumer<Options> consumer) {

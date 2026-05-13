@@ -60,6 +60,18 @@ public class CodecLib {
         return new CodecLib(DEFAULT);
     }
 
+    public void fill(CodecLib source) {
+        // 填充当前实例特有的配置（不影响 parent）
+        this.creators.putAll(source.creators);
+        this.patternCreators.putAll(source.patternCreators);
+
+        this.decoders.putAll(source.decoders);
+        this.patternDecoders.putAll(source.patternDecoders);
+
+        this.encoders.putAll(source.encoders);
+        this.patternEncoders.putAll(source.patternEncoders);
+    }
+
     /**
      * 添加创建器
      */

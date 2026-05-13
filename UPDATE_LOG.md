@@ -1,4 +1,9 @@
 
+
+### 4.0.47
+
+* 添加 Options.copy 方法
+
 ### 4.0.46
 
 * 修复 BeanDecoder Map 解码时，会把内嵌 jsonString 自动转为对象的问题（v4.0.45 引起）
