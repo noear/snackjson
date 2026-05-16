@@ -465,7 +465,7 @@ public class BeanDecoder {
             return defCreator;
         }
 
-        return classEggg.findConstrEggg(oNode.getObject().keySet(), defCreator);
+        return classEggg.matchConstrEggg(oNode.getObject().keySet(), defCreator);
     }
 
     public Object[] getConstrArgs(ConstrEggg constrEggg, ONode node) throws Throwable {
