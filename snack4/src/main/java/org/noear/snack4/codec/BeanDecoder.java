@@ -451,54 +451,21 @@ public class BeanDecoder {
 
     /**
      * 根据数据匹配度选择最适合的构造方法
-     * 优先选择参数在 node 中都有对应 key 的构造方法（且参数最多的）
+     * 委托给 ClassEggg.matchBestCreator，利用预计算的参数别名快照进行高效匹配
+     *
+     * @param classEggg  类包装器
+     * @param defCreator 默认创造器
      */
-    private ConstrEggg matchBestConstructor(ClassEggg classEggg, ConstrEggg defCreator, ONode node) {
-        if (defCreator == null || defCreator.isSecurity() || node.isObject() == false) {
+    private ConstrEggg matchBestConstructor(ClassEggg classEggg, ConstrEggg defCreator, ONode oNode) {
+        if (defCreator == null || defCreator.isSecurity() || oNode.isObject() == false) {
             return defCreator;
         }
 
-        try {
-            // 通过反射获取所有声明的构造方法，筛选有参数的、非安全标记的
-            Constructor<?>[] declaredConstructors = classEggg.getType().getDeclaredConstructors();
-            ConstrEggg best = defCreator;
-            int bestMatchCount = countMatchedParams(defCreator, node);
-
-            for (Constructor<?> c : declaredConstructors) {
-                if (c.getParameterCount() == 0 || c.getParameterCount() <= bestMatchCount) {
-                    continue;
-                }
-
-                ConstrEggg candidate = classEggg.findConstrEgggOrNull(c.getParameterTypes());
-                if (candidate == null) {
-                    continue;
-                }
-
-                int matchCount = countMatchedParams(candidate, node);
-                if (matchCount > bestMatchCount && matchCount == candidate.getParamCount()) {
-                    best = candidate;
-                    bestMatchCount = matchCount;
-                }
-            }
-
-            return best;
-        } catch (NoSuchMethodException e) {
+        if (oNode.getObjectUnsafe().size() == 0) {
             return defCreator;
         }
-    }
 
-    /**
-     * 统计构造方法参数在 node 中有对应 key 的数量
-     */
-    private int countMatchedParams(ConstrEggg constrEggg, ONode node) {
-        int count = 0;
-        for (int i = 0; i < constrEggg.getParamCount(); i++) {
-            ParamEggg p = constrEggg.getParamEgggAt(i);
-            if (node.hasKey(p.getAlias())) {
-                count++;
-            }
-        }
-        return count;
+        return classEggg.findConstrEggg(oNode.getObject().keySet(), defCreator);
     }
 
     public Object[] getConstrArgs(ConstrEggg constrEggg, ONode node) throws Throwable {
