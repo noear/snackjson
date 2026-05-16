@@ -16,6 +16,7 @@ public class Issue_IJNQHU {
         oNode.set("accessKey", "a");
         oNode.set("accessSecret", "b");
 
+        //应该自动选择二参的构造方法
         SessionCredentials tmp = oNode.toBean(SessionCredentials.class);
 
         System.out.println(tmp);
@@ -29,6 +30,7 @@ public class Issue_IJNQHU {
         oNode.set("accessSecret", "b");
         oNode.set("securityToken", "c");
 
+        //应该自动选择三参的构造方法
         SessionCredentials tmp = oNode.toBean(SessionCredentials.class);
 
         System.out.println(tmp);
