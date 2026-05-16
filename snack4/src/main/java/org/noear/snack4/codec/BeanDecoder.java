@@ -207,6 +207,8 @@ public class BeanDecoder {
                     throw new CodecException("Create instance failed: " + typeEggg.getType().getName());
                 }
 
+                constrEggg = matchBestConstructor(typeEggg.getClassEggg(), constrEggg, node);
+
                 if (constrEggg.getParamCount() == 0) {
                     target = constrEggg.newInstance();
                 } else {
@@ -445,6 +447,58 @@ public class BeanDecoder {
         }
 
         throw new CodecException("Unsupported map key type: " + keyType.getType());
+    }
+
+    /**
+     * 根据数据匹配度选择最适合的构造方法
+     * 优先选择参数在 node 中都有对应 key 的构造方法（且参数最多的）
+     */
+    private ConstrEggg matchBestConstructor(ClassEggg classEggg, ConstrEggg defCreator, ONode node) {
+        if (defCreator == null || defCreator.isSecurity() || node.isObject() == false) {
+            return defCreator;
+        }
+
+        try {
+            // 通过反射获取所有声明的构造方法，筛选有参数的、非安全标记的
+            Constructor<?>[] declaredConstructors = classEggg.getType().getDeclaredConstructors();
+            ConstrEggg best = defCreator;
+            int bestMatchCount = countMatchedParams(defCreator, node);
+
+            for (Constructor<?> c : declaredConstructors) {
+                if (c.getParameterCount() == 0 || c.getParameterCount() <= bestMatchCount) {
+                    continue;
+                }
+
+                ConstrEggg candidate = classEggg.findConstrEgggOrNull(c.getParameterTypes());
+                if (candidate == null) {
+                    continue;
+                }
+
+                int matchCount = countMatchedParams(candidate, node);
+                if (matchCount > bestMatchCount && matchCount == candidate.getParamCount()) {
+                    best = candidate;
+                    bestMatchCount = matchCount;
+                }
+            }
+
+            return best;
+        } catch (NoSuchMethodException e) {
+            return defCreator;
+        }
+    }
+
+    /**
+     * 统计构造方法参数在 node 中有对应 key 的数量
+     */
+    private int countMatchedParams(ConstrEggg constrEggg, ONode node) {
+        int count = 0;
+        for (int i = 0; i < constrEggg.getParamCount(); i++) {
+            ParamEggg p = constrEggg.getParamEgggAt(i);
+            if (node.hasKey(p.getAlias())) {
+                count++;
+            }
+        }
+        return count;
     }
 
     public Object[] getConstrArgs(ConstrEggg constrEggg, ONode node) throws Throwable {
