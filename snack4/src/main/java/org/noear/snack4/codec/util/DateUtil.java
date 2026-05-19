@@ -183,6 +183,13 @@ public class DateUtil {
                         return parseWithFormatter(s, getFormatter("yyyy-MM-dd HH:mm:ss.SSS"));
                     }
                     break;
+                case 29:
+                    if (s.charAt(19) == '.') {
+                        // yyyy-MM-dd HH:mm:ss.SSSSSSSSS (9位纳秒，截断为毫秒)
+                        String truncated = s.substring(0, 23);
+                        return parseWithFormatter(truncated, getFormatter("yyyy-MM-dd HH:mm:ss.SSS"));
+                    }
+                    break;
             }
         } catch (Exception ignored) {
         }
@@ -219,51 +226,61 @@ public class DateUtil {
     }
 
     private static Date parseSmart(String s) throws ParseException {
-        if (s.indexOf('T') > 0) {
+        // 先尝试规范化小数秒（纳秒/微秒截断为毫秒）
+        String normalized = normalizeFractionalSeconds(s);
+
+        if (normalized.indexOf('T') > 0) {
             try {
                 // 处理混合格式: 2023-10-25T14:30:45.123+00:00Z
-                if (s.endsWith("Z") && s.contains("+")) {
-                    String cleaned = s.substring(0, s.length() - 1);
+                if (normalized.endsWith("Z") && normalized.contains("+")) {
+                    String cleaned = normalized.substring(0, normalized.length() - 1);
                     return Date.from(OffsetDateTime.parse(cleaned).toInstant());
                 }
-                if (s.indexOf('Z') > 0) return Date.from(Instant.parse(s));
-                if (s.indexOf('+') > 0 || s.indexOf('-') > 0) return Date.from(OffsetDateTime.parse(s).toInstant());
+                if (normalized.indexOf('Z') > 0) return Date.from(Instant.parse(normalized));
+                if (normalized.indexOf('+') > 0 || normalized.indexOf('-') > 0) return Date.from(OffsetDateTime.parse(normalized).toInstant());
             } catch (Exception ignored) {
             }
         }
 
         // 时间格式处理
-        if (s.indexOf(':') > 0) {
-            Date result = parseTime(s);
+        if (normalized.indexOf(':') > 0) {
+            Date result = parseTime(normalized);
             if (result != null) return result;
         }
 
         // 变长日期处理
-        if (s.indexOf('-') > 0 || s.indexOf('/') > 0 || s.indexOf('.') > 0) {
-            Date result = parseVariableDate(s);
+        if (normalized.indexOf('-') > 0 || normalized.indexOf('/') > 0 || normalized.indexOf('.') > 0) {
+            Date result = parseVariableDate(normalized);
             if (result != null) return result;
         }
 
         return null;
     }
 
+    /**
+     * 将小数秒规范化为毫秒精度（3位），截断多余位数。
+     * 例如："2026-03-25 11:00:00.152636324" -> "2026-03-25 11:00:00.152"
+     */
+    private static String normalizeFractionalSeconds(String s) {
+        int dotIdx = s.indexOf('.');
+        if (dotIdx < 0) return s;
+
+        // 找到小数部分的结束位置
+        int end = dotIdx + 1;
+        while (end < s.length() && Character.isDigit(s.charAt(end))) end++;
+
+        int fractionLen = end - dotIdx - 1;
+        if (fractionLen <= 3) return s;
+
+        // 截断到3位毫秒精度
+        String truncated = s.substring(0, dotIdx + 4) + s.substring(end);
+        return truncated;
+    }
+
     private static Date parseTime(String s) throws ParseException {
         try {
             String normalized = s;
-            int dotIdx = s.indexOf('.');
-            if (dotIdx > 0) {
-                int end = dotIdx + 1;
-                while (end < s.length() && Character.isDigit(s.charAt(end))) end++;
-                int fractionLen = end - dotIdx - 1;
-                // 处理微秒 (FORMAT_15): 14:30:45.123456
-                if (fractionLen > 3 && fractionLen <= 6) {
-                    normalized = s.substring(0, dotIdx + 4) + s.substring(end);
-                }
-                // 纳秒位数过多应该抛出异常
-                else if (fractionLen > 6) {
-                    throw new ParseException("Fraction seconds too long", 0);
-                }
-            }
+            // 小数秒已在 parseSmart 中被规范化为毫秒精度，此处无需再处理
 
             // 带时区的时间 (FORMAT_18, FORMAT_14_b)
             if (normalized.contains("+") || normalized.contains("-")) {
@@ -282,8 +299,6 @@ public class DateUtil {
             return Date.from(LocalDateTime.of(LocalDate.of(1970, 1, 1), time)
                     .atZone(SYSTEM_ZONE)
                     .toInstant());
-        } catch (ParseException e) {
-            throw e;
         } catch (Exception e) {
             return null;
         }
