@@ -182,7 +182,7 @@ public class Asserts {
 
     public static boolean isArrayJsonString(String str) {
         //[]
-        if (str.length() > 1 && str.charAt(0) == '[' && str.charAt(str.length() - 1) == ']') {
+        if (str != null && str.length() > 1 && str.charAt(0) == '[' && str.charAt(str.length() - 1) == ']') {
             return true;
         } else {
             return false;
@@ -191,7 +191,7 @@ public class Asserts {
 
     public static boolean isObjectJsonString(String str) {
         //{}
-        if (str.length() > 1 && str.charAt(0) == '{' && str.charAt(str.length() - 1) == '}') {
+        if (str != null && str.length() > 1 && str.charAt(0) == '{' && str.charAt(str.length() - 1) == '}') {
             return true;
         } else {
             return false;
