@@ -1,6 +1,9 @@
 
 ### 4.0.50
 
+* 新增 JsonPath.subPath 方法（获取子段）
+* 添加 JsonPath.getSegmentCount 方法
+* 添加 Segment.getOriginalText 方法
 * eggg 升为 1.1.0
 
 ### 4.0.49

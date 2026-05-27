@@ -17,6 +17,7 @@ package org.noear.snack4.jsonpath;
 
 import org.noear.snack4.Feature;
 import org.noear.snack4.ONode;
+import org.noear.snack4.jsonpath.segment.DescendantSegment;
 import org.noear.snack4.jsonpath.segment.Segment;
 
 import java.util.Collections;
@@ -51,6 +52,55 @@ public class JsonPath {
 
     public List<Segment> getSegments() {
         return Collections.unmodifiableList(segments);
+    }
+
+    /**
+     * 获取段数量
+     */
+    public int getSegmentCount() {
+        return segments.size();
+    }
+
+    /**
+     * 截取前 level 段生成子路径
+     *
+     * @param level 段数（1 表示第一个段，2 表示前两个段，以此类推）
+     * @return 由前 level 段构成的新 JsonPath
+     */
+    public JsonPath subPath(int level) {
+        if (level <= 0) {
+            throw new IllegalArgumentException("level must be > 0");
+        }
+        if (level > segments.size()) {
+            throw new IllegalArgumentException(
+                    "level " + level + " exceeds segment count " + segments.size());
+        }
+
+        // 安全检查：DescendantSegment 不能作为最后一段
+        if (segments.get(level - 1) instanceof DescendantSegment) {
+            throw new IllegalArgumentException(
+                    "Cannot subPath at level " + level + ": DescendantSegment ('..') cannot be the last segment");
+        }
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(rooted ? "$" : "@");
+
+        for (int i = 0; i < level; i++) {
+            Segment seg = segments.get(i);
+            String text = seg.getOriginalText();
+
+            // 拼接优化：如果前一段是 DescendantSegment("..")，
+            // 且当前段的 originalText 以 "." 开头，
+            // 则去掉重复的 "."，因为 ".." 已经包含了过渡符
+            if (i > 0 && segments.get(i - 1) instanceof DescendantSegment
+                    && text != null && text.startsWith(".")) {
+                sb.append(text, 1, text.length());
+            } else if (text != null) {
+                sb.append(text);
+            }
+        }
+
+        return parse(sb.toString());
     }
 
     @Override

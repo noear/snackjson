@@ -38,6 +38,11 @@ public class DescendantSegment extends AbstractSegment {
     }
 
     @Override
+    public String getOriginalText() {
+        return "..";
+    }
+
+    @Override
     public boolean isMultiple() {
         return true;
     }

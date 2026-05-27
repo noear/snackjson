@@ -50,6 +50,14 @@ public class JsonPathParser {
         segments.add(segment);
     }
 
+    private void addSegment(AbstractSegment segment, String originalText) {
+        segment.setOriginalText(originalText);
+        segment.before(lastSegment);
+        lastSegment = segment;
+
+        segments.add(segment);
+    }
+
     private JsonPath doParse() {
         position = 1; //Skip $, @
 
@@ -76,7 +84,7 @@ public class JsonPathParser {
     private void resolveDot() {
         position++;
         if (position < path.length() && path.charAt(position) == '.') {
-            addSegment(DescendantSegment.getInstance());
+            addSegment(DescendantSegment.getInstance(), "..");
 
             while (position < path.length()) {
                 skipWhitespace();
@@ -110,35 +118,40 @@ public class JsonPathParser {
      * 分析 '[...]' 操作符
      */
     private void resolveBracket() {
+        int start = position; // 记录 '[' 的位置
         position++; // 跳过'['
         String segment = parseSegment(']');
         while (position < path.length() && path.charAt(position) == ']') {
             position++;
         }
 
-        addSegment(new SelectSegment(segment));
+        addSegment(new SelectSegment(segment), path.substring(start, position));
     }
 
     /**
      * 分析键名或函数操作符（如 "store" 或 "count()", 或 "index(-1)" 或 "concat(9.9)" 或 "concat('world')", 或 "append({'a':'1'})"）
      */
     private void resolveKey() {
+        int start = position; // 记录键名起始位置
         String segment = parseSegment('.', '[');
 
         if (segment.isEmpty()) {
             throw new JsonPathException("Expected a segment, wildcard or function at index " + position);
         }
 
+        // 原始文本 = "." + 从 start 到 position 的内容
+        String originalText = "." + path.substring(start, position);
+
         // 检查是否是函数调用
         int openParenIndex = segment.indexOf('(');
         int closeParenIndex = segment.lastIndexOf(')');
 
         if (openParenIndex > 0 && closeParenIndex == segment.length() - 1) {
-            addSegment(new FuncSegment(segment));
+            addSegment(new FuncSegment(segment), originalText);
         } else if (segment.equals("*")) {
-            addSegment(new SelectSegment(segment));
+            addSegment(new SelectSegment(segment), originalText);
         } else {
-            addSegment(new SelectSegment("'" + segment + "'"));
+            addSegment(new SelectSegment("'" + segment + "'"), originalText);
         }
     }
 

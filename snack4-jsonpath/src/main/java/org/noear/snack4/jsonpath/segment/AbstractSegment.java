@@ -21,6 +21,7 @@ package org.noear.snack4.jsonpath.segment;
  */
 public abstract class AbstractSegment implements Segment {
     private boolean descendant;
+    private String originalText;
 
     public boolean isDescendant() {
         return descendant;
@@ -28,5 +29,14 @@ public abstract class AbstractSegment implements Segment {
 
     public void before(Segment segment) {
         descendant = segment instanceof DescendantSegment;
+    }
+
+    public void setOriginalText(String originalText) {
+        this.originalText = originalText;
+    }
+
+    @Override
+    public String getOriginalText() {
+        return originalText;
     }
 }

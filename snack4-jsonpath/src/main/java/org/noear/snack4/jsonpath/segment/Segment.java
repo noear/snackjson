@@ -44,4 +44,10 @@ public interface Segment {
      * @param ctx          查询上下文
      */
     List<ONode> resolve(QueryContext ctx, List<ONode> currentNodes);
+
+    /**
+     * 获取该段在原始 JsonPath 表达式中的文本表示。
+     * 例如：$.store.book[0] 中的四个段分别是 ".store"、".book"、"[0]"
+     */
+    String getOriginalText();
 }
