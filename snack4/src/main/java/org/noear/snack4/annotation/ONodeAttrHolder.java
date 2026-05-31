@@ -17,6 +17,7 @@ package org.noear.snack4.annotation;
 
 import org.noear.eggg.AnnotatedEggg;
 import org.noear.snack4.Feature;
+import org.noear.snack4.codec.ObjectCreator;
 import org.noear.snack4.codec.ObjectDecoder;
 import org.noear.snack4.codec.ObjectEncoder;
 import org.noear.snack4.codec.util.ClassUtil;
@@ -51,6 +52,7 @@ public class ONodeAttrHolder {
     private boolean decode = true;
     private ObjectEncoder encoder;
     private ObjectDecoder decoder;
+    private ObjectCreator creator;
     private long featuresValue;
     private AnnotatedEggg eggg;
 
@@ -125,6 +127,10 @@ public class ONodeAttrHolder {
 
             if (attrAnno.decoder().isInterface() == false) {
                 decoder = ClassUtil.newInstance(attrAnno.decoder());
+            }
+
+            if (attrAnno.creator().isInterface() == false) {
+                creator = ClassUtil.newInstance(attrAnno.creator());
             }
 
             featuresValue = Feature.addFeatures(0L, attrAnno.features());
@@ -211,6 +217,10 @@ public class ONodeAttrHolder {
 
     public ObjectDecoder getDecoder() {
         return decoder;
+    }
+
+    public ObjectCreator getCreator() {
+        return creator;
     }
 
     public AnnotatedEggg getEggg() {

@@ -16,6 +16,7 @@
 package org.noear.snack4.annotation;
 
 import org.noear.snack4.Feature;
+import org.noear.snack4.codec.ObjectCreator;
 import org.noear.snack4.codec.ObjectDecoder;
 import org.noear.snack4.codec.ObjectEncoder;
 
@@ -104,4 +105,9 @@ public @interface ONodeAttr {
      * 自定义解码器
      */
     Class<? extends ObjectDecoder> decoder() default ObjectDecoder.class;
+
+    /**
+     * 自定义生成器
+     */
+    Class<? extends ObjectCreator> creator() default ObjectCreator.class;
 }
