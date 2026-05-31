@@ -188,7 +188,18 @@ public class BeanDecoder {
 
         if (target == null) {
             // 如果没有传入 target，则执行原有的创建新对象的逻辑
-            ObjectCreator creator = opts0.getCreator(typeEggg.getType());
+            ObjectCreator creator = null;
+
+            // 优先使用属性级别的 creator（来自 @ONodeAttr(creator = ...)）
+            if (attr != null) {
+                creator = attr.getCreator();
+            }
+
+            // 其次使用 Options 级别的 creator
+            if (creator == null) {
+                creator = opts0.getCreator(typeEggg.getType());
+            }
+
             if (creator != null) {
                 target = creator.create(opts0, node, typeEggg.getType());
             }
