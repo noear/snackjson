@@ -227,6 +227,11 @@ public enum Feature {
     Write_BooleanAsNumber,
 
     /**
+     *  写入 Duration 使用简化模式
+     */
+    Write_DurationUsingSimple,
+
+    /**
      * 写入类名
      */
     Write_ClassName,

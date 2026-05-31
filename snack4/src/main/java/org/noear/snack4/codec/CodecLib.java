@@ -205,13 +205,13 @@ public class CodecLib {
         addDecoder(TimeZone.class, new _TimeZonePatternDecoder());
         addDecoder(Currency.class, new _CurrencytPatternDecoder());
         addDecoder(Path.class, new _PathPatternDecoder());
+        addDecoder(Duration.class, new DurationDecoder());
 
         addDecoder(StackTraceElement.class, new StackTraceElementDecoder());
         addDecoder(InetSocketAddress.class, new InetSocketAddressDecoder());
         addDecoder(SimpleDateFormat.class, new SimpleDateFormatDecoder());
         addDecoder(File.class, new FileDecoder());
         addDecoder(Class.class, new ClassDecoder());
-        addDecoder(Duration.class, new DurationDecoder());
 
         addDecoder(URL.class, new URLDecoder());
 
@@ -282,6 +282,7 @@ public class CodecLib {
         addEncoder(TimeZone.class, new _TimeZonePatternEncoder());
         addEncoder(Currency.class, new _CurrencyPatternEncoder());
         addEncoder(Path.class, new _PathPatternEncoder());
+        addEncoder(Duration.class, new DurationEncoder());
 
         addEncoder(KeyValueList.class, new KeyValueListEncoder());
         addEncoder(StackTraceElement.class, new StackTraceElementEncoder());
@@ -302,7 +303,6 @@ public class CodecLib {
         addEncoder(Boolean.class, new BooleanEncoder());
         addEncoder(Boolean.TYPE, new BooleanEncoder());
 
-        addEncoder(Duration.class, (c, v, t) -> t.setValue(v.toString()));
         addEncoder(File.class, (c, v, t) -> t.setValue(v.getPath()));
 
         addEncoder(LongAdder.class, (c, v, t) -> t.setValue(v.longValue()));

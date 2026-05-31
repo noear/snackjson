@@ -2,6 +2,7 @@
 ### 4.0.51
 
 * 添加 CodeLib Path 类型编解码
+* 添加 Feature.Write_DurationUsingSimple 特性
 
 ### 4.0.50
 
