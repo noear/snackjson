@@ -4,6 +4,7 @@
 * 添加 CodeLib Path 类型编解码
 * 添加 Feature.Write_DurationUsingSimple 特性
 * 添加 ONodeAttr.creator 属性（通过注解控制生成）
+* eggg 升为 1.1.3
 
 ### 4.0.50
 
