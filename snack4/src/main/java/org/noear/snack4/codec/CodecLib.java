@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Path;
 import java.sql.Clob;
 import java.text.SimpleDateFormat;
 import java.time.*;
@@ -203,6 +204,7 @@ public class CodecLib {
         addDecoder(Charset.class, new _CharsetPatternDecoder());
         addDecoder(TimeZone.class, new _TimeZonePatternDecoder());
         addDecoder(Currency.class, new _CurrencytPatternDecoder());
+        addDecoder(Path.class, new _PathPatternDecoder());
 
         addDecoder(StackTraceElement.class, new StackTraceElementDecoder());
         addDecoder(InetSocketAddress.class, new InetSocketAddressDecoder());
@@ -279,6 +281,7 @@ public class CodecLib {
         addEncoder(Clob.class, new _ClobPatternEncoder());
         addEncoder(TimeZone.class, new _TimeZonePatternEncoder());
         addEncoder(Currency.class, new _CurrencyPatternEncoder());
+        addEncoder(Path.class, new _PathPatternEncoder());
 
         addEncoder(KeyValueList.class, new KeyValueListEncoder());
         addEncoder(StackTraceElement.class, new StackTraceElementEncoder());

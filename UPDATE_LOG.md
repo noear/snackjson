@@ -1,4 +1,8 @@
 
+### 4.0.51
+
+* 添加 CodeLib Path 类型编解码
+
 ### 4.0.50
 
 * 新增 JsonPath.subPath 方法（获取子段）
