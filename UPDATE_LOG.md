@@ -3,6 +3,7 @@
 
 * 添加 ONode.getDate(def) 方法
 * 添加 ONode.getString(def) 方法
+* 修复 ONodeAttr.creator 从类到字段类型传递失败的问题 
 
 ### 4.0.51
 

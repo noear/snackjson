@@ -315,7 +315,23 @@ public class BeanDecoder {
             Object exisValue = property.getValue(target);
             Object propValue = null;
 
-            if (property.<ONodeAttrHolder>getDigest().getDecoder() != null) {
+            ONodeAttrHolder attr = property.<ONodeAttrHolder>getDigest();
+            ObjectCreator creator = attr.getCreator();
+
+            if (exisValue == null) {
+                if (creator == null && property.getTypeEggg().isPrimitive() == false) {
+                    ONodeAttrHolder clzAttr = property.getTypeEggg().getClassEggg().getDigest();
+                    if (clzAttr != null && clzAttr.getCreator() != null) {
+                        creator = clzAttr.getCreator();
+                    }
+                }
+
+                if (creator != null) {
+                    exisValue = creator.create(opts0, oNode, property.getTypeEggg().getType());
+                }
+            }
+
+            if (attr.getDecoder() != null) {
                 propValue = property.<ONodeAttrHolder>getDigest()
                         .getDecoder()
                         .decode(new DecodeContext(opts0, property.getDigest(), exisValue, property.getTypeEggg()), oNode);

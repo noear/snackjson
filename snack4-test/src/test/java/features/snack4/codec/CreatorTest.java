@@ -222,6 +222,7 @@ public class CreatorTest {
         private String createdBy;
     }
 
+    @ONodeAttr(creator = GetterItemCreator.class)
     @Setter
     @Getter
     public static class SimpleItem {
@@ -233,7 +234,6 @@ public class CreatorTest {
     public static class GetterModel {
         private SimpleItem item;
 
-        @ONodeAttr(creator = GetterItemCreator.class)
         public SimpleItem getItem() {
             return item;
         }
