@@ -199,6 +199,69 @@ public class CreatorTest {
     }
 
     // ============================================================
+    // 类级 creator（SimpleItem 上标注了 @ONodeAttr(creator = GetterItemCreator.class)）
+    // ============================================================
+
+    @Test
+    public void creator_class_level_null_json() {
+        String json = "{\"item\":null}";
+        GetterModel obj = ONode.ofJson(json).toBean(GetterModel.class);
+        Assertions.assertNull(obj.getItem());
+    }
+
+    @Test
+    public void creator_class_level_missing_json() {
+        String json = "{}";
+        GetterModel obj = ONode.ofJson(json).toBean(GetterModel.class);
+        Assertions.assertNull(obj.getItem());
+    }
+
+    @Test
+    public void creator_class_level_overrides_options() {
+        Options options = Options.of()
+                .addCreator(SimpleItem.class, (opts, node, clazz) -> {
+                    SimpleItem item = new SimpleItem();
+                    item.setCreatedBy("OptionsItemCreator");
+                    return item;
+                });
+
+        String json = "{\"item\":{\"text\":\"priority-test\"}}";
+        GetterModel obj = ONode.ofJson(json, options).toBean(GetterModel.class);
+
+        System.out.println(obj.getItem().getCreatedBy());
+        // 类级 @ONodeAttr(creator) 应优先于 Options 级
+        Assertions.assertEquals("GetterItemCreator", obj.getItem().getCreatedBy());
+        Assertions.assertEquals("priority-test", obj.getItem().getText());
+    }
+
+    @Test
+    public void creator_class_level_top_level() {
+        String json = "{\"text\":\"top-level\"}";
+        SimpleItem item = ONode.ofJson(json).toBean(SimpleItem.class);
+
+        System.out.println(item.getText());
+        System.out.println(item.getCreatedBy());
+
+        Assertions.assertEquals("top-level", item.getText());
+        Assertions.assertEquals("GetterItemCreator", item.getCreatedBy());
+    }
+
+    @Test
+    public void creator_class_level_roundtrip() {
+        SimpleItem item = new SimpleItem();
+        item.setText("roundtrip-test");
+        // createdBy 为 null，序列化时不会输出
+
+        String json = ONode.ofBean(item).toJson();
+        System.out.println(json);
+        Assertions.assertEquals("{\"text\":\"roundtrip-test\"}", json);
+
+        SimpleItem restored = ONode.ofJson(json).toBean(SimpleItem.class);
+        Assertions.assertEquals("roundtrip-test", restored.getText());
+        Assertions.assertEquals("GetterItemCreator", restored.getCreatedBy());
+    }
+
+    // ============================================================
     // 内部数据类
     // ============================================================
 

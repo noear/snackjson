@@ -319,6 +319,7 @@ public class BeanDecoder {
             ObjectCreator creator = attr.getCreator();
 
             if (exisValue == null) {
+                // 尝试从字段类型的类级别 @ONodeAttr 注解获取 creator（作为 fallback）
                 if (creator == null && property.getTypeEggg().isPrimitive() == false) {
                     ONodeAttrHolder clzAttr = property.getTypeEggg().getClassEggg().getDigest();
                     if (clzAttr != null && clzAttr.getCreator() != null) {

@@ -272,7 +272,8 @@ public final class ONode {
         } else if (isNumber()) {
             return new Date(getNumber().longValue());
         } else if (isString()) {
-            return DateUtil.parseTry(getString());
+            Date tmp = DateUtil.parseTry(getString());
+            return tmp != null ? tmp : def;
         } else {
             return def;
         }
