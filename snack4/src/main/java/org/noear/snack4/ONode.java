@@ -235,6 +235,10 @@ public final class ONode {
     }
 
     public String getString() {
+        return getString(null);
+    }
+
+    public String getString(String def) {
         if (isString()) {
             return (String) value;
         } else if (isNumber()) {
@@ -251,7 +255,7 @@ public final class ONode {
             if (options.hasFeature(Feature.Write_NullStringAsEmpty)) {
                 return "";
             } else {
-                return null;
+                return def;
             }
         } else {
             return String.valueOf(value);
@@ -259,6 +263,10 @@ public final class ONode {
     }
 
     public Date getDate() {
+        return getDate(null);
+    }
+
+    public Date getDate(Date def) {
         if (isDate()) {
             return (Date) value;
         } else if (isNumber()) {
@@ -266,7 +274,7 @@ public final class ONode {
         } else if (isString()) {
             return DateUtil.parseTry(getString());
         } else {
-            return null;
+            return def;
         }
     }
 
@@ -649,7 +657,7 @@ public final class ONode {
      * 根据 jsonpath 删除
      */
     public boolean delete(String jsonpath) {
-       return jsonPathProvider.delete(this, jsonpath);
+        return jsonPathProvider.delete(this, jsonpath);
     }
 
     /**

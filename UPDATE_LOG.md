@@ -1,4 +1,9 @@
 
+### 4.0.52
+
+* 添加 ONode.getDate(def) 方法
+* 添加 ONode.getString(def) 方法
+
 ### 4.0.51
 
 * 添加 CodeLib Path 类型编解码
