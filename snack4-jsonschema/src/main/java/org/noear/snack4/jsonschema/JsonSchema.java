@@ -17,6 +17,7 @@ package org.noear.snack4.jsonschema;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
+import org.noear.snack4.Options;
 import org.noear.snack4.jsonschema.generate.*;
 import org.noear.snack4.jsonschema.validate.JsonSchemaValidator;
 import org.noear.snack4.util.Asserts;
@@ -36,11 +37,27 @@ public class JsonSchema {
     private final boolean enableDefinitions;
     private final boolean printVersion;
     private final MapperLib definerLib = MapperLib.newInstance();
+    private final Options options;
 
     public JsonSchema(SchemaVersion version, boolean enableDefinitions, boolean printVersion) {
-        this.version = version;
+        this(version, null, enableDefinitions, printVersion);
+    }
+
+    public JsonSchema(SchemaVersion version, Options options, boolean enableDefinitions, boolean printVersion) {
         this.enableDefinitions = enableDefinitions;
         this.printVersion = printVersion;
+
+        if (version == null) {
+            this.version = SchemaVersion.DRAFT_7;
+        } else {
+            this.version = version;
+        }
+
+        if (options == null) {
+            this.options = Options.DEF_OPTIONS;
+        } else {
+            this.options = options.readonly();
+        }
     }
 
     /**
@@ -48,6 +65,13 @@ public class JsonSchema {
      */
     public SchemaVersion getVersion() {
         return version;
+    }
+
+    /**
+     * 序列化选项
+     */
+    public Options getOptions() {
+        return options;
     }
 
     /**
@@ -111,35 +135,35 @@ public class JsonSchema {
     /**
      * 生成类型的 Json 架构
      */
-    public ONode generate(Type type){
+    public ONode generate(Type type) {
         return createGenerator(type).generate();
     }
 
     /**
      * 生成类型的 Json 架构
      */
-    public ONode generate(TypeEggg typeEggg){
+    public ONode generate(TypeEggg typeEggg) {
         return createGenerator(typeEggg).generate();
     }
 
     /**
      * 参照类型架构验证数据
      */
-    public void validate(Type type, ONode data) throws  JsonSchemaException {
+    public void validate(Type type, ONode data) throws JsonSchemaException {
         createValidator(type).validate(data);
     }
 
     /**
      * 参照类型架构验证数据
      */
-    public void validate(TypeEggg typeEggg, ONode data) throws  JsonSchemaException {
+    public void validate(TypeEggg typeEggg, ONode data) throws JsonSchemaException {
         createValidator(typeEggg).validate(data);
     }
 
     /**
      * 参照 Json 架构验证数据
      */
-    public void validate(ONode jsonSchema, ONode data) throws  JsonSchemaException {
+    public void validate(ONode jsonSchema, ONode data) throws JsonSchemaException {
         createValidator(jsonSchema).validate(data);
     }
 
@@ -218,6 +242,8 @@ public class JsonSchema {
 
     public static class Builder {
         private SchemaVersion version = SchemaVersion.DRAFT_7;
+        private Options options;
+
         private boolean enableDefinitions;
         private boolean printVersion;
 
@@ -225,6 +251,12 @@ public class JsonSchema {
             this.version = version;
             return this;
         }
+
+        public Builder options(Options options) {
+            this.options = options;
+            return this;
+        }
+
 
         public Builder enableDefinitions(boolean enableDefinitions) {
             this.enableDefinitions = enableDefinitions;
@@ -237,7 +269,7 @@ public class JsonSchema {
         }
 
         public JsonSchema build() {
-            return new JsonSchema(version, enableDefinitions, printVersion);
+            return new JsonSchema(version, options, enableDefinitions, printVersion);
         }
     }
 }

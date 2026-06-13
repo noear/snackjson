@@ -2,6 +2,8 @@
 ### 4.0.53
 
 * 添加 Duration、File、Path JsonSchema 编码
+* 添加 Options.readonly 方法（把当前实例转为只读，禁止外部修改）
+* 添加 JsonSchema.options 可选配置（方便定制序列化格式）
 * 调整 jsonschema 内部包名
 
 ### 4.0.52

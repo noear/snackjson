@@ -93,7 +93,7 @@ public class JsonSchemaGenerator {
     }
 
     private ONode newNode() {
-        return new ONode();
+        return new ONode(config.getOptions());
     }
 
     private ONode doGenerate() throws Throwable {
