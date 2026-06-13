@@ -1,7 +1,8 @@
 
-### 4.0.51
+### 4.0.53
 
-* 添加 Duration JsonSchema 编码
+* 添加 Duration、File、Path JsonSchema 编码
+* 调整 jsonschema 内部包名
 
 ### 4.0.52
 
