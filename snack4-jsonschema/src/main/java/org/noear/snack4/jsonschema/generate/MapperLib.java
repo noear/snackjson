@@ -19,6 +19,7 @@ import org.noear.eggg.TypeEggg;
 import org.noear.snack4.jsonschema.generate.impl.*;
 
 import java.net.URI;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -152,6 +153,7 @@ public class MapperLib {
         schemaMapperMap.put(LocalDate.class, new LocalDateMapper());
         schemaMapperMap.put(LocalTime.class, new LocalTimeMapper());
         schemaMapperMap.put(LocalDateTime.class, new LocalDateTimeMapper());
+        schemaMapperMap.put(Duration.class, new DurationMapper());
 
         /// //////////
 

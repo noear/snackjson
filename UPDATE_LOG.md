@@ -1,4 +1,8 @@
 
+### 4.0.51
+
+* 添加 Duration JsonSchema 编码
+
 ### 4.0.52
 
 * 添加 ONode.getDate(def) 方法
