@@ -71,10 +71,18 @@ public final class Options {
     private Supplier<List> listFactory = ArrayList::new;
 
 
-    private final boolean readonly;
+    private boolean readonly;
 
     private Options(boolean readonly) {
         this.readonly = readonly;
+    }
+
+    /**
+     * 转为只读
+     */
+    public Options readonly(){
+        this.readonly = true;
+        return this;
     }
 
     /**
