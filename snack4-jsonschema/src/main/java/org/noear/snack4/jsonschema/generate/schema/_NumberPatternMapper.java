@@ -13,30 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.generate.impl;
+package org.noear.snack4.jsonschema.generate.schema;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
-import org.noear.snack4.jsonschema.generate.SchemaMapper;
+import org.noear.snack4.jsonschema.generate.SchemaPatternMapper;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import java.math.BigInteger;
 
 /**
  *
  * @author noear 2025/11/14 created
  * @since 4.0
  */
-public class ByteArrayMapper implements SchemaMapper {
-    private static final ByteArrayMapper instance = new ByteArrayMapper();
+public class _NumberPatternMapper implements SchemaPatternMapper {
+    private static final Set<Class<?>> INTEGER_TYPES = new HashSet<>(
+            Arrays.asList(Short.class, short.class,
+                    Integer.class, int.class,
+                    Long.class, long.class,
+                    BigInteger.class
+            )
+    );
 
-    public static ByteArrayMapper getInstance() {
-        return instance;
+    @Override
+    public boolean supports(TypeEggg typeEggg) {
+        return typeEggg.isNumber();
     }
 
     @Override
     public ONode mapSchema(TypeEggg typeEggg, ONode target) {
-        return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
-                .set(SchemaKeyword.CONTENT_ENCODING, "base64")
-                .set(SchemaKeyword.CONTENT_MEDIATYPE, "application/octet-stream");
+        if (INTEGER_TYPES.contains(typeEggg.getType())) {
+            target.set(SchemaKeyword.TYPE, SchemaType.INTEGER);
+        } else {
+            target.set(SchemaKeyword.TYPE, SchemaType.NUMBER);
+        }
+
+        return target;
     }
 }

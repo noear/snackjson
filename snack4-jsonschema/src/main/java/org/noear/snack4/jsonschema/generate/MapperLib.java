@@ -16,8 +16,10 @@
 package org.noear.snack4.jsonschema.generate;
 
 import org.noear.eggg.TypeEggg;
-import org.noear.snack4.jsonschema.generate.impl.*;
+import org.noear.snack4.jsonschema.generate.schema.*;
+import org.noear.snack4.jsonschema.generate.type.*;
 
+import java.io.File;
 import java.net.URI;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -137,6 +139,7 @@ public class MapperLib {
         schemaPatternMappers.put(_DatePatternMapper.class, new _DatePatternMapper());
         schemaPatternMappers.put(_EnumPatternMapper.class, new _EnumPatternMapper());
         schemaPatternMappers.put(_NumberPatternMapper.class, new _NumberPatternMapper());
+        schemaPatternMappers.put(_PathSchemaPatternMapper.class, new _PathSchemaPatternMapper());
 
         schemaMapperMap.put(Boolean.class, BooleanMapper.getInstance());
         schemaMapperMap.put(boolean.class, BooleanMapper.getInstance());
@@ -154,6 +157,7 @@ public class MapperLib {
         schemaMapperMap.put(LocalTime.class, new LocalTimeMapper());
         schemaMapperMap.put(LocalDateTime.class, new LocalDateTimeMapper());
         schemaMapperMap.put(Duration.class, new DurationMapper());
+        schemaMapperMap.put(File.class, new FileMapper());
 
         /// //////////
 

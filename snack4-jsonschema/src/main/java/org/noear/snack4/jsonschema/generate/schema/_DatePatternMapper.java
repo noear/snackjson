@@ -13,26 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.generate.impl;
+package org.noear.snack4.jsonschema.generate.schema;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.SchemaFormat;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
-import org.noear.snack4.jsonschema.generate.SchemaMapper;
+import org.noear.snack4.jsonschema.generate.SchemaPatternMapper;
 
-import java.net.URI;
+import java.util.Date;
 
 /**
  *
- * @author noear 2025/11/14 created
+ * @author noear 2025/10/3 created
  * @since 4.0
  */
-public class URIMapper implements SchemaMapper<URI> {
+public class _DatePatternMapper implements SchemaPatternMapper {
+    @Override
+    public boolean supports(TypeEggg typeEggg) {
+        return Date.class.isAssignableFrom(typeEggg.getType());
+    }
+
     @Override
     public ONode mapSchema(TypeEggg typeEggg, ONode target) {
         return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
-                .set(SchemaKeyword.FORMAT, SchemaFormat.URI);
+                .set(SchemaKeyword.FORMAT, SchemaFormat.DATE_TIME);
     }
 }

@@ -13,31 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.generate.impl;
+package org.noear.snack4.jsonschema.generate.schema;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
+import org.noear.snack4.jsonschema.SchemaFormat;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
 import org.noear.snack4.jsonschema.generate.SchemaMapper;
 
+import java.io.File;
+
 /**
  *
- * @author noear 2025/11/14 created
+ * @author noear 2026/6/13 created
  * @since 4.0
  */
-public class CharMapper implements SchemaMapper {
-    private static final CharMapper instance = new CharMapper();
-
-    public static CharMapper getInstance() {
-        return instance;
-    }
-
-
+public class FileMapper implements SchemaMapper<File> {
     @Override
     public ONode mapSchema(TypeEggg typeEggg, ONode target) {
         return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
-                .set(SchemaKeyword.MAX_LENGTH, 1)
-                .set(SchemaKeyword.MIN_LENGTH, 1);
+                .set(SchemaKeyword.FORMAT, SchemaFormat.URI);
     }
 }

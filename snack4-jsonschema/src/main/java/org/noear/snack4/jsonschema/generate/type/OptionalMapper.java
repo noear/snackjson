@@ -13,26 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.generate.impl;
+package org.noear.snack4.jsonschema.generate.type;
 
 import org.noear.eggg.TypeEggg;
-import org.noear.snack4.ONode;
-import org.noear.snack4.jsonschema.SchemaFormat;
-import org.noear.snack4.jsonschema.SchemaKeyword;
-import org.noear.snack4.jsonschema.SchemaType;
-import org.noear.snack4.jsonschema.generate.SchemaMapper;
+import org.noear.snack4.codec.util.EgggUtil;
+import org.noear.snack4.jsonschema.generate.TypeMapper;
 
-import java.time.LocalTime;
+import java.util.Optional;
 
 /**
  *
- * @author noear 2025/11/14 created
+ * @author noear 2025/12/18 created
  * @since 4.0
  */
-public class LocalTimeMapper implements SchemaMapper<LocalTime> {
+public class OptionalMapper implements TypeMapper<Optional> {
     @Override
-    public ONode mapSchema(TypeEggg typeEggg, ONode target) {
-        return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
-                .set(SchemaKeyword.FORMAT, SchemaFormat.TIME);
+    public TypeEggg mapType(TypeEggg typeEggg) {
+        return EgggUtil.getTypeEggg(typeEggg.getActualTypeArguments()[0]);
     }
 }

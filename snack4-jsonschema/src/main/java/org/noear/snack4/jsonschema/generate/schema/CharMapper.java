@@ -13,35 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.generate.impl;
+package org.noear.snack4.jsonschema.generate.schema;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
 import org.noear.snack4.jsonschema.SchemaKeyword;
 import org.noear.snack4.jsonschema.SchemaType;
-import org.noear.snack4.jsonschema.generate.SchemaPatternMapper;
+import org.noear.snack4.jsonschema.generate.SchemaMapper;
 
 /**
  *
  * @author noear 2025/11/14 created
  * @since 4.0
  */
-public class _EnumPatternMapper implements SchemaPatternMapper {
-    @Override
-    public boolean supports(TypeEggg typeEggg) {
-        return typeEggg.isEnum();
+public class CharMapper implements SchemaMapper {
+    private static final CharMapper instance = new CharMapper();
+
+    public static CharMapper getInstance() {
+        return instance;
     }
+
 
     @Override
     public ONode mapSchema(TypeEggg typeEggg, ONode target) {
-        target.set(SchemaKeyword.TYPE, SchemaType.STRING);
-
-        target.getOrNew(SchemaKeyword.ENUM).then(n -> {
-            for (Object e : typeEggg.getType().getEnumConstants()) {
-                n.add(e.toString());
-            }
-        });
-
-        return target;
+        return target.set(SchemaKeyword.TYPE, SchemaType.STRING)
+                .set(SchemaKeyword.MAX_LENGTH, 1)
+                .set(SchemaKeyword.MIN_LENGTH, 1);
     }
 }

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.noear.snack4.jsonschema.generate.impl;
+package org.noear.snack4.jsonschema.generate.schema;
 
 import org.noear.eggg.TypeEggg;
 import org.noear.snack4.ONode;
@@ -26,17 +26,15 @@ import org.noear.snack4.jsonschema.generate.SchemaMapper;
  * @author noear 2025/11/14 created
  * @since 4.0
  */
-public class ByteMapper implements SchemaMapper {
-    private static final ByteMapper instance = new ByteMapper();
+public class BooleanMapper implements SchemaMapper {
+    private static final BooleanMapper instance = new BooleanMapper();
 
-    public static ByteMapper getInstance() {
+    public static BooleanMapper getInstance() {
         return instance;
     }
 
     @Override
     public ONode mapSchema(TypeEggg typeEggg, ONode target) {
-        return target.set(SchemaKeyword.TYPE, SchemaType.INTEGER)
-                .set(SchemaKeyword.MINIMUM, -128)
-                .set(SchemaKeyword.MAXIMUM, 127);
+        return target.set(SchemaKeyword.TYPE, SchemaType.BOOLEAN);
     }
 }
