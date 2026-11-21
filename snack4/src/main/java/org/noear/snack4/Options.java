@@ -21,6 +21,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -50,7 +51,7 @@ public final class Options {
     public static final String DEF_UNSUPPORTED_HINT = "Read-only mode does not support modification.";
 
     //编码仓库
-    private final CodecLib codecLib = CodecLib.newInstance();
+    private final CodecLib codecLib;
     //特性开关（使用位掩码存储）
     private long featuresValue = DEF_FEATURES;
     //时间格式
@@ -76,8 +77,90 @@ public final class Options {
 
     private boolean readonly;
 
+    //排除的写入特性（仅派生选项非零；用于属性级 excludeFeatures）
+    private final long writeExcludes;
+    //派生选项缓存（按排除掩码；用到时才创建）
+    private volatile Map<Long, Options> derivedCache;
+
     private Options(boolean readonly) {
         this.readonly = readonly;
+        this.codecLib = CodecLib.newInstance();
+        this.writeExcludes = 0L;
+    }
+
+    /**
+     * 派生构造（共享编解码仓库，只读）
+     */
+    private Options(Options base, long excludes) {
+        this.readonly = true;
+        this.codecLib = base.codecLib;
+        this.writeExcludes = base.writeExcludes | excludes;
+
+        copyFieldsFrom(base);
+        this.featuresValue &= ~excludes;
+    }
+
+    /**
+     * 复制基础属性（不含编解码仓库与只读状态）
+     */
+    private void copyFieldsFrom(Options src) {
+        this.featuresValue = src.featuresValue;
+        this.dateFormat = src.dateFormat;
+        this.writeIndent = src.writeIndent;
+        this.typePropertyName = src.typePropertyName;
+        this.classLoader = src.classLoader;
+        this.locale = src.locale;
+        this.zoneId = src.zoneId;
+        this.timeZone = src.timeZone;
+        this.mapFactory = src.mapFactory;
+        this.listFactory = src.listFactory;
+        this.maxNestingDepth = src.maxNestingDepth;
+    }
+
+    /**
+     * 确认可写（并清理派生缓存，避免过期）
+     */
+    private void assertWritable() {
+        if (readonly) {
+            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
+        }
+
+        //仅在有缓存时清理（避免常规路径上的 volatile 写）
+        if (derivedCache != null) {
+            derivedCache = null;
+        }
+    }
+
+    /**
+     * 获取排除的写入特性掩码（内部使用）
+     */
+    public long getWriteExcludes() {
+        return writeExcludes;
+    }
+
+    /**
+     * 派生一个排除了指定写入特性的只读选项（内部使用；共享编解码仓库，按掩码缓存）
+     *
+     * @param excludes 排除的特性掩码
+     */
+    public Options deriveWithout(long excludes) {
+        if ((excludes & ~writeExcludes) == 0L) {
+            //无新增排除
+            return this;
+        }
+
+        Map<Long, Options> cache = derivedCache;
+        if (cache == null) {
+            //并发下最多多建一份，无害
+            derivedCache = cache = new ConcurrentHashMap<>();
+        }
+
+        Options derived = cache.get(excludes);
+        if (derived == null) {
+            derived = cache.computeIfAbsent(excludes, k -> new Options(this, k));
+        }
+
+        return derived;
     }
 
     /**
@@ -95,17 +178,7 @@ public final class Options {
         Options tmp = new Options(false); // 内部执行了 codecLib = CodecLib.newInstance()
 
         // 复制基础属性
-        tmp.featuresValue = this.featuresValue;
-        tmp.dateFormat = this.dateFormat;
-        tmp.writeIndent = this.writeIndent;
-        tmp.typePropertyName = this.typePropertyName;
-        tmp.classLoader = this.classLoader;
-        tmp.locale = this.locale;
-        tmp.zoneId = this.zoneId;
-        tmp.timeZone = this.timeZone;
-        tmp.mapFactory = this.mapFactory;
-        tmp.listFactory = this.listFactory;
-        tmp.maxNestingDepth = this.maxNestingDepth;
+        tmp.copyFieldsFrom(this);
 
         // 将旧 options 的特有编解码器填充到新 options 的 codecLib 中
         tmp.codecLib.fill(this.codecLib);
@@ -242,9 +315,7 @@ public final class Options {
      * 设置 JSON 嵌套深度上限
      */
     public Options maxNestingDepth(int maxNestingDepth) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.maxNestingDepth = maxNestingDepth;
         return this;
@@ -254,9 +325,7 @@ public final class Options {
      * 设置日期格式
      */
     public Options dateFormat(String format) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.dateFormat = format;
         return this;
@@ -266,9 +335,7 @@ public final class Options {
      * 设置地区
      */
     public Options locale(Locale locale) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.locale = locale;
         return this;
@@ -278,9 +345,7 @@ public final class Options {
      * 设置时区
      */
     public Options timeZone(TimeZone timeZone) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.zoneId = timeZone.toZoneId();
         this.timeZone = timeZone;
@@ -291,9 +356,7 @@ public final class Options {
      * 设置时区
      */
     public Options timeZone(ZoneId zoneId) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.zoneId = zoneId;
         this.timeZone = TimeZone.getTimeZone(zoneId);
@@ -304,9 +367,7 @@ public final class Options {
      * 设置缩进字符串
      */
     public Options writeIndent(String indent) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.writeIndent = indent;
         return this;
@@ -316,9 +377,7 @@ public final class Options {
      * 设置类加载器
      */
     public Options classLoader(ClassLoader classLoader) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.classLoader = classLoader;
         return this;
@@ -328,18 +387,14 @@ public final class Options {
      * 添加特性
      */
     public Options addFeatures(Feature... features) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.featuresValue = Feature.addFeatures(this.featuresValue, features);
         return this;
     }
 
     public Options setFeatures(Feature... features) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.featuresValue = Feature.addFeatures(0L, features);
         return this;
@@ -349,9 +404,7 @@ public final class Options {
      * 移除特性
      */
     public Options removeFeatures(Feature... features) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.featuresValue = Feature.removeFeatures(this.featuresValue, features);
         return this;
@@ -361,9 +414,7 @@ public final class Options {
      * 注册自定义解码器
      */
     public <T> Options addDecoder(Class<T> type, ObjectDecoder<T> decoder) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         codecLib.addDecoder(type, decoder);
         return this;
@@ -373,9 +424,7 @@ public final class Options {
      * 注册自定义解码器
      */
     public <T> Options addDecoder(ObjectPatternDecoder<T> decoder) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         codecLib.addDecoder(decoder);
         return this;
@@ -385,9 +434,7 @@ public final class Options {
      * 注册自定义编码器
      */
     public <T> Options addEncoder(Class<T> type, ObjectEncoder<T> encoder) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         codecLib.addEncoder(type, encoder);
         return this;
@@ -397,9 +444,7 @@ public final class Options {
      * 注册自定义编码器
      */
     public <T> Options addEncoder(ObjectPatternEncoder<T> encoder) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         codecLib.addEncoder(encoder);
         return this;
@@ -409,9 +454,7 @@ public final class Options {
      * 注册自定义创建器
      */
     public <T> Options addCreator(Class<T> type, ObjectCreator<T> creator) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         codecLib.addCreator(type, creator);
         return this;
@@ -421,9 +464,7 @@ public final class Options {
      * 注册自定义创建器
      */
     public <T> Options addCreator(ObjectPatternCreator<T> creator) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         codecLib.addCreator(creator);
         return this;
@@ -437,9 +478,7 @@ public final class Options {
      * 注册自定义检测器（类型安全检测器）
      */
     public Options addChecker(TypeChecker checker) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         if (checker != null) {
             codecLib.addChecker(checker);
@@ -463,18 +502,14 @@ public final class Options {
     }
 
     public Options mapFactory(Supplier<Map> mapFactory) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.mapFactory = mapFactory;
         return this;
     }
 
     public Options listFactory(Supplier<List> listFactory) {
-        if (readonly) {
-            throw new UnsupportedOperationException(DEF_UNSUPPORTED_HINT);
-        }
+        assertWritable();
 
         this.listFactory = listFactory;
         return this;

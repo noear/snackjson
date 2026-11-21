@@ -23,6 +23,8 @@ import org.noear.snack4.codec.ObjectEncoder;
 import org.noear.snack4.codec.util.ClassUtil;
 import org.noear.snack4.codec.util.DateUtil;
 import org.noear.snack4.util.Asserts;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.ZoneId;
 import java.util.Date;
@@ -35,6 +37,20 @@ import java.util.TimeZone;
  * @since 4.0
  */
 public class ONodeAttrHolder {
+    private static final Logger LOG = LoggerFactory.getLogger(ONodeAttrHolder.class);
+
+    /**
+     * 可排除的写入特性（值格式类）
+     */
+    private static final long EXCLUDABLE_FEATURES = Feature.addFeatures(0L,
+            Feature.Write_NumbersAsString,
+            Feature.Write_LongAsString,
+            Feature.Write_DoubleAsString,
+            Feature.Write_BigDecimalAsPlain,
+            Feature.Write_NumberTypeSuffix,
+            Feature.Write_BooleanAsNumber,
+            Feature.Write_UseDateFormat);
+
     private String alias;
     private String title;
     private String description;
@@ -54,6 +70,7 @@ public class ONodeAttrHolder {
     private ObjectDecoder decoder;
     private ObjectCreator creator;
     private long featuresValue;
+    private long excludeFeaturesValue; //@since 4.0.60
     private AnnotatedEggg eggg;
 
     @Deprecated
@@ -134,6 +151,7 @@ public class ONodeAttrHolder {
             }
 
             featuresValue = Feature.addFeatures(0L, attrAnno.features());
+            excludeFeaturesValue = resolveExcludeFeatures(attrAnno, realName, featuresValue);
 
             //为空
             empty = false;
@@ -201,6 +219,37 @@ public class ONodeAttrHolder {
 
     public boolean hasFeature(Feature feature) {
         return Feature.hasFeature(featuresValue, feature);
+    }
+
+    /**
+     * 获取排除的全局写入特性掩码
+     *
+     * @since 4.0.60
+     */
+    public long getExcludeFeatures() {
+        return excludeFeaturesValue;
+    }
+
+    private static long resolveExcludeFeatures(ONodeAttr attrAnno, String realName, long featuresValue) {
+        long excludes = 0L;
+
+        for (Feature f : attrAnno.excludeFeatures()) {
+            if ((EXCLUDABLE_FEATURES & f.mask()) == 0L) {
+                //不支持的特性：忽略该项（排除无效）
+                LOG.warn("The feature is not supported by @ONodeAttr.excludeFeatures and will be ignored: {} ({})", f, realName);
+                continue;
+            }
+
+            if ((featuresValue & f.mask()) != 0L) {
+                //与 features 冲突：忽略该项（以 features 开启为准）
+                LOG.warn("The feature is in both @ONodeAttr.features and excludeFeatures, excludeFeatures will be ignored: {} ({})", f, realName);
+                continue;
+            }
+
+            excludes |= f.mask();
+        }
+
+        return excludes;
     }
 
     public boolean isEncode() {

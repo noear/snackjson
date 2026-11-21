@@ -62,6 +62,8 @@ public class BeanEncoder {
 
     private final Object source0;
     private final Options opts0;
+    //当前选项（属性级 excludeFeatures 时为派生选项，作用于属性值及其子树）
+    private Options curOpts;
 
     private final Map<Object, Object> visited;
 
@@ -72,6 +74,7 @@ public class BeanEncoder {
     private BeanEncoder(Object value, Options opts) {
         this.source0 = value;
         this.opts0 = opts == null ? Options.DEF_OPTIONS : opts;
+        this.curOpts = opts0;
         this.visited = new IdentityHashMap<>();
 
         this.Write_Nulls = opts0.hasFeature(Feature.Write_Nulls);
@@ -103,7 +106,7 @@ public class BeanEncoder {
     private ONode encodeValueToNode(Object value, ONodeAttrHolder attr) throws Throwable {
         if (value == null) {
             if (Write_Nulls) {
-                return new ONode(opts0, null);
+                return new ONode(curOpts, null);
             } else {
                 return null;
             }
@@ -114,13 +117,13 @@ public class BeanEncoder {
         }
 
         if (value instanceof ObjectEncoder) {
-            return ((ObjectEncoder) value).encode(new EncodeContext(opts0, attr, value), value, new ONode(opts0));
+            return ((ObjectEncoder) value).encode(new EncodeContext(curOpts, attr, value), value, new ONode(curOpts));
         }
 
         // 优先使用自定义编解码器
         ObjectEncoder codec = opts0.getEncoder(value);
         if (codec != null) {
-            return codec.encode(new EncodeContext(opts0, attr, value), value, new ONode(opts0));
+            return codec.encode(new EncodeContext(curOpts, attr, value), value, new ONode(curOpts));
         }
 
         if (value instanceof Map) {
@@ -146,7 +149,7 @@ public class BeanEncoder {
             visited.put(bean, null);
         }
 
-        ONode tmp = new ONode(opts0).asObject();
+        ONode tmp = new ONode(curOpts).asObject();
 
         try {
             if (isWriteClassName(opts0, bean)) {
@@ -174,7 +177,16 @@ public class BeanEncoder {
                     continue;
                 }
 
-                ONode propertyNode = encodeBeanPropertyToNode(bean, property);
+                final ONode propertyNode;
+                if (attr.getExcludeFeatures() == 0L) {
+                    propertyNode = encodeBeanPropertyToNode(bean, property);
+                } else {
+                    //属性级排除全局特性（异常会终止整个编码，无需 finally 恢复）
+                    final Options savedOpts = curOpts;
+                    curOpts = savedOpts.deriveWithout(attr.getExcludeFeatures());
+                    propertyNode = encodeBeanPropertyToNode(bean, property);
+                    curOpts = savedOpts;
+                }
 
                 if (propertyNode != null) {
                     if (attr.isFlat()) {
@@ -200,7 +212,7 @@ public class BeanEncoder {
         ONodeAttrHolder attr = property.getDigest();
 
         if (attr.getEncoder() != null) {
-            propNode = attr.getEncoder().encode(new EncodeContext(opts0, attr, propValue), propValue, new ONode(opts0));
+            propNode = attr.getEncoder().encode(new EncodeContext(curOpts, attr, propValue), propValue, new ONode(curOpts));
         } else {
             if (propValue == null) {
                 TypeEggg ptw = property.getTypeEggg();
@@ -242,7 +254,7 @@ public class BeanEncoder {
             if (propValue instanceof Date) {
                 if (Asserts.isNotEmpty(attr.getFormat())) {
                     String dateStr = attr.formatDate((Date) propValue);
-                    propNode = new ONode(opts0, dateStr);
+                    propNode = new ONode(curOpts, dateStr);
                 }
             }
 
@@ -256,7 +268,7 @@ public class BeanEncoder {
 
     // 处理数组类型
     private ONode encodeArrayToNode(Object array) throws Throwable {
-        ONode tmp = new ONode(opts0).asArray();
+        ONode tmp = new ONode(curOpts).asArray();
         int length = Array.getLength(array);
         for (int i = 0; i < length; i++) {
             tmp.add(encodeValueToNode(Array.get(array, i), null));
@@ -266,7 +278,7 @@ public class BeanEncoder {
 
     // 处理集合类型
     private ONode encodeCollectionToNode(Iterable<?> iterable) throws Throwable {
-        ONode tmp = new ONode(opts0).asArray();
+        ONode tmp = new ONode(curOpts).asArray();
         for (Object item : iterable) {
             tmp.add(encodeValueToNode(item, null));
         }
@@ -282,7 +294,7 @@ public class BeanEncoder {
         }
 
         try {
-            ONode tmp = new ONode(opts0).asObject();
+            ONode tmp = new ONode(curOpts).asObject();
 
             if (isWriteClassName(opts0, map)) {
                 tmp.set(opts0.getTypePropertyName(), map.getClass().getName());

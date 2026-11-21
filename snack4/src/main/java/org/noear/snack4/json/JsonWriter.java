@@ -83,6 +83,18 @@ public class JsonWriter {
         }
     }
 
+    /**
+     * 是否有值格式特性（节点自身选项排除的特性不生效，见属性级 excludeFeatures）
+     */
+    private boolean hasValueFeature(ONode node, Feature feature) {
+        if (opts.hasFeature(feature)) {
+            Options nodeOpts = node.options();
+            return nodeOpts == opts || (nodeOpts.getWriteExcludes() & feature.mask()) == 0L;
+        } else {
+            return false;
+        }
+    }
+
     public void write(ONode node) throws IOException {
         switch (node.type()) {
             case Object:
@@ -95,23 +107,23 @@ public class JsonWriter {
                 writeString(node.getString());
                 break;
             case Number:
-                if (opts.hasFeature(Feature.Write_NumbersAsString)) {
+                if (hasValueFeature(node, Feature.Write_NumbersAsString)) {
                     writeString(String.valueOf(node.getValue()));
                 } else {
-                    writeNumber(node.getNumber());
+                    writeNumber(node, node.getNumber());
                 }
                 break;
             case Date:
-                if (opts.hasFeature(Feature.Write_UseDateFormat)) {
+                if (hasValueFeature(node, Feature.Write_UseDateFormat)) {
                     writeString(DateUtil.format(node.getDate(),
                             opts.getDateFormat(),
                             opts.getZoneId()));
                 } else {
-                    writeNumber(node.getDate().getTime());
+                    writeNumber(node, node.getDate().getTime());
                 }
                 break;
             case Boolean:
-                if (opts.hasFeature(Feature.Write_BooleanAsNumber)) {
+                if (hasValueFeature(node, Feature.Write_BooleanAsNumber)) {
                     writer.write(node.getBoolean() ? "1" : "0");
                 } else {
                     writer.write(node.getBoolean() ? "true" : "false");
@@ -189,22 +201,22 @@ public class JsonWriter {
         }
     }
 
-    private void writeNumber(Number num) throws IOException {
-        if (opts.hasFeature(Feature.Write_DoubleAsString) && num instanceof Double) {
+    private void writeNumber(ONode node, Number num) throws IOException {
+        if (num instanceof Double && hasValueFeature(node, Feature.Write_DoubleAsString)) {
             writer.write('"');
             writer.write(num.toString());
             writer.write('"');
             return;
         }
 
-        if (opts.hasFeature(Feature.Write_LongAsString) && num instanceof Long) {
+        if (num instanceof Long && hasValueFeature(node, Feature.Write_LongAsString)) {
             writer.write('"');
             writer.write(num.toString());
             writer.write('"');
             return;
         }
 
-        if (opts.hasFeature(Feature.Write_BigDecimalAsPlain) && num instanceof BigDecimal) {
+        if (num instanceof BigDecimal && hasValueFeature(node, Feature.Write_BigDecimalAsPlain)) {
             writer.write('"');
             writer.write(((BigDecimal) num).toPlainString());
             writer.write('"');
@@ -213,7 +225,7 @@ public class JsonWriter {
 
         writer.write(num.toString());
 
-        if (opts.hasFeature(Feature.Write_NumberTypeSuffix)) {
+        if (hasValueFeature(node, Feature.Write_NumberTypeSuffix)) {
             if (num instanceof Double) {
                 writer.write('D');
             } else if (num instanceof Float) {

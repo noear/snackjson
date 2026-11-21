@@ -82,6 +82,16 @@ public @interface ONodeAttr {
     Feature[] features() default {};
 
     /**
+     * 排除的全局写入特性（作用于属性值及其子树）
+     *
+     * <p>仅支持值格式类特性：Write_NumbersAsString, Write_LongAsString, Write_DoubleAsString,
+     * Write_BigDecimalAsPlain, Write_NumberTypeSuffix, Write_BooleanAsNumber, Write_UseDateFormat</p>
+     *
+     * @since 4.0.60
+     */
+    Feature[] excludeFeatures() default {};
+
+    /**
      * 乎略
      */
     boolean ignore() default false;

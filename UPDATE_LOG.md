@@ -1,3 +1,19 @@
+### 4.0.60
+
+* 添加 `@ONodeAttr(excludeFeatures=...)` 属性级排除全局写入特性（issue #43）
+* 优化 `Options` 只读检查与字段复制的内部实现（无行为变化）
+
+```java
+public class User {
+    public long id;
+
+    @ONodeAttr(excludeFeatures = Feature.Write_LongAsString)
+    public long version;
+}
+
+ONode.serialize(user, Feature.Write_LongAsString); //{"id":"1","version":2}
+```
+
 ### 4.0.59
 
 * 修复 BeanDecoder 实体类 `@ONodeAttr(creator=...)` 失效的问题

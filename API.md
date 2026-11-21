@@ -127,3 +127,28 @@
 +deserialize(source:String, type:TypeRef, opts:Options) -> T         //反序列化
 ```
 
+## 属性级特性（@ONodeAttr）
+
+```java
+public class User {
+    public long id;          //跟随全局：开启 Write_LongAsString 时输出 "123"
+
+    @ONodeAttr(features = Feature.Write_LongAsString)
+    public long code;        //属性开启：无论全局如何，都输出 "123"
+
+    @ONodeAttr(excludeFeatures = Feature.Write_LongAsString)
+    public long version;     //属性排除（4.0.60+）：即使全局开启，也输出 123
+}
+
+ONode.serialize(user, Feature.Write_LongAsString); //{"id":"1","code":"2","version":3}
+```
+
+`excludeFeatures` 说明：
+
+* 作用范围：属性值及其整棵子树（如 `List<Long>`、嵌套对象、Map 值）
+* 优先级：属性 `features`（开启） > 属性 `excludeFeatures`（排除） > 全局 Options
+* 可排除的特性（仅值格式类）：`Write_NumbersAsString`、`Write_LongAsString`、`Write_DoubleAsString`、`Write_BigDecimalAsPlain`、`Write_NumberTypeSuffix`、`Write_BooleanAsNumber`、`Write_UseDateFormat`。填了其它特性，或同一特性同时出现在 `features` 与 `excludeFeatures` 中时，解析类信息时会输出 warn 日志并忽略该项（冲突时以 `features` 开启为准），不会抛异常
+* 按字面排除：全局同时开启 `Write_NumbersAsString` 与 `Write_LongAsString` 时，需两个都排除
+* 限制：只对框架编码产生的节点生效。属性值（或 Map/集合里的元素）本身是 ONode 实例、或自定义编码器返回自己持有的 ONode 时，这些节点不享受排除（排除不会向下渗透到它们），也不会被修改；从中间节点调用 `toJson()` 时，仍按原有规则以起点节点的 Options 作为全局选项；只对属性（字段/getter）生效，不对类注解生效
+* 实现上不增加节点内存：属性值的子树在编码时直接使用一个共享编解码仓库的只读派生 Options（内部按掩码缓存）。因此这些节点的 `options()` 为只读，不能再修改
+
