@@ -830,10 +830,44 @@ public class JsonReader {
         }
 
         private char peekChar(int offset) throws IOException {
-            if (bufferPosition + offset >= bufferLimit && !fillBuffer()) {
-                return 0;
+            int idx = bufferPosition + offset;
+            if (idx < bufferLimit) {
+                return buffer[idx];
             }
-            return (bufferPosition + offset < bufferLimit) ? buffer[bufferPosition + offset] : 0;
+
+            if (offset == 0) {
+                return fillBuffer() ? buffer[bufferPosition] : 0;
+            }
+
+            // 跨越缓冲区末尾：需保留未读部分并补读（不能直接返回 0）
+            return ensureAvailable(offset + 1) ? buffer[bufferPosition + offset] : 0;
+        }
+
+        /**
+         * 确保至少有 n 个可读字符（会把未读部分前移到缓冲区头部）
+         */
+        private boolean ensureAvailable(int n) throws IOException {
+            int remain = bufferLimit - bufferPosition;
+            if (remain < 0) {
+                remain = 0;
+            }
+
+            if (bufferPosition > 0 && remain > 0) {
+                System.arraycopy(buffer, bufferPosition, buffer, 0, remain);
+            }
+
+            bufferPosition = 0;
+            bufferLimit = remain;
+
+            while (bufferLimit < n) {
+                int r = reader.read(buffer, bufferLimit, buffer.length - bufferLimit);
+                if (r <= 0) {
+                    return false;
+                }
+                bufferLimit += r;
+            }
+
+            return true;
         }
 
         private boolean fillBuffer() throws IOException {

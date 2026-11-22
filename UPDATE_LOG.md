@@ -1,3 +1,8 @@
+### 4.0.61
+
+* eggg 升为 1.1.5
+* 修复 JsonReader 在 `new Date(` 恰好跨越读取缓冲区边界时解析失败的问题
+
 ### 4.0.60
 
 * 添加 `@ONodeAttr(excludeFeatures=...)` 属性级排除全局写入特性（issue #43）
